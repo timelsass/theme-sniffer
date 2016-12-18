@@ -48,16 +48,16 @@ function ns_theme_check_render_output() {
 		return;
 	}
 
-	// ns_theme_check_do_sniff( $_POST['themename'] );
+	ns_theme_check_do_sniff( $_POST['themename'] );
 
 }
 
 function ns_theme_check_do_sniff( $theme ) {
 
-	require_once( __DIR__ . '/vendor/autoload.php' );
+	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
 	// Path to WordPress Theme coding standard.
-	PHP_CodeSniffer::setConfigData( 'installed_paths', dirname(__FILE__) . '/vendor/wp-coding-standards/wpcs/', true );
+	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
 
 	// Initialise CodeSniffer.
 	$phpcs = new PHP_CodeSniffer_CLI();
