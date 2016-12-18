@@ -20,4 +20,5 @@ define( 'NS_THEME_CHECK_BASENAME', basename( dirname( __FILE__ ) ) );
 define( 'NS_THEME_CHECK_DIR', rtrim( plugin_dir_path( __FILE__ ), '/' ) );
 define( 'NS_THEME_CHECK_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
 
+require_once NS_THEME_CHECK_DIR . '/inc/helpers.php';
 require_once NS_THEME_CHECK_DIR . '/inc/admin.php';

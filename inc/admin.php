@@ -12,6 +12,9 @@ function ns_theme_check_render_admin_page() {
 	?>
 	<div class="wrap">
 		<h1><?php esc_html_e( 'NS Theme Check', 'ns-theme-check' ); ?></h1>
+		<hr />
+		<?php ns_theme_check_render_form(); ?>
+		<hr />
 
 	</div><!-- .wrap -->
 	<?php
