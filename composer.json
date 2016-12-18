@@ -6,8 +6,14 @@
 		"name": "Nilambar Sharma",
 		"email": "nilambar@outlook.com"
 	}],
+	"repositories": [
+	        {
+	            "type": "vcs",
+	            "url": "https://github.com/WPTRT/WordPress-Coding-Standards"
+	        }
+	    ],
 	"require": {
-		"squizlabs/php_codesniffer": "2.6.*",
-		"wp-coding-standards/wpcs": "dev-master"
+		"squizlabs/php_codesniffer": "2.7.*",
+		"wp-coding-standards/wpcs": "dev-feature/theme-review-sniffs"
 	}
 }
