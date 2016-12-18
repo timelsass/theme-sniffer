@@ -14,13 +14,19 @@ function ns_theme_check_render_form() {
 		return;
 	}
 
+	$current_theme = get_stylesheet();
+
+	if ( ! empty( $_POST['themename'] ) ) {
+		$current_theme = $_POST['themename'];
+	}
+
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
 		<label for="themename"><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?>
 			<select name="themename">
 			<?php foreach ( $themes as $key => $value ) : ?>
-				<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $value ); ?></option>
+				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
 			<?php endforeach; ?>
 			</select>
 		</label>
