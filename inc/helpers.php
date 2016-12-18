@@ -48,4 +48,31 @@ function ns_theme_check_render_output() {
 		return;
 	}
 
+	// ns_theme_check_do_sniff( $_POST['themename'] );
+
+}
+
+function ns_theme_check_do_sniff( $theme ) {
+
+	require_once( __DIR__ . '/vendor/autoload.php' );
+
+	// Path to WordPress Theme coding standard.
+	PHP_CodeSniffer::setConfigData( 'installed_paths', dirname(__FILE__) . '/vendor/wp-coding-standards/wpcs/', true );
+
+	// Initialise CodeSniffer.
+	$phpcs = new PHP_CodeSniffer_CLI();
+	$phpcs->checkRequirements();
+
+	// Set CLI arguments.
+	$values['files']       = get_theme_root() . '/' . $theme;
+	$values['reportWidth'] = '9999';
+	$values['standard']    = 'WordPress-Theme';
+
+	// Sniff theme files.
+	echo '<div class="report" style="margin: 1em;"><pre>';
+	$phpcs->process( $values );
+	echo '</pre></div>';
+
+	return;
+
 }

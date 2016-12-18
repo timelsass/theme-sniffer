@@ -1,0 +1,13 @@
+{
+	"name": "ernilambar/ns-theme-check",
+	"type": "wordpress-plugin",
+	"description": "Theme Check with sniff",
+	"authors": [{
+		"name": "Nilambar Sharma",
+		"email": "nilambar@outlook.com"
+	}],
+	"require": {
+		"squizlabs/php_codesniffer": "2.6.*",
+		"wp-coding-standards/wpcs": "dev-master"
+	}
+}
