@@ -15,7 +15,7 @@ function ns_theme_check_render_admin_page() {
 		<hr />
 		<?php ns_theme_check_render_form(); ?>
 		<hr />
-
+		<?php ns_theme_check_render_output(); ?>
 	</div><!-- .wrap -->
 	<?php
 }
