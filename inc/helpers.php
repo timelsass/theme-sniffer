@@ -59,6 +59,9 @@ function ns_theme_check_do_sniff( $theme ) {
 	// Path to WordPress Theme coding standard.
 	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
 
+	// Set default standard.
+	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
+
 	// Initialise CodeSniffer.
 	$phpcs = new PHP_CodeSniffer_CLI();
 	$phpcs->checkRequirements();
@@ -66,7 +69,6 @@ function ns_theme_check_do_sniff( $theme ) {
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme;
 	$values['reportWidth'] = '9999';
-	$values['standard']    = 'WordPress-Theme';
 
 	// Sniff theme files.
 	echo '<div class="report" style="margin: 1em;"><pre>';
