@@ -5,6 +5,7 @@ Theme Check plugin using sniffs.
 ## Installing
 
 * Clone this repo under `wp-content/plugins/`
+* Run `composer install`
 * Activate plugin
 
 ## Using

@@ -1,3 +1,2 @@
 node_modules/
-vendor/wp-coding-standards/wpcs/.gitignore
-vendor/squizlabs/php_codesniffer/.gitignore
+vendor/
