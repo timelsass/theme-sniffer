@@ -86,18 +86,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/WPTRT/WordPress-Coding-Standards.git",
-            "reference": "a49521ae9c41db7214f3fde32771e0e2e2dbb2ef"
+            "reference": "13e91466d784e633a3f35bb8ab31a05c472dc14b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/WPTRT/WordPress-Coding-Standards/zipball/a49521ae9c41db7214f3fde32771e0e2e2dbb2ef",
-            "reference": "a49521ae9c41db7214f3fde32771e0e2e2dbb2ef",
+            "url": "https://api.github.com/repos/WPTRT/WordPress-Coding-Standards/zipball/13e91466d784e633a3f35bb8ab31a05c472dc14b",
+            "reference": "13e91466d784e633a3f35bb8ab31a05c472dc14b",
             "shasum": ""
         },
         "require": {
             "squizlabs/php_codesniffer": "^2.7"
         },
-        "time": "2016-12-17 16:37:46",
+        "time": "2016-12-19 22:49:44",
         "type": "library",
         "installation-source": "source",
         "scripts": {
