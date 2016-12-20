@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       NS Theme Check
- * Plugin URI:        #
- * Description:       Sniff Theme Check
- * Version:           1.0.0
+ * Plugin URI:
+ * Description:       Theme Check using sniffs.
+ * Version:           0.1.0
  * Author:            Nilambar Sharma
- * Author URI:        http://www.nilambar.net
+ * Author URI:        http://nilambar.net
  * Text Domain:       ns-theme-check
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
