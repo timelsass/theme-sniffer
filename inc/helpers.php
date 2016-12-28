@@ -20,6 +20,11 @@ function ns_theme_check_render_form() {
 		$current_theme = $_POST['themename'];
 	}
 
+	$hide_warning = 0;
+	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
+		$hide_warning = 1;
+	}
+
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
@@ -31,6 +36,7 @@ function ns_theme_check_render_form() {
 			</select>
 		</label>
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
+		&nbsp;<label for=""><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
 	</form>
 	<?php
 }
@@ -48,11 +54,19 @@ function ns_theme_check_render_output() {
 		return;
 	}
 
-	ns_theme_check_do_sniff( $_POST['themename'] );
+	$args = array(
+		'show_warnings' => 1,
+	);
+
+	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
+		$args['show_warnings'] = 0;
+	}
+
+	ns_theme_check_do_sniff( $_POST['themename'], $args );
 
 }
 
-function ns_theme_check_do_sniff( $theme ) {
+function ns_theme_check_do_sniff( $theme, $args = array() ) {
 
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
@@ -61,6 +75,10 @@ function ns_theme_check_do_sniff( $theme ) {
 
 	// Set default standard.
 	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
+
+	if ( isset( $args['show_warnings'] ) ) {
+		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
+	}
 
 	// Initialise CodeSniffer.
 	$phpcs = new PHP_CodeSniffer_CLI();
