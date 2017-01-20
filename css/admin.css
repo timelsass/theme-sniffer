@@ -1,3 +1,13 @@
 .theme-check-report {
 	margin: 1em;
 }
+
+.theme-check-report-json .summary-list {
+	list-style-type: disc;
+	list-style-position: inside;
+}
+
+.theme-check-report-json .summary-list .item-field {
+	font-weight: 700;
+	margin-right: 5px;
+}

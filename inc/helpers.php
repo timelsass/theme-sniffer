@@ -152,7 +152,17 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
  * @param string $json JSON data.
  */
 function ns_theme_check_render_json_report( $json ) {
-	echo '<div class="theme-check-report theme-check-report-json">';
-	print_r( $json );
-	echo '</div>';
+	?>
+	<div class="theme-check-report theme-check-report-json">
+
+		<div class="summary">
+			<h4><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h4>
+			<ul class="summary-list">
+				<li><span class="item-field"><?php esc_html_e( 'ERRORS:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->errors ); ?></li>
+				<li><span class="item-field"><?php esc_html_e( 'WARNING:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
+			</ul><!-- .summary-list -->
+		</div><!-- .summary -->
+
+	</div><!-- .theme-check-report .theme-check-report-json -->
+	<?php
 }
