@@ -193,6 +193,21 @@ function ns_theme_check_render_json_report( $json ) {
 							<?php echo sprintf( esc_html__( '%1$d errors and %2$d warnings' ), absint( $errors ), absint( $warnings ) ); ?>
 						</div><!-- .report-file-heading-meta -->
 
+						<?php if ( ! empty( $file->messages ) && is_array( $file->messages ) ) : ?>
+
+							<table class="report-table">
+								<?php foreach ( $file->messages as $item ) : ?>
+									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'error' : 'warning'; ?>
+									<tr class="item-type-<?php echo esc_attr( $row_class ); ?>">
+										<td><?php echo absint( $item->line ) . ', ' . absint( $item->column ); ?></td>
+										<td><?php echo esc_html( $item->type ); ?></td>
+										<td><?php echo esc_html( $item->message ); ?></td>
+									</tr>
+								<?php endforeach; ?>
+							</table>
+
+						<?php endif; ?>
+
 					</div><!-- .report-file-item -->
 
 				<?php endforeach; ?>

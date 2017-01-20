@@ -13,7 +13,9 @@
 }
 
 .theme-check-report-json .report-file-item {
+	padding-bottom: 10px;
 	margin-bottom: 10px;
+	border-bottom: 1px #DDD dashed;
 }
 
 .theme-check-report-json .report-file-item .report-file-heading {
@@ -25,6 +27,20 @@
 	text-transform: uppercase;
 }
 
-.theme-check-report-json .report-file-item .report-file-heading-meta{
+.theme-check-report-json .report-file-item .report-file-heading-meta {
 	font-style: italic;
+}
+
+.theme-check-report-json .report-table {
+	margin: 5px 0;
+
+}
+
+.theme-check-report-json .report-table .item-type-error{
+	color: #D00;
+}
+
+.theme-check-report-json .report-table td{
+	padding: 0 10px;
+
 }
