@@ -136,10 +136,23 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 		$raw_output = ob_get_clean();
 		$output = json_decode( $raw_output );
 		if ( ! empty( $output ) ) {
-			print_r( $output );
+			ns_theme_check_render_json_report( $output );
 		}
 	}
 
 	return;
 
+}
+
+/**
+ * Render JSON data in cleaner format.
+ *
+ * @since 0.1.0
+ *
+ * @param string $json JSON data.
+ */
+function ns_theme_check_render_json_report( $json ) {
+	echo '<div class="theme-check-report theme-check-report-json">';
+	print_r( $json );
+	echo '</div>';
 }

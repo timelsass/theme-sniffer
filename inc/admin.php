@@ -34,3 +34,18 @@ function ns_theme_check_render_admin_page() {
 	</div>
 	<?php
 }
+
+/**
+ * Load admin scripts and styles.
+ *
+ * @since 0.1.2
+ *
+ * @param string $hook Admin hook name.
+ */
+function ns_theme_check_admin_scripts( $hook ) {
+
+	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.2' );
+
+}
+
+add_action( 'admin_menu', 'ns_theme_check_admin_scripts' );
