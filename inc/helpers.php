@@ -187,7 +187,13 @@ function ns_theme_check_render_json_report( $json ) {
 
 					<div class="report-file-item">
 						<div class="report-file-heading">
-							<span class="heading-field"><?php esc_html_e( 'File:', 'ns-theme-check' ); ?></span><?php echo $file_key; ?>
+							<span class="heading-field"><?php esc_html_e( 'File:', 'ns-theme-check' ); ?></span>
+							<?php
+								$exploded_file_path = explode( '/themes/', $file_key );
+								$file_name = array_pop( $exploded_file_path );
+							?>
+							<?php echo $file_name; ?>
+
 						</div><!-- .report-file-heading -->
 						<div class="report-file-heading-meta">
 							<?php echo sprintf( esc_html__( '%1$d errors and %2$d warnings' ), absint( $errors ), absint( $warnings ) ); ?>
