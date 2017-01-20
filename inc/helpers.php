@@ -77,6 +77,7 @@ function ns_theme_check_render_output() {
 
 	$args = array(
 		'show_warnings' => 1,
+		'raw_output'    => 0,
 	);
 
 	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
@@ -120,11 +121,24 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme;
 	$values['reportWidth'] = '9999';
+	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
+		$values['reports']['json'] = null;
+	}
 
 	// Sniff theme files.
-	echo '<div class="report" style="margin: 1em;"><pre>';
-	$phpcs->process( $values );
-	echo '</pre></div>';
+	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
+		echo '<div class="theme-check-report theme-check-report-raw"><pre>';
+		$phpcs->process( $values );
+		echo '</pre></div>';
+	} else {
+		ob_start();
+		$phpcs->process( $values );
+		$raw_output = ob_get_clean();
+		$output = json_decode( $raw_output );
+		if ( ! empty( $output ) ) {
+			print_r( $output );
+		}
+	}
 
 	return;
 
