@@ -158,10 +158,43 @@ function ns_theme_check_render_json_report( $json ) {
 		<div class="summary">
 			<h4><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h4>
 			<ul class="summary-list">
-				<li><span class="item-field"><?php esc_html_e( 'ERRORS:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->errors ); ?></li>
-				<li><span class="item-field"><?php esc_html_e( 'WARNING:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
+				<li><span class="item-field"><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->errors ); ?></li>
+				<li><span class="item-field"><?php esc_html_e( 'Warning:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
 			</ul><!-- .summary-list -->
 		</div><!-- .summary -->
+
+		<?php
+			$files = '';
+			if ( isset( $json->files ) ) {
+				$files = $json->files;
+			}
+		?>
+
+		<?php if ( $files ) : ?>
+
+			<div class="report-files">
+				<h4><?php esc_html_e( 'Details', 'ns-theme-check' ); ?></h4>
+				<?php foreach ( $files as $file_key => $file ) : ?>
+
+					<?php
+						$errors   = $file->errors;
+						$warnings = $file->warnings;
+					?>
+
+					<div class="report-file-item">
+						<div class="report-file-heading">
+							<span class="heading-field"><?php esc_html_e( 'File:', 'ns-theme-check' ); ?></span><?php echo $file_key; ?>
+						</div><!-- .report-file-heading -->
+						<div class="report-file-heading-meta">
+							<?php echo sprintf( esc_html__( '%1$d errors and %2$d warnings' ), absint( $errors ), absint( $warnings ) ); ?>
+						</div><!-- .report-file-heading-meta -->
+
+					</div><!-- .report-file-item -->
+
+				<?php endforeach; ?>
+			</div><!-- .report-files -->
+
+		<?php endif; ?>
 
 	</div><!-- .theme-check-report .theme-check-report-json -->
 	<?php

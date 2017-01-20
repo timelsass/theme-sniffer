@@ -11,3 +11,15 @@
 	font-weight: 700;
 	margin-right: 5px;
 }
+
+.theme-check-report-json .report-file-item {
+	margin-bottom: 10px;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading {
+	font-weight: 700;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading .heading-field {
+	margin-right: 5px;
+}
