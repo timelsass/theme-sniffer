@@ -128,8 +128,8 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
 		echo '<div class="theme-check-report theme-check-report-raw">';
-        ns_theme_check_show_repot_info();
-        echo '<pre>';
+		ns_theme_check_show_repot_info();
+		echo '<pre>';
 		$phpcs->process( $values );
 		echo '</pre></div>';
 	} else {
@@ -156,7 +156,7 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 function ns_theme_check_render_json_report( $json ) {
 	?>
 	<div class="theme-check-report theme-check-report-json">
-        <?php ns_theme_check_show_repot_info(); ?>
+		<?php ns_theme_check_show_repot_info(); ?>
 
 		<div class="summary">
 			<h4><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h4>
@@ -165,13 +165,13 @@ function ns_theme_check_render_json_report( $json ) {
 				<li><span class="item-field"><?php esc_html_e( 'Warning:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
 			</ul><!-- .summary-list -->
 		</div><!-- .summary -->
-        <hr />
+		<hr />
 
 		<?php
-			$files = '';
-			if ( isset( $json->files ) ) {
-				$files = $json->files;
-			}
+		$files = '';
+		if ( isset( $json->files ) ) {
+			$files = $json->files;
+		}
 		?>
 
 		<?php if ( $files ) : ?>
@@ -181,12 +181,12 @@ function ns_theme_check_render_json_report( $json ) {
 				<?php foreach ( $files as $file_key => $file ) : ?>
 
 					<?php
-						$errors   = $file->errors;
-						$warnings = $file->warnings;
+					$errors   = $file->errors;
+					$warnings = $file->warnings;
 
-						if ( 0 === absint( $errors ) && 0 === absint( $warnings ) ) {
-							continue;
-						}
+					if ( 0 === absint( $errors ) && 0 === absint( $warnings ) ) {
+						continue;
+					}
 					?>
 
 					<div class="report-file-item">
@@ -196,7 +196,7 @@ function ns_theme_check_render_json_report( $json ) {
 								$exploded_file_path = explode( '/themes/', $file_key );
 								$file_name = array_pop( $exploded_file_path );
 							?>
-							<?php echo $file_name; ?>
+							<?php echo esc_html( $file_name ); ?>
 
 						</div><!-- .report-file-heading -->
 						<div class="report-file-heading-meta">
@@ -235,8 +235,8 @@ function ns_theme_check_render_json_report( $json ) {
  * @since 0.1.2
  */
 function ns_theme_check_show_repot_info() {
-    ?>
-    <p><strong><?php esc_html_e( 'Note: Errors need to be fixed and Warnings are things that need to be checked manually.', 'ns-theme-check' ); ?></strong></p>
-    <hr />
-    <?php
+	?>
+	<p><strong><?php esc_html_e( 'Note: Errors need to be fixed and Warnings are things that need to be checked manually.', 'ns-theme-check' ); ?></strong></p>
+	<hr />
+	<?php
 }
