@@ -1,0 +1,46 @@
+.theme-check-report {
+	margin: 1em;
+}
+
+.theme-check-report-json .summary-list {
+	list-style-type: disc;
+	list-style-position: inside;
+}
+
+.theme-check-report-json .summary-list .item-field {
+	font-weight: 700;
+	margin-right: 5px;
+}
+
+.theme-check-report-json .report-file-item {
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	border-bottom: 1px #DDD dashed;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading {
+	font-weight: 700;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading .heading-field {
+	margin-right: 5px;
+	text-transform: uppercase;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading-meta {
+	font-style: italic;
+}
+
+.theme-check-report-json .report-table {
+	margin: 5px 0;
+
+}
+
+.theme-check-report-json .report-table .item-type-error{
+	color: #D00;
+}
+
+.theme-check-report-json .report-table td{
+	padding: 0 10px;
+
+}
