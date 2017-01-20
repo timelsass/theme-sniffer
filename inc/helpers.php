@@ -1,5 +1,15 @@
 <?php
+/**
+ * Helper functions
+ *
+ * @package NS_Theme_Check
+ */
 
+/**
+ * Render form.
+ *
+ * @since 0.1.0
+ */
 function ns_theme_check_render_form() {
 	$all_themes = wp_get_themes();
 	$themes = array();
@@ -41,6 +51,11 @@ function ns_theme_check_render_form() {
 	<?php
 }
 
+/**
+ * Render sniff results.
+ *
+ * @since 0.1.0
+ */
 function ns_theme_check_render_output() {
 
 	// Bail if empty.
@@ -66,6 +81,14 @@ function ns_theme_check_render_output() {
 
 }
 
+/**
+ * Perform sniff check.
+ *
+ * @since 0.1.0
+ *
+ * @param string $theme Theme slug.
+ * @param array  $args Arguments.
+ */
 function ns_theme_check_do_sniff( $theme, $args = array() ) {
 
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
