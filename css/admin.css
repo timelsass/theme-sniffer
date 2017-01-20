@@ -22,4 +22,9 @@
 
 .theme-check-report-json .report-file-item .report-file-heading .heading-field {
 	margin-right: 5px;
+	text-transform: uppercase;
+}
+
+.theme-check-report-json .report-file-item .report-file-heading-meta{
+	font-style: italic;
 }

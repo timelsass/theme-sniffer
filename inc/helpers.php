@@ -179,6 +179,10 @@ function ns_theme_check_render_json_report( $json ) {
 					<?php
 						$errors   = $file->errors;
 						$warnings = $file->warnings;
+
+						if ( 0 === absint( $errors ) && 0 === absint( $warnings ) ) {
+							continue;
+						}
 					?>
 
 					<div class="report-file-item">
