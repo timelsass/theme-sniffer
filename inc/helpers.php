@@ -127,7 +127,9 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
-		echo '<div class="theme-check-report theme-check-report-raw"><pre>';
+		echo '<div class="theme-check-report theme-check-report-raw">';
+        ns_theme_check_show_repot_info();
+        echo '<pre>';
 		$phpcs->process( $values );
 		echo '</pre></div>';
 	} else {
@@ -154,6 +156,7 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 function ns_theme_check_render_json_report( $json ) {
 	?>
 	<div class="theme-check-report theme-check-report-json">
+        <?php ns_theme_check_show_repot_info(); ?>
 
 		<div class="summary">
 			<h4><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h4>
@@ -162,6 +165,7 @@ function ns_theme_check_render_json_report( $json ) {
 				<li><span class="item-field"><?php esc_html_e( 'Warning:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
 			</ul><!-- .summary-list -->
 		</div><!-- .summary -->
+        <hr />
 
 		<?php
 			$files = '';
@@ -223,4 +227,16 @@ function ns_theme_check_render_json_report( $json ) {
 
 	</div><!-- .theme-check-report .theme-check-report-json -->
 	<?php
+}
+
+/**
+ * Show info about report.
+ *
+ * @since 0.1.2
+ */
+function ns_theme_check_show_repot_info() {
+    ?>
+    <p><strong><?php esc_html_e( 'Note: Errors need to be fixed and Warnings are things that need to be checked manually.', 'ns-theme-check' ); ?></strong></p>
+    <hr />
+    <?php
 }
