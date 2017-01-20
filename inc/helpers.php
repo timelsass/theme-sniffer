@@ -199,7 +199,7 @@ function ns_theme_check_render_json_report( $json ) {
 								<?php foreach ( $file->messages as $item ) : ?>
 									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'error' : 'warning'; ?>
 									<tr class="item-type-<?php echo esc_attr( $row_class ); ?>">
-										<td><?php echo absint( $item->line ) . ', ' . absint( $item->column ); ?></td>
+										<td><?php printf( esc_html__( 'Line: %d'), absint( $item->line ) ); ?></td>
 										<td><?php echo esc_html( $item->type ); ?></td>
 										<td><?php echo esc_html( $item->message ); ?></td>
 									</tr>
