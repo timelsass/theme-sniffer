@@ -35,6 +35,11 @@ function ns_theme_check_render_form() {
 		$hide_warning = 1;
 	}
 
+	$raw_output = 0;
+	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
+		$raw_output = 1;
+	}
+
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
@@ -47,6 +52,7 @@ function ns_theme_check_render_form() {
 		</label>
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
 		&nbsp;<label for=""><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
+		&nbsp;<label for=""><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
 	</form>
 	<?php
 }
@@ -75,6 +81,10 @@ function ns_theme_check_render_output() {
 
 	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
 		$args['show_warnings'] = 0;
+	}
+
+	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
+		$args['raw_output'] = 1;
 	}
 
 	ns_theme_check_do_sniff( $_POST['themename'], $args );
