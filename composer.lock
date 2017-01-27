@@ -91,12 +91,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WPTRT/WordPress-Coding-Standards.git",
-                "reference": "754d4db2ef03d9724b3a90c6eb5805caff72ef06"
+                "reference": "4d8c2f8ee105a4d43f0204eb1d269811b97c15d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WPTRT/WordPress-Coding-Standards/zipball/754d4db2ef03d9724b3a90c6eb5805caff72ef06",
-                "reference": "754d4db2ef03d9724b3a90c6eb5805caff72ef06",
+                "url": "https://api.github.com/repos/WPTRT/WordPress-Coding-Standards/zipball/4d8c2f8ee105a4d43f0204eb1d269811b97c15d5",
+                "reference": "4d8c2f8ee105a4d43f0204eb1d269811b97c15d5",
                 "shasum": ""
             },
             "require": {
@@ -130,7 +130,7 @@
                 "issues": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/issues",
                 "source": "https://github.com/WPTRT/WordPress-Coding-Standards/tree/feature/theme-review-sniffs"
             },
-            "time": "2017-01-22 06:59:58"
+            "time": "2017-01-23 12:53:47"
         }
     ],
     "packages-dev": [],
