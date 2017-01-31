@@ -120,7 +120,7 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme;
-	$values['reportWidth'] = '100';
+	$values['reportWidth'] = '110';
 	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
 	}
