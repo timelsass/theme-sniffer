@@ -6,7 +6,7 @@ Theme Check plugin using sniffs. `WordPress-Theme` standard is used from [WPTRT/
 
 ### Option 1: Easy
 
-* Download [zip file](https://github.com/ernilambar/ns-theme-check/releases/download/0.1.2/ns-theme-check.0.1.2.zip)
+* Download [zip file](https://github.com/ernilambar/ns-theme-check/releases/download/0.1.2/ns-theme-check.0.1.2.zip). [Note: Please use this distribution plugin zip. Github provided zip will not work.]
 * Install this as you normally install a WordPress plugin
 * Activate plugin
 
