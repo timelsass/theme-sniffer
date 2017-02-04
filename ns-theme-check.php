@@ -34,7 +34,7 @@ require_once NS_THEME_CHECK_DIR . '/inc/admin.php';
  * @since 0.1.3
  */
 function ns_theme_check_plugin_settings_link( $links ) {
-	$theme_check_link = '<a href="themes.php?page=ns-theme-check">' . esc_attr( 'Theme Check Page', 'ns-theme-check' ) . '</a>';
+	$theme_check_link = '<a href="themes.php?page=ns-theme-check">' . esc_attr__( 'Theme Check Page', 'ns-theme-check' ) . '</a>';
 	array_unshift( $links, $theme_check_link );
 	return $links;
 }
