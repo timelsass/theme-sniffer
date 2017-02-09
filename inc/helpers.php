@@ -88,7 +88,7 @@ function ns_theme_check_render_output() {
 		$args['raw_output'] = 1;
 	}
 
-	ns_theme_check_do_sniff( $_POST['themename'], $args );
+	ns_theme_check_do_sniff( esc_html( $_POST['themename'] ), $args );
 
 }
 
@@ -97,10 +97,10 @@ function ns_theme_check_render_output() {
  *
  * @since 0.1.0
  *
- * @param string $theme Theme slug.
+ * @param string $theme_slug Theme slug.
  * @param array  $args Arguments.
  */
-function ns_theme_check_do_sniff( $theme, $args = array() ) {
+function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
@@ -109,6 +109,16 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 
 	// Set default standard.
 	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
+
+	// Set text domains.
+	$theme = wp_get_theme( $theme_slug );
+	$text_domains = array(
+		// Current theme text domain.
+		$theme->get( 'TextDomain' ),
+		// Frameworks.
+		'hybrid-core',
+	);
+	PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $text_domains ), true );
 
 	if ( isset( $args['show_warnings'] ) ) {
 		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
@@ -119,7 +129,7 @@ function ns_theme_check_do_sniff( $theme, $args = array() ) {
 	$phpcs->checkRequirements();
 
 	// Set CLI arguments.
-	$values['files']       = get_theme_root() . '/' . $theme;
+	$values['files']       = get_theme_root() . '/' . $theme_slug;
 	$values['reportWidth'] = '110';
 	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
