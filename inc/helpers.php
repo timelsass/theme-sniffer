@@ -11,6 +11,8 @@
  * @since 0.1.0
  */
 function ns_theme_check_render_form() {
+	global $ns_theme_check_standards;
+
 	$all_themes = wp_get_themes();
 	$themes = array();
 
@@ -40,8 +42,19 @@ function ns_theme_check_render_form() {
 		$raw_output = 1;
 	}
 
+	$standard_status = wp_list_pluck( $ns_theme_check_standards, 'default' );
+
+	if ( isset( $_POST['_wp_http_referer'] ) ) {
+		foreach ( $ns_theme_check_standards as $key => $standard ) {
+			if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+				$standard_status[ $key ] = 1;
+			} else {
+				$standard_status[ $key ] = 0;
+			}
+		}
+	}
 	?>
-	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post">
+	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post" class="frm-theme-check">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
 		<label for="themename"><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?>
 			<select name="themename">
@@ -53,6 +66,14 @@ function ns_theme_check_render_form() {
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
 		&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
 		&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
+		<br />
+		<div class="standards-wrap">
+		<?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?>&nbsp;
+			<?php foreach ( $ns_theme_check_standards as $key => $standard ) : ?>
+				<label for="<?php echo esc_attr( $key ); ?>"><input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> /><?php echo esc_html( $standard['label'] ); ?></label>&nbsp;
+
+			<?php endforeach; ?>
+		</div><!-- .standards-wrap -->
 	</form>
 	<?php
 }

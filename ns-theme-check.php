@@ -28,6 +28,32 @@ require_once NS_THEME_CHECK_DIR . '/inc/helpers.php';
 // Load admin.
 require_once NS_THEME_CHECK_DIR . '/inc/admin.php';
 
+$GLOBALS['ns_theme_check_standards'] = array(
+    'wordpress' => array(
+        'label'   => 'WordPress',
+        'default' => 0,
+        ),
+    'wordpress-core' => array(
+        'label'   => 'WordPress-Core',
+        'default' => 0,
+        ),
+    'wordpress-theme' => array(
+        'label'   => 'WordPress-Theme',
+        'default' => 1,
+        ),
+    'wordpress-docs' => array(
+        'label'   => 'WordPress-Docs',
+        'default' => 0,
+        ),
+    'wordpress-extra' => array(
+        'label'   => 'WordPress-Extra',
+        'default' => 0,
+        ),
+    'wordpress-vip' => array(
+        'label'   => 'WordPress-VIP',
+        'default' => 0,
+        ),
+);
 /**
  * Add go to theme check page link on plugin page.
  *
