@@ -11,6 +11,7 @@
  * @since 0.1.0
  */
 function ns_theme_check_render_form() {
+
 	global $ns_theme_check_standards;
 
 	$all_themes = wp_get_themes();
@@ -85,6 +86,8 @@ function ns_theme_check_render_form() {
  */
 function ns_theme_check_render_output() {
 
+	global $ns_theme_check_standards;
+
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
 		return;
@@ -107,6 +110,13 @@ function ns_theme_check_render_output() {
 
 	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
 		$args['raw_output'] = 1;
+	}
+
+	$args['standard'] = array();
+	foreach ( $ns_theme_check_standards as $key => $standard ) {
+		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+			$args['standard'][] = $standard['label'];
+		}
 	}
 
 	ns_theme_check_do_sniff( esc_html( $_POST['themename'] ), $args );
@@ -152,8 +162,13 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme_slug;
 	$values['reportWidth'] = '110';
+
 	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
+	}
+
+	if ( isset( $args['standard'] ) && ! empty( $args['standard'] ) ) {
+		$values['standard'] = $args['standard'];
 	}
 
 	// Sniff theme files.
