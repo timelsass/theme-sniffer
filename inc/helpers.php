@@ -65,11 +65,13 @@ function ns_theme_check_render_form() {
 			</select>
 		</label>
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
-		&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
-		&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
+		<div class="options-wrap">
+			<strong><?php esc_html_e( 'Options', 'ns-theme-check' ); ?>:</strong>&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
+			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
+		</div><!-- .options-wrap -->
 		<br />
 		<div class="standards-wrap">
-		<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
+			<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
 			<?php foreach ( $standards as $key => $standard ) : ?>
 				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
 					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
@@ -156,6 +158,9 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	if ( isset( $args['show_warnings'] ) ) {
 		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
 	}
+
+	$minimum_php = '5.2';
+	PHP_CodeSniffer::setConfigData( 'testVersion', $minimum_php . '-7.0', true );
 
 	// Initialise CodeSniffer.
 	$phpcs = new PHP_CodeSniffer_CLI();
@@ -303,7 +308,7 @@ function ns_theme_check_get_standards() {
 	$output = array(
 		'wordpress-theme' => array(
 			'label'       => 'WordPress-Theme',
-			'description' => 'Ruleset for WordPress theme reveiw requirements (Required)',
+			'description' => 'Ruleset for WordPress theme review requirements (Required)',
 			'default'     => 1,
 		),
 		'wordpress-core' => array(
