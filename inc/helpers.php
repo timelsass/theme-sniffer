@@ -11,6 +11,9 @@
  * @since 0.1.0
  */
 function ns_theme_check_render_form() {
+
+	$standards = ns_theme_check_get_standards();
+
 	$all_themes = wp_get_themes();
 	$themes = array();
 
@@ -40,8 +43,19 @@ function ns_theme_check_render_form() {
 		$raw_output = 1;
 	}
 
+	$standard_status = wp_list_pluck( $standards, 'default' );
+
+	if ( isset( $_POST['_wp_http_referer'] ) ) {
+		foreach ( $standards as $key => $standard ) {
+			if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+				$standard_status[ $key ] = 1;
+			} else {
+				$standard_status[ $key ] = 0;
+			}
+		}
+	}
 	?>
-	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post">
+	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post" class="frm-theme-check">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
 		<label for="themename"><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?>
 			<select name="themename">
@@ -53,6 +67,16 @@ function ns_theme_check_render_form() {
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
 		&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
 		&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
+		<br />
+		<div class="standards-wrap">
+		<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
+			<?php foreach ( $standards as $key => $standard ) : ?>
+				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
+					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
+					<?php echo '<strong>' . esc_html( $standard['label'] ) . '</strong>: ' . esc_html( $standard['description'] ); ?>
+				</label><br>
+			<?php endforeach; ?>
+		</div><!-- .standards-wrap -->
 	</form>
 	<?php
 }
@@ -63,6 +87,8 @@ function ns_theme_check_render_form() {
  * @since 0.1.0
  */
 function ns_theme_check_render_output() {
+
+	$standards = ns_theme_check_get_standards();
 
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
@@ -86,6 +112,13 @@ function ns_theme_check_render_output() {
 
 	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
 		$args['raw_output'] = 1;
+	}
+
+	$args['standard'] = array();
+	foreach ( $standards as $key => $standard ) {
+		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+			$args['standard'][] = $standard['label'];
+		}
 	}
 
 	ns_theme_check_do_sniff( esc_html( $_POST['themename'] ), $args );
@@ -131,8 +164,13 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme_slug;
 	$values['reportWidth'] = '110';
+
 	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
+	}
+
+	if ( isset( $args['standard'] ) && ! empty( $args['standard'] ) ) {
+		$values['standard'] = $args['standard'];
 	}
 
 	// Sniff theme files.
@@ -249,4 +287,45 @@ function ns_theme_check_show_repot_info() {
 	<p><strong><?php esc_html_e( 'Note: Errors need to be fixed and Warnings are things that need to be checked manually.', 'ns-theme-check' ); ?></strong></p>
 	<hr />
 	<?php
+}
+
+/**
+ * Returns standards.
+ *
+ * @since 0.1.3
+ *
+ * @return array Standards details.
+ */
+function ns_theme_check_get_standards() {
+
+	$output = array(
+		'wordpress-theme' => array(
+			'label'       => 'WordPress-Theme',
+			'description' => 'Ruleset for WordPress theme reveiw requirements (Required)',
+			'default'     => 1,
+		),
+		'wordpress-core' => array(
+			'label'       => 'WordPress-Core',
+			'description' => 'Main ruleset for WordPress core coding standards (Optional)',
+			'default'     => 0,
+		),
+		'wordpress-extra' => array(
+			'label'       => 'WordPress-Extra',
+			'description' => 'Extended ruleset for recommended best practices (Optional)',
+			'default'     => 0,
+		),
+		'wordpress-docs' => array(
+			'label'       => 'WordPress-Docs',
+			'description' => 'Additional ruleset for WordPress inline documentation standards (Optional)',
+			'default'     => 0,
+		),
+		'wordpress-vip' => array(
+			'label'       => 'WordPress-VIP',
+			'description' => 'Extended ruleset for WordPress VIP coding requirements (Optional)',
+			'default'     => 0,
+		),
+	);
+
+	return $output;
+
 }
