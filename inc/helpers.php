@@ -12,7 +12,7 @@
  */
 function ns_theme_check_render_form() {
 
-	$ns_theme_check_standards = ns_theme_check_get_standards();
+	$standards = ns_theme_check_get_standards();
 
 	$all_themes = wp_get_themes();
 	$themes = array();
@@ -43,18 +43,10 @@ function ns_theme_check_render_form() {
 		$raw_output = 1;
 	}
 
-	$default_standards = array(
-		'wordpress-core'  => 0,
-		'wordpress-theme' => 1,
-		'wordpress-docs'  => 0,
-		'wordpress-extra' => 0,
-		'wordpress-vip'   => 0,
-	);
-
-	$standard_status = $default_standards;
+	$standard_status = wp_list_pluck( $standards, 'default' );
 
 	if ( isset( $_POST['_wp_http_referer'] ) ) {
-		foreach ( $ns_theme_check_standards as $key => $standard ) {
+		foreach ( $standards as $key => $standard ) {
 			if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
 				$standard_status[ $key ] = 1;
 			} else {
@@ -77,9 +69,12 @@ function ns_theme_check_render_form() {
 		&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
 		<br />
 		<div class="standards-wrap">
-		<?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?>&nbsp;
-			<?php foreach ( $ns_theme_check_standards as $key => $standard ) : ?>
-				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>"><input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> /><?php echo esc_html( $standard['label'] ); ?></label>&nbsp;
+		<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
+			<?php foreach ( $standards as $key => $standard ) : ?>
+				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
+					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
+					<?php echo '<strong>' . esc_html( $standard['label'] ) . '</strong>: ' . esc_html( $standard['description'] ); ?>
+				</label><br>
 			<?php endforeach; ?>
 		</div><!-- .standards-wrap -->
 	</form>
@@ -93,7 +88,7 @@ function ns_theme_check_render_form() {
  */
 function ns_theme_check_render_output() {
 
-	$ns_theme_check_standards = ns_theme_check_get_standards();
+	$standards = ns_theme_check_get_standards();
 
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
@@ -120,7 +115,7 @@ function ns_theme_check_render_output() {
 	}
 
 	$args['standard'] = array();
-	foreach ( $ns_theme_check_standards as $key => $standard ) {
+	foreach ( $standards as $key => $standard ) {
 		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
 			$args['standard'][] = $standard['label'];
 		}
@@ -304,26 +299,31 @@ function ns_theme_check_show_repot_info() {
 function ns_theme_check_get_standards() {
 
 	$output = array(
-		'wordpress-core' => array(
-			'label'       => 'WordPress-Core',
-			'description' => 'Main ruleset for WordPress core coding standards',
-		    ),
 		'wordpress-theme' => array(
 			'label'       => 'WordPress-Theme',
-			'description' => 'Ruleset for Theme Check plugin',
-		    ),
-		'wordpress-docs' => array(
-			'label'       => 'WordPress-Docs',
-			'description' => 'Additional ruleset for WordPress inline documentation standards',
-		    ),
+			'description' => 'Ruleset for WordPress theme reveiw requirements (Required)',
+			'default'     => 1,
+		),
+		'wordpress-core' => array(
+			'label'       => 'WordPress-Core',
+			'description' => 'Main ruleset for WordPress core coding standards (Optional)',
+			'default'     => 0,
+		),
 		'wordpress-extra' => array(
 			'label'       => 'WordPress-Extra',
-			'description' => 'Extended ruleset for recommended best practices',
-		    ),
+			'description' => 'Extended ruleset for recommended best practices (Optional)',
+			'default'     => 0,
+		),
+		'wordpress-docs' => array(
+			'label'       => 'WordPress-Docs',
+			'description' => 'Additional ruleset for WordPress inline documentation standards (Optional)',
+			'default'     => 0,
+		),
 		'wordpress-vip' => array(
 			'label'       => 'WordPress-VIP',
-			'description' => 'Extended ruleset for WordPress VIP coding requirements',
-		    ),
+			'description' => 'Extended ruleset for WordPress VIP coding requirements (Optional)',
+			'default'     => 0,
+		),
 	);
 
 	return $output;
