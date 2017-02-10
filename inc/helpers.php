@@ -33,6 +33,12 @@ function ns_theme_check_render_form() {
 		$current_theme = $_POST['themename'];
 	}
 
+	$minimum_php_version = '5.2';
+
+	if ( ! empty( $_POST['minimum_php_version'] ) ) {
+		$minimum_php_version = $_POST['minimum_php_version'];
+	}
+
 	$hide_warning = 0;
 	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
 		$hide_warning = 1;
@@ -67,7 +73,15 @@ function ns_theme_check_render_form() {
 		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
 		<div class="options-wrap">
 			<strong><?php esc_html_e( 'Options', 'ns-theme-check' ); ?>:</strong>&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
-			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
+			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
+			<?php $php_versions = ns_theme_check_get_php_versions(); ?>
+			<label for="minimum_php_version"><?php esc_html_e( 'Minimum PHP Version', 'ns-theme-check' ); ?>
+				<select name="minimum_php_version">
+				<?php foreach ( $php_versions as $version ) : ?>
+					<option value="<?php echo esc_attr( $version ); ?>" <?php selected( $minimum_php_version, $version ); ?>><?php echo esc_html( $version ); ?></option>
+				<?php endforeach; ?>
+				</select>
+			</label>
 		</div><!-- .options-wrap -->
 		<br />
 		<div class="standards-wrap">
@@ -116,6 +130,10 @@ function ns_theme_check_render_output() {
 		$args['raw_output'] = 1;
 	}
 
+	if ( isset( $_POST['minimum_php_version'] ) && ! empty( $_POST['minimum_php_version'] ) ) {
+		$args['minimum_php_version'] = esc_html( $_POST['minimum_php_version'] );
+	}
+
 	$args['standard'] = array();
 	foreach ( $standards as $key => $standard ) {
 		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
@@ -160,6 +178,10 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	}
 
 	$minimum_php = '5.2';
+	if ( isset( $args['minimum_php_version'] ) && ! empty( $args['minimum_php_version'] ) ) {
+		$minimum_php = $args['minimum_php_version'];
+	}
+
 	PHP_CodeSniffer::setConfigData( 'testVersion', $minimum_php . '-7.0', true );
 
 	// Initialise CodeSniffer.
@@ -331,6 +353,27 @@ function ns_theme_check_get_standards() {
 			'description' => 'Extended ruleset for WordPress VIP coding requirements (Optional)',
 			'default'     => 0,
 		),
+	);
+
+	return $output;
+
+}
+/**
+ * Returns PHP versions.
+ *
+ * @since 0.1.3
+ *
+ * @return array PHP versions.
+ */
+function ns_theme_check_get_php_versions() {
+
+	$output = array(
+		'5.2',
+		'5.3',
+		'5.4',
+		'5.5',
+		'5.6',
+		'7.0',
 	);
 
 	return $output;
