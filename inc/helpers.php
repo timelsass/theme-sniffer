@@ -12,7 +12,7 @@
  */
 function ns_theme_check_render_form() {
 
-	global $ns_theme_check_standards;
+	$ns_theme_check_standards = ns_theme_check_get_standards();
 
 	$all_themes = wp_get_themes();
 	$themes = array();
@@ -43,7 +43,15 @@ function ns_theme_check_render_form() {
 		$raw_output = 1;
 	}
 
-	$standard_status = wp_list_pluck( $ns_theme_check_standards, 'default' );
+	$default_standards = array(
+		'wordpress-core'  => 0,
+		'wordpress-theme' => 1,
+		'wordpress-docs'  => 0,
+		'wordpress-extra' => 0,
+		'wordpress-vip'   => 0,
+	);
+
+	$standard_status = $default_standards;
 
 	if ( isset( $_POST['_wp_http_referer'] ) ) {
 		foreach ( $ns_theme_check_standards as $key => $standard ) {
@@ -71,8 +79,7 @@ function ns_theme_check_render_form() {
 		<div class="standards-wrap">
 		<?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?>&nbsp;
 			<?php foreach ( $ns_theme_check_standards as $key => $standard ) : ?>
-				<label for="<?php echo esc_attr( $key ); ?>"><input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> /><?php echo esc_html( $standard['label'] ); ?></label>&nbsp;
-
+				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>"><input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> /><?php echo esc_html( $standard['label'] ); ?></label>&nbsp;
 			<?php endforeach; ?>
 		</div><!-- .standards-wrap -->
 	</form>
@@ -86,7 +93,7 @@ function ns_theme_check_render_form() {
  */
 function ns_theme_check_render_output() {
 
-	global $ns_theme_check_standards;
+	$ns_theme_check_standards = ns_theme_check_get_standards();
 
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
@@ -285,4 +292,40 @@ function ns_theme_check_show_repot_info() {
 	<p><strong><?php esc_html_e( 'Note: Errors need to be fixed and Warnings are things that need to be checked manually.', 'ns-theme-check' ); ?></strong></p>
 	<hr />
 	<?php
+}
+
+/**
+ * Returns standards.
+ *
+ * @since 0.1.3
+ *
+ * @return array Standards details.
+ */
+function ns_theme_check_get_standards() {
+
+	$output = array(
+		'wordpress-core' => array(
+			'label'       => 'WordPress-Core',
+			'description' => 'Main ruleset for WordPress core coding standards',
+		    ),
+		'wordpress-theme' => array(
+			'label'       => 'WordPress-Theme',
+			'description' => 'Ruleset for Theme Check plugin',
+		    ),
+		'wordpress-docs' => array(
+			'label'       => 'WordPress-Docs',
+			'description' => 'Additional ruleset for WordPress inline documentation standards',
+		    ),
+		'wordpress-extra' => array(
+			'label'       => 'WordPress-Extra',
+			'description' => 'Extended ruleset for recommended best practices',
+		    ),
+		'wordpress-vip' => array(
+			'label'       => 'WordPress-VIP',
+			'description' => 'Extended ruleset for WordPress VIP coding requirements',
+		    ),
+	);
+
+	return $output;
+
 }
