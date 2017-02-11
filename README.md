@@ -2,6 +2,8 @@
 
 Theme Check plugin using sniffs. `WordPress-Theme` standard is used from [WPTRT/WordPress-Coding-Standards](https://github.com/WPTRT/WordPress-Coding-Standards).
 
+![Screenshot](screenshot.png?raw=true)
+
 ## Installing
 
 ### Option 1: Easy
