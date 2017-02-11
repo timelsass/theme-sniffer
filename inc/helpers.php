@@ -33,6 +33,12 @@ function ns_theme_check_render_form() {
 		$current_theme = $_POST['themename'];
 	}
 
+	$minimum_php_version = '5.2';
+
+	if ( ! empty( $_POST['minimum_php_version'] ) ) {
+		$minimum_php_version = $_POST['minimum_php_version'];
+	}
+
 	$hide_warning = 0;
 	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
 		$hide_warning = 1;
@@ -57,19 +63,19 @@ function ns_theme_check_render_form() {
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post" class="frm-theme-check">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
-		<label for="themename"><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?>
-			<select name="themename">
-			<?php foreach ( $themes as $key => $value ) : ?>
-				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
-			<?php endforeach; ?>
-			</select>
-		</label>
-		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
-		&nbsp;<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
-		&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>
-		<br />
+		<div class="theme-switcher-wrap">
+			<h2><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?></h2>
+			<label for="themename">
+				<select name="themename">
+					<?php foreach ( $themes as $key => $value ) : ?>
+						<option value="<?php echo esc_attr( $key ); ?>" <?php selected(	$current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
+		</div><!-- .theme-switcher-wrap -->
 		<div class="standards-wrap">
-		<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
+			<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
 			<?php foreach ( $standards as $key => $standard ) : ?>
 				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
 					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
@@ -77,6 +83,20 @@ function ns_theme_check_render_form() {
 				</label><br>
 			<?php endforeach; ?>
 		</div><!-- .standards-wrap -->
+		<div class="options-wrap">
+			<h2><?php esc_html_e( 'Options', 'ns-theme-check' ); ?></h2>
+			<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
+			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>&nbsp;
+			<?php $php_versions = ns_theme_check_get_php_versions(); ?>
+			<label for="minimum_php_version">
+				<select name="minimum_php_version">
+				<?php foreach ( $php_versions as $version ) : ?>
+					<option value="<?php echo esc_attr( $version ); ?>" <?php selected( $minimum_php_version, $version ); ?>><?php echo esc_html( $version ); ?></option>
+				<?php endforeach; ?>
+				</select>
+				<?php esc_html_e( 'Minimum PHP Version', 'ns-theme-check' ); ?>
+			</label>
+		</div><!-- .options-wrap -->
 	</form>
 	<?php
 }
@@ -112,6 +132,10 @@ function ns_theme_check_render_output() {
 
 	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
 		$args['raw_output'] = 1;
+	}
+
+	if ( isset( $_POST['minimum_php_version'] ) && ! empty( $_POST['minimum_php_version'] ) ) {
+		$args['minimum_php_version'] = esc_html( $_POST['minimum_php_version'] );
 	}
 
 	$args['standard'] = array();
@@ -157,6 +181,13 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
 	}
 
+	$minimum_php = '5.2';
+	if ( isset( $args['minimum_php_version'] ) && ! empty( $args['minimum_php_version'] ) ) {
+		$minimum_php = $args['minimum_php_version'];
+	}
+
+	PHP_CodeSniffer::setConfigData( 'testVersion', $minimum_php . '-7.0', true );
+
 	// Initialise CodeSniffer.
 	$phpcs = new PHP_CodeSniffer_CLI();
 	$phpcs->checkRequirements();
@@ -172,6 +203,8 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	if ( isset( $args['standard'] ) && ! empty( $args['standard'] ) ) {
 		$values['standard'] = $args['standard'];
 	}
+
+	$args['standard'][] = 'PHPCompatibility';
 
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
@@ -207,11 +240,10 @@ function ns_theme_check_render_json_report( $json ) {
 		<?php ns_theme_check_show_repot_info(); ?>
 
 		<div class="summary">
-			<h4><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h4>
-			<ul class="summary-list">
-				<li><span class="item-field"><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->errors ); ?></li>
-				<li><span class="item-field"><?php esc_html_e( 'Warning:', 'ns-theme-check' ); ?></span><?php echo absint( $json->totals->warnings ); ?></li>
-			</ul><!-- .summary-list -->
+			<h2><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h2>
+            <div class="summary-content">
+                <strong><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->errors ); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php esc_html_e( 'Warnings:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->warnings ); ?></strong>
+            </div><!-- .summary-content -->
 		</div><!-- .summary -->
 		<hr />
 
@@ -257,9 +289,9 @@ function ns_theme_check_render_json_report( $json ) {
 								<?php foreach ( $file->messages as $item ) : ?>
 									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'error' : 'warning'; ?>
 									<tr class="item-type-<?php echo esc_attr( $row_class ); ?>">
-										<td><?php printf( esc_html__( 'Line: %d', 'ns-theme-check' ), absint( $item->line ) ); ?></td>
-										<td><?php echo esc_html( $item->type ); ?></td>
-										<td><?php echo esc_html( $item->message ); ?></td>
+										<td class="td-line"><?php printf( esc_html__( 'Line: %d', 'ns-theme-check' ), absint( $item->line ) ); ?></td>
+										<td class="td-type"><?php echo esc_html( $item->type ); ?></td>
+										<td class="td-message"><?php echo esc_html( $item->message ); ?></td>
 									</tr>
 								<?php endforeach; ?>
 							</table>
@@ -301,7 +333,7 @@ function ns_theme_check_get_standards() {
 	$output = array(
 		'wordpress-theme' => array(
 			'label'       => 'WordPress-Theme',
-			'description' => 'Ruleset for WordPress theme reveiw requirements (Required)',
+			'description' => 'Ruleset for WordPress theme review requirements (Required)',
 			'default'     => 1,
 		),
 		'wordpress-core' => array(
@@ -324,6 +356,27 @@ function ns_theme_check_get_standards() {
 			'description' => 'Extended ruleset for WordPress VIP coding requirements (Optional)',
 			'default'     => 0,
 		),
+	);
+
+	return $output;
+
+}
+/**
+ * Returns PHP versions.
+ *
+ * @since 0.1.3
+ *
+ * @return array PHP versions.
+ */
+function ns_theme_check_get_php_versions() {
+
+	$output = array(
+		'5.2',
+		'5.3',
+		'5.4',
+		'5.5',
+		'5.6',
+		'7.0',
 	);
 
 	return $output;
