@@ -63,30 +63,30 @@ function ns_theme_check_render_form() {
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=ns-theme-check' ) ); ?>" method="post" class="frm-theme-check">
 		<?php wp_nonce_field( 'ns_theme_check_run', 'ns_theme_check_nonce' ); ?>
-        <div class="theme-switcher-wrap">
-            <h2><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?></h2>
-    		<label for="themename">
-    			<select name="themename">
-    			<?php foreach ( $themes as $key => $value ) : ?>
-    				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
-    			<?php endforeach; ?>
-    			</select>
-    		</label>
-    		<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
-        </div><!-- .theme-switcher-wrap -->
-        <div class="standards-wrap">
-            <h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
-            <?php foreach ( $standards as $key => $standard ) : ?>
-                <label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
-                    <input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
-                    <?php echo '<strong>' . esc_html( $standard['label'] ) . '</strong>: ' . esc_html( $standard['description'] ); ?>
-                </label><br>
-            <?php endforeach; ?>
-        </div><!-- .standards-wrap -->
+		<div class="theme-switcher-wrap">
+			<h2><?php esc_html_e( 'Select Theme', 'ns-theme-check' ); ?></h2>
+			<label for="themename">
+				<select name="themename">
+					<?php foreach ( $themes as $key => $value ) : ?>
+						<option value="<?php echo esc_attr( $key ); ?>" <?php selected(	$current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</label>
+			<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
+		</div><!-- .theme-switcher-wrap -->
+		<div class="standards-wrap">
+			<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
+			<?php foreach ( $standards as $key => $standard ) : ?>
+				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
+					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
+					<?php echo '<strong>' . esc_html( $standard['label'] ) . '</strong>: ' . esc_html( $standard['description'] ); ?>
+				</label><br>
+			<?php endforeach; ?>
+		</div><!-- .standards-wrap -->
 		<div class="options-wrap">
-            <h2><?php esc_html_e( 'Options', 'ns-theme-check' ); ?></h2>
+			<h2><?php esc_html_e( 'Options', 'ns-theme-check' ); ?></h2>
 			<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> /><?php esc_html_e( 'Hide Warning', 'ns-theme-check' ); ?></label>
-			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>&nbsp;&nbsp;&nbsp;&nbsp;
+			&nbsp;<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> /><?php esc_html_e( 'Raw Output', 'ns-theme-check' ); ?></label>&nbsp;
 			<?php $php_versions = ns_theme_check_get_php_versions(); ?>
 			<label for="minimum_php_version">
 				<select name="minimum_php_version">
@@ -94,7 +94,7 @@ function ns_theme_check_render_form() {
 					<option value="<?php echo esc_attr( $version ); ?>" <?php selected( $minimum_php_version, $version ); ?>><?php echo esc_html( $version ); ?></option>
 				<?php endforeach; ?>
 				</select>
-                <?php esc_html_e( 'Minimum PHP Version', 'ns-theme-check' ); ?>
+				<?php esc_html_e( 'Minimum PHP Version', 'ns-theme-check' ); ?>
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
