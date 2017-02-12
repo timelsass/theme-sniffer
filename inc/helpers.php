@@ -68,7 +68,7 @@ function ns_theme_check_render_form() {
 			<label for="themename">
 				<select name="themename">
 					<?php foreach ( $themes as $key => $value ) : ?>
-						<option value="<?php echo esc_attr( $key ); ?>" <?php selected(	$current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
+						<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</label>
@@ -159,6 +159,11 @@ function ns_theme_check_render_output() {
  */
 function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
+	if ( ! file_exists( NS_THEME_CHECK_DIR . '/vendor/autoload.php' ) ) {
+		printf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.' ), '<a href="https://github.com/ernilambar/ns-theme-check#installing" target="_blank">', '</a>' );
+		return;
+	}
+
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
 	// Path to WordPress Theme coding standard.
@@ -241,9 +246,9 @@ function ns_theme_check_render_json_report( $json ) {
 
 		<div class="summary">
 			<h2><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h2>
-            <div class="summary-content">
-                <strong><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->errors ); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php esc_html_e( 'Warnings:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->warnings ); ?></strong>
-            </div><!-- .summary-content -->
+			<div class="summary-content">
+				<strong><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->errors ); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php esc_html_e( 'Warnings:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->warnings ); ?></strong>
+			</div><!-- .summary-content -->
 		</div><!-- .summary -->
 		<hr />
 
