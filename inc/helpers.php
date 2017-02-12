@@ -171,7 +171,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	$theme = wp_get_theme( $theme_slug );
 	$text_domains = array(
 		// Current theme text domain.
-		$theme->get( 'TextDomain' ),
+		$theme_slug,
 		// Frameworks.
 		'hybrid-core',
 	);
