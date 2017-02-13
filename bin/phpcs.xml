@@ -7,6 +7,8 @@
 		<exclude name="PHPCompatibility.PHP.DefaultTimezoneRequired.Missing"/>
 	</rule>
 
-	<rule ref="Generic.Debug.CSSLint"/>
+	<rule ref="Generic.Debug.CSSLint.ExternalTool">
+		<type>error</type>
+	</rule>
 
 </ruleset>
