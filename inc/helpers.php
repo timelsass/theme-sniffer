@@ -156,6 +156,8 @@ function ns_theme_check_render_output() {
  *
  * @param string $theme_slug Theme slug.
  * @param array  $args Arguments.
+ *
+ * @return bool
  */
 function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
@@ -171,6 +173,9 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	// Set default standard.
 	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
+
+	// Ignoring warnings when generating the exit code.
+	PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
 
 	// Set text domains.
 	$theme = wp_get_theme( $theme_slug );
@@ -194,8 +199,8 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	PHP_CodeSniffer::setConfigData( 'testVersion', $minimum_php . '-7.0', true );
 
 	// Initialise CodeSniffer.
-	$phpcs = new PHP_CodeSniffer_CLI();
-	$phpcs->checkRequirements();
+	$phpcs_cli = new PHP_CodeSniffer_CLI();
+	$phpcs_cli->checkRequirements();
 
 	// Set CLI arguments.
 	$values['files']       = get_theme_root() . '/' . $theme_slug;
@@ -216,11 +221,11 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 		echo '<div class="theme-check-report theme-check-report-raw">';
 		ns_theme_check_show_repot_info();
 		echo '<pre>';
-		$phpcs->process( $values );
+		$num_errors = $phpcs_cli->process( $values );
 		echo '</pre></div>';
 	} else {
 		ob_start();
-		$phpcs->process( $values );
+		$num_errors = $phpcs_cli->process( $values );
 		$raw_output = ob_get_clean();
 		$output = json_decode( $raw_output );
 		if ( ! empty( $output ) ) {
@@ -228,7 +233,12 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 		}
 	}
 
-	return;
+	// Has the theme passed?
+	if ( $num_errors === 0 ) {
+		return true;
+	} else {
+		return false;
+	}
 
 }
 
