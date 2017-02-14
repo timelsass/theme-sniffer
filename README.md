@@ -16,6 +16,7 @@ Theme Check plugin using sniffs. `WordPress-Theme` standard is used from [WPTRT/
 
 * Clone this repo under `wp-content/plugins/`
 * Run `composer install`
+* Run `npm install`
 * Activate plugin
 
 ## Using

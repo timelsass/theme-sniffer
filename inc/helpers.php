@@ -170,6 +170,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	// Path to WordPress Theme coding standard.
 	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
+	PHP_CodeSniffer::setConfigData( 'csslint_path', NS_THEME_CHECK_DIR . '/node_modules/csslint/dist/cli.js --errors=errors', true );
 
 	// Set default standard.
 	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
@@ -214,7 +215,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 		$values['standard'] = $args['standard'];
 	}
 
-	$args['standard'][] = 'PHPCompatibility';
+	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
 
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
