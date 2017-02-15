@@ -217,6 +217,11 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
 
+	// Ignore unrelated files from the check.
+	$values['ignored'] = array(
+		'.*/node_modules/.*',
+	);
+
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
 		echo '<div class="theme-check-report theme-check-report-raw">';
