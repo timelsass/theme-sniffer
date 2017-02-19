@@ -314,13 +314,20 @@ function ns_theme_check_render_json_report( $json ) {
 						<?php if ( ! empty( $file->messages ) && is_array( $file->messages ) ) : ?>
 
 							<table class="report-table">
+								<?php $cnt = 1; ?>
 								<?php foreach ( $file->messages as $item ) : ?>
-									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'error' : 'warning'; ?>
-									<tr class="item-type-<?php echo esc_attr( $row_class ); ?>">
+									<?php
+									$row_class = ( 'error' === strtolower( $item->type ) ) ? 'item-type-error' : 'item-type-warning';
+
+									$row_class .= ' ' . ( ( 0 === $cnt % 2 ) ? 'item-type-even' : 'item-type-odd' );
+
+									?>
+									<tr class="<?php echo esc_attr( $row_class ); ?>">
 										<td class="td-line"><?php printf( esc_html__( 'Line: %d', 'ns-theme-check' ), absint( $item->line ) ); ?></td>
 										<td class="td-type"><?php echo esc_html( $item->type ); ?></td>
 										<td class="td-message"><?php echo esc_html( $item->message ); ?></td>
 									</tr>
+									<?php $cnt++; ?>
 								<?php endforeach; ?>
 							</table>
 
