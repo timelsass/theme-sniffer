@@ -222,17 +222,18 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 		'.*/node_modules/.*',
 	);
 
+	ob_start();
+	$num_errors = $phpcs_cli->process( $values );
+	$raw_output = ob_get_clean();
+
 	// Sniff theme files.
 	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
 		echo '<div class="theme-check-report theme-check-report-raw">';
 		ns_theme_check_show_repot_info();
 		echo '<pre>';
-		$num_errors = $phpcs_cli->process( $values );
+		echo esc_html( $raw_output );
 		echo '</pre></div>';
 	} else {
-		ob_start();
-		$num_errors = $phpcs_cli->process( $values );
-		$raw_output = ob_get_clean();
 		$output = json_decode( $raw_output );
 		if ( ! empty( $output ) ) {
 			ns_theme_check_render_json_report( $output );
