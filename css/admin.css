@@ -37,3 +37,27 @@
 .theme-check-report-json .report-table td.td-line{
     min-width: 55px;
 }
+
+.report-summary {
+	font-weight: bold;
+	border-collapse: collapse;
+}
+
+.report-summary td,
+.report-summary th {
+	border: 1px #DDD solid;
+	padding: 5px;
+}
+
+.report-summary tr {
+	background-color: #efefef;
+}
+
+.report-summary tr.heading {
+	background-color: #525D76;
+	color: #FFF;
+}
+
+.report-summary tr.field {
+	background-color: #CCCCCC;
+}
