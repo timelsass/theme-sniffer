@@ -241,7 +241,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	}
 
 	// Has the theme passed?
-	if ( $num_errors === 0 ) {
+	if ( 0 === $num_errors ) {
 		return true;
 	} else {
 		return false;
@@ -261,13 +261,19 @@ function ns_theme_check_render_json_report( $json ) {
 	<div class="theme-check-report theme-check-report-json">
 		<?php ns_theme_check_show_repot_info(); ?>
 
-		<div class="summary">
-			<h2><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></h2>
-			<div class="summary-content">
-				<strong><?php esc_html_e( 'Errors:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->errors ); ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php esc_html_e( 'Warnings:', 'ns-theme-check' ); ?>&nbsp;<?php echo absint( $json->totals->warnings ); ?></strong>
-			</div><!-- .summary-content -->
-		</div><!-- .summary -->
-		<hr />
+		<table class="report-summary">
+			<tr class="heading">
+				<th colspan="2"><?php esc_html_e( 'Summary', 'ns-theme-check' ); ?></th>
+			</tr>
+			<tr class="field">
+				<td><?php esc_html_e( 'Errors', 'ns-theme-check' ); ?></td>
+				<td><?php esc_html_e( 'Warnings', 'ns-theme-check' ); ?></td>
+			</tr>
+			<tr>
+				<td><?php echo absint( $json->totals->errors ); ?></td>
+				<td><?php echo absint( $json->totals->warnings ); ?></td>
+			</tr>
+		</table><!-- .summary -->
 
 		<?php
 		$files = '';
@@ -279,7 +285,7 @@ function ns_theme_check_render_json_report( $json ) {
 		<?php if ( $files ) : ?>
 
 			<div class="report-files">
-				<h4><?php esc_html_e( 'Details', 'ns-theme-check' ); ?></h4>
+
 				<?php foreach ( $files as $file_key => $file ) : ?>
 
 					<?php
@@ -308,13 +314,15 @@ function ns_theme_check_render_json_report( $json ) {
 						<?php if ( ! empty( $file->messages ) && is_array( $file->messages ) ) : ?>
 
 							<table class="report-table">
+								<?php $cnt = 1; ?>
 								<?php foreach ( $file->messages as $item ) : ?>
-									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'error' : 'warning'; ?>
-									<tr class="item-type-<?php echo esc_attr( $row_class ); ?>">
+									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'item-type-error' : 'item-type-warning'; ?>
+									<tr class="<?php echo esc_attr( $row_class ); ?>">
 										<td class="td-line"><?php printf( esc_html__( 'Line: %d', 'ns-theme-check' ), absint( $item->line ) ); ?></td>
 										<td class="td-type"><?php echo esc_html( $item->type ); ?></td>
 										<td class="td-message"><?php echo esc_html( $item->message ); ?></td>
 									</tr>
+									<?php $cnt++; ?>
 								<?php endforeach; ?>
 							</table>
 
