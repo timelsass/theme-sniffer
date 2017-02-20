@@ -241,7 +241,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	}
 
 	// Has the theme passed?
-	if ( $num_errors === 0 ) {
+	if ( 0 === $num_errors ) {
 		return true;
 	} else {
 		return false;
@@ -316,12 +316,7 @@ function ns_theme_check_render_json_report( $json ) {
 							<table class="report-table">
 								<?php $cnt = 1; ?>
 								<?php foreach ( $file->messages as $item ) : ?>
-									<?php
-									$row_class = ( 'error' === strtolower( $item->type ) ) ? 'item-type-error' : 'item-type-warning';
-
-									$row_class .= ' ' . ( ( 0 === $cnt % 2 ) ? 'item-type-even' : 'item-type-odd' );
-
-									?>
+									<?php $row_class = ( 'error' === strtolower( $item->type ) ) ? 'item-type-error' : 'item-type-warning'; ?>
 									<tr class="<?php echo esc_attr( $row_class ); ?>">
 										<td class="td-line"><?php printf( esc_html__( 'Line: %d', 'ns-theme-check' ), absint( $item->line ) ); ?></td>
 										<td class="td-type"><?php echo esc_html( $item->type ); ?></td>

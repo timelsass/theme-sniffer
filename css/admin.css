@@ -37,11 +37,7 @@
 	padding: 2px;
 }
 
-.theme-check-report-json .report-table .item-type-odd td {
-	background-color: #EFEFEF;
-}
-
-.theme-check-report-json .report-table .item-type-even td {
+.theme-check-report-json .report-table tr:nth-child(odd) {
 	background-color: #FFF;
 }
 
