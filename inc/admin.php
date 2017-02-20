@@ -44,8 +44,12 @@ function ns_theme_check_render_admin_page() {
  */
 function ns_theme_check_admin_scripts( $hook ) {
 
-	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.2' );
+	if ( 'appearance_page_ns-theme-check' !== $hook ) {
+		return;
+	}
+
+	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3' );
 
 }
 
-add_action( 'admin_menu', 'ns_theme_check_admin_scripts' );
+add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
