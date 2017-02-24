@@ -32,6 +32,9 @@ require_once NS_THEME_CHECK_DIR . '/inc/admin.php';
  * Add go to theme check page link on plugin page.
  *
  * @since 0.1.3
+ *
+ * @param array $links Array of plugin action links.
+ * @return array Modified array of plugin action links.
  */
 function ns_theme_check_plugin_settings_link( $links ) {
 	$theme_check_link = '<a href="themes.php?page=ns-theme-check">' . esc_attr__( 'Theme Check Page', 'ns-theme-check' ) . '</a>';
