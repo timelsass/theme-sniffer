@@ -2,58 +2,54 @@
 	margin: 1em;
 }
 
-.theme-check-report-json .report-file-item {
+.report-file-item {
 	margin-top: 10px;
 	padding-bottom: 10px;
 	margin-bottom: 10px;
 }
 
-.theme-check-report-json .report-file-item .report-file-heading {
+.report-file-item {
+	padding: 3px;
+}
+
+.report-file-heading {
 	font-weight: 700;
 	background-color: #525D76;
 	color: #FFF;
-	padding: 3px;
 }
 
-.theme-check-report-json .report-file-item .report-file-heading .heading-field {
+.report-file-item .report-file-heading .report-file-heading-field {
 	margin-right: 5px;
-	text-transform: uppercase;
 }
 
-.theme-check-report-json .report-file-item .report-file-heading-meta {
-	background-color: #CCCCCC;
-	color: #444;
-	padding: 3px;
-	font-weight: 700;
-}
-
-.theme-check-report-json .report-table {
+.report-table {
 	margin: 5px 0;
 	color: #444;
 	width: 100%;
 }
 
-.theme-check-report-json .report-table tr td {
+.report-table tr td {
 	padding: 2px;
 }
 
-.theme-check-report-json .report-table tr:nth-child(odd) {
+.report-table tr:nth-child(odd) {
 	background-color: #FFF;
 }
 
-.theme-check-report-json .report-table .item-type-error td {
+.report-table .item-type-error td {
 	background-color: #ffdab9;
 }
 
-.theme-check-report-json .report-table td {
+.report-table td {
 	padding: 0 5px;
 }
 
-.theme-check-report-json .report-table td.td-line {
+.report-table td.td-line {
 	width: 55px;
 }
 
-.theme-check-report-json .report-table td.td-type {
+.report-table td.td-type {
+	text-transform: uppercase;
 	width: 75px;
 }
 
