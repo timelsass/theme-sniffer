@@ -182,11 +182,6 @@ function ns_theme_check_render_output() {
 		return;
 	}
 
-	$args = array(
-		'show_warnings' => 1,
-		'raw_output'    => 0,
-	);
-
 	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
 		$args['show_warnings'] = 0;
 	}
@@ -195,13 +190,11 @@ function ns_theme_check_render_output() {
 		$args['raw_output'] = 1;
 	}
 
-	$args['minimum_php_version'] = '5.2';
 	if ( isset( $_POST['minimum_php_version'] ) && ! empty( $_POST['minimum_php_version'] ) ) {
 		$args['minimum_php_version'] = esc_html( $_POST['minimum_php_version'] );
 	}
 
 	$standards = ns_theme_check_get_standards();
-	$args['standard'] = array();
 	foreach ( $standards as $key => $standard ) {
 		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
 			$args['standard'][] = $standard['label'];

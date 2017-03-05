@@ -24,6 +24,16 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
+	$defaults = array(
+		'show_warnings'       => 1,
+		'raw_output'          => 0,
+		'minimum_php_version' => '5.2',
+		'standard'            => array(),
+		'text_domains'        => array( $theme_slug ),
+	);
+
+	$args = wp_parse_args( $args, $defaults );
+
 	// Path to WordPress Theme coding standard.
 	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
 	PHP_CodeSniffer::setConfigData( 'csslint_path', NS_THEME_CHECK_DIR . '/node_modules/csslint/dist/cli.js --errors=errors', true );
@@ -37,10 +47,10 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	// Set text domains.
 	PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
 
-	if ( isset( $args['show_warnings'] ) ) {
-		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
-	}
+	// Show only warnings?
+	PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
 
+	// Set minimum supported PHP version.
 	PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
 
 	// Initialise CodeSniffer.
@@ -51,13 +61,15 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	$values['files']       = get_theme_root() . '/' . $theme_slug;
 	$values['reportWidth'] = '110';
 
-	if ( isset( $args['raw_output'] ) && 0 === absint( $args['raw_output'] ) ) {
+	if ( 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
 	}
 
-	if ( isset( $args['standard'] ) && ! empty( $args['standard'] ) ) {
+	if ( ! empty( $args['standard'] ) ) {
 		$values['standard'] = $args['standard'];
 	}
+
+	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
 
 	// Ignore unrelated files from the check.
 	$values['ignored'] = array(
@@ -69,7 +81,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	$raw_output = ob_get_clean();
 
 	// Sniff theme files.
-	if ( isset( $args['raw_output'] ) && 1 === absint( $args['raw_output'] ) ) {
+	if ( 1 === absint( $args['raw_output'] ) ) {
 		echo '<pre>' . esc_html( $raw_output ) . '</pre>';
 	} else {
 		$output = json_decode( $raw_output );
@@ -160,13 +172,11 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 	}
 
 	$registered_tags    = ns_theme_check_get_theme_tags();
-	$tags               = $theme->get( 'Tags' );
+	$tags               = array_map( 'strtolower', $theme->get('Tags') );
 	$tags_count         = array_count_values( $tags );
 	$subject_tags_names = array();
 
 	foreach ( $tags as $tag ) {
-		$tag = strtolower( $tag );
-
 		if ( $tags_count[ $tag ] > 1 ) {
 			$notices[] = array(
 				'message' => sprintf(
