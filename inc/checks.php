@@ -117,6 +117,7 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 		'Description',
 		'Author',
 		'Version',
+		// @see https://core.trac.wordpress.org/ticket/40034
 		// 'License',
 		// 'License URI',
 		'TextDomain',
