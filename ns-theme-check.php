@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'NS_THEME_CHECK_BASENAME', basename( dirname( __FILE__ ) ) );
+define( 'NS_THEME_CHECK_BASENAME', plugin_basename( __FILE__ ) );
 define( 'NS_THEME_CHECK_DIR', rtrim( plugin_dir_path( __FILE__ ), '/' ) );
 define( 'NS_THEME_CHECK_URL', rtrim( plugin_dir_url( __FILE__ ), '/' ) );
 
@@ -27,20 +27,4 @@ require_once NS_THEME_CHECK_DIR . '/inc/helpers.php';
 
 // Load admin.
 require_once NS_THEME_CHECK_DIR . '/inc/admin.php';
-
-/**
- * Add go to theme check page link on plugin page.
- *
- * @since 0.1.3
- *
- * @param array $links Array of plugin action links.
- * @return array Modified array of plugin action links.
- */
-function ns_theme_check_plugin_settings_link( $links ) {
-	$theme_check_link = '<a href="themes.php?page=ns-theme-check">' . esc_attr__( 'Theme Check Page', 'ns-theme-check' ) . '</a>';
-	array_unshift( $links, $theme_check_link );
-	return $links;
-}
-
-$plugin = plugin_basename( __FILE__ );
-add_filter( "plugin_action_links_$plugin", 'ns_theme_check_plugin_settings_link' );
+require_once NS_THEME_CHECK_DIR . '/inc/checks.php';
