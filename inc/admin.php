@@ -202,7 +202,7 @@ function ns_theme_check_render_output() {
 	}
 
 	$theme = wp_get_theme( $theme_slug );
-	$files = $theme->get_files( 'php', -1, false );
+	$files = $theme->get_files( 'php', 4, false );
 	// Current theme text domain.
 	$args['text_domains'][] = $theme_slug;
 	// Frameworks.

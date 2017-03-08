@@ -163,3 +163,20 @@ function ns_theme_check_get_theme_tags() {
 
 	return $tags;
 }
+
+/**
+ * Allow fetching custom headers.
+ *
+ * @since 0.1.3
+ *
+ * @param array $extra_headers List of extra headers.
+ *
+ * @return array List of extra headers.
+ */
+function ns_theme_check_add_headers( $extra_headers ) {
+	$extra_headers[] = 'License';
+	$extra_headers[] = 'License URI';
+	$extra_headers[] = 'Template Version';
+	return $extra_headers;
+}
+add_filter( 'extra_theme_headers', 'ns_theme_check_add_headers' );

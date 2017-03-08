@@ -117,9 +117,8 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 		'Description',
 		'Author',
 		'Version',
-		// @see https://core.trac.wordpress.org/ticket/40034
-		// 'License',
-		// 'License URI',
+		'License',
+		'License URI',
 		'TextDomain',
 	);
 
@@ -173,7 +172,7 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 	}
 
 	$registered_tags    = ns_theme_check_get_theme_tags();
-	$tags               = array_map( 'strtolower', $theme->get('Tags') );
+	$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );
 	$tags_count         = array_count_values( $tags );
 	$subject_tags_names = array();
 
