@@ -153,7 +153,7 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 	// Prevent duplicate URLs.
 	$themeuri  = trim( $theme->get( 'ThemeURI' ) , '/\\' );
 	$authoruri = trim( $theme->get( 'AuthorURI' ) , '/\\' );
-	if ( $themeuri === $authoruri ) {
+	if ( ! empty( $themeuri ) && $themeuri === $authoruri ) {
 		$notices[] = array(
 			'message'  => __( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'ns-theme-check' ),
 			'severity' => 'error',
