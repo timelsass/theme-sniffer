@@ -34,68 +34,88 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	$args = wp_parse_args( $args, $defaults );
 
-	// Path to WordPress Theme coding standard.
-	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
-	PHP_CodeSniffer::setConfigData( 'csslint_path', NS_THEME_CHECK_DIR . '/node_modules/csslint/dist/cli.js --errors=errors', true );
-
-	// Set default standard.
-	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
-
-	// Ignoring warnings when generating the exit code.
-	PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
-
-	// Set text domains.
-	PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
-
-	// Show only warnings?
-	PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
-
-	// Set minimum supported PHP version.
-	PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
-
-	// Initialise CodeSniffer.
-	$phpcs_cli = new PHP_CodeSniffer_CLI();
-	$phpcs_cli->checkRequirements();
-
 	// Set CLI arguments.
-	$values['files']       = get_theme_root() . '/' . $theme_slug;
-	$values['reportWidth'] = '110';
+	$cli_args  = get_theme_root() . '/' . $theme_slug;
+	$cli_args .= ' --report-width=110';
 
 	if ( 0 === absint( $args['raw_output'] ) ) {
-		$values['reports']['json'] = null;
+		$cli_args .= ' --report=json';
 	}
 
+	$cli_args .= ' --standard=' . NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
 	if ( ! empty( $args['standard'] ) ) {
-		$values['standard'] = $args['standard'];
+		$cli_args .= ',' . implode( ',', $args['standard'] );
 	}
 
-	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
+	// Set default standard.
+	$cli_args .= ' --runtime-set default_standard WordPress-Theme';
+
+	// Ignoring warnings when generating the exit code.
+	$cli_args .= ' --runtime-set ignore_warnings_on_exit 1';
+
+	// Show only warnings?
+	$cli_args .= ' --runtime-set show_warnings ' . absint( $args['show_warnings'] );
 
 	// Ignore unrelated files from the check.
-	$values['ignored'] = array(
-		'.*/node_modules/.*',
+	$cli_args .= ' --ignore=.*/node_modules/.*';
+
+	// Set minimum supported PHP version.
+	$cli_args .= ' --runtime-set testVersion ' . $args['minimum_php_version'] . '-7.0';
+
+	// Set text domains.
+	$cli_args .= ' --runtime-set text_domain ' . implode( ',', $args['text_domains'] );
+
+	// Path to WordPress Theme coding standards.
+	$cli_args .= ' --runtime-set installed_paths ' . NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/';
+
+	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . $cli_args );
+
+	// Show progress of the run.
+	$command_progress = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . get_theme_root() . '/' . $theme_slug . ' --report=json' );
+
+	$descriptorspec = array(
+		0 => array( 'pipe', 'r' ),  // stdin is a pipe that the child will read from.
+		1 => array( 'file', NS_THEME_CHECK_DIR . '/output.json', 'w' ),  // stdout is a pipe that the child will write to.
 	);
 
-	ob_start();
-	$num_errors = $phpcs_cli->process( $values );
-	$raw_output = ob_get_clean();
+	$cwd = NS_THEME_CHECK_DIR;
 
+	$process = proc_open( $command_progress, $descriptorspec, $pipes, $cwd );
+
+	if ( is_resource( $process ) ) {
+		// $pipes now looks like this:
+		// 0 => writeable handle connected to child stdin
+		// 1 => readable handle connected to child stdout
+		// Any error output will be appended to  NS_THEME_CHECK_DIR/output.json.
+
+		fwrite( $pipes[0], '<?php print_r($_ENV); ?>' );
+		fclose( $pipes[0] );
+
+		fclose( $pipes[1] );
+
+		// It is important that you close any pipes before calling
+		// proc_close in order to avoid a deadlock.
+		$return_value  = proc_close( $process );
+	}
+
+	exec( $command, $raw_output, $return_var );
+	if ( ! isset( $raw_output[0] ) ) {
+		echo 'No results';
+		return $return_var;
+	}
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
-		echo '<pre>' . esc_html( $raw_output ) . '</pre>';
+		echo '<pre>' . esc_html( $raw_output[0] ) . '</pre>';
 	} else {
-		$output = json_decode( $raw_output );
+		$output = json_decode( $raw_output[0] );
 		if ( ! empty( $output ) ) {
 			ns_theme_check_render_json_report( $output );
 		}
 	}
+	return $return_var;
 
-	// Has the theme passed?
-	if ( 0 === $num_errors ) {
-		return true;
-	} else {
-		return false;
-	}
+
+
 
 }
 
@@ -153,7 +173,7 @@ function ns_theme_check_style_headers( $theme_slug, $theme ) {
 	// Prevent duplicate URLs.
 	$themeuri  = trim( $theme->get( 'ThemeURI' ) , '/\\' );
 	$authoruri = trim( $theme->get( 'AuthorURI' ) , '/\\' );
-	if ( ! empty( $themeuri ) && $themeuri === $authoruri ) {
+	if ( $themeuri === $authoruri ) {
 		$notices[] = array(
 			'message'  => __( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'ns-theme-check' ),
 			'severity' => 'error',
