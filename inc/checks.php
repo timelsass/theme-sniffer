@@ -12,10 +12,11 @@
  *
  * @param string $theme_slug Theme slug.
  * @param array  $args Arguments.
+ * @param string $file Path of the file to sniff.
  *
  * @return bool
  */
-function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
+function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 
 	if ( ! file_exists( NS_THEME_CHECK_DIR . '/vendor/autoload.php' ) ) {
 		printf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'ns-theme-check' ), '<a href="https://github.com/ernilambar/ns-theme-check#installing" target="_blank">', '</a>' );
@@ -35,7 +36,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	$args = wp_parse_args( $args, $defaults );
 
 	// Set CLI arguments.
-	$cli_args  = get_theme_root() . '/' . $theme_slug;
+	$cli_args  = $file;
 	$cli_args .= ' --report-width=110';
 
 	if ( 0 === absint( $args['raw_output'] ) ) {
@@ -70,34 +71,6 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 
 	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . $cli_args );
 
-	// Show progress of the run.
-	$command_progress = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . get_theme_root() . '/' . $theme_slug . ' --report=json' );
-
-	$descriptorspec = array(
-		0 => array( 'pipe', 'r' ),  // stdin is a pipe that the child will read from.
-		1 => array( 'file', NS_THEME_CHECK_DIR . '/output.json', 'w' ),  // stdout is a pipe that the child will write to.
-	);
-
-	$cwd = NS_THEME_CHECK_DIR;
-
-	$process = proc_open( $command_progress, $descriptorspec, $pipes, $cwd );
-
-	if ( is_resource( $process ) ) {
-		// $pipes now looks like this:
-		// 0 => writeable handle connected to child stdin
-		// 1 => readable handle connected to child stdout
-		// Any error output will be appended to  NS_THEME_CHECK_DIR/output.json.
-
-		fwrite( $pipes[0], '<?php print_r($_ENV); ?>' );
-		fclose( $pipes[0] );
-
-		fclose( $pipes[1] );
-
-		// It is important that you close any pipes before calling
-		// proc_close in order to avoid a deadlock.
-		$return_value  = proc_close( $process );
-	}
-
 	exec( $command, $raw_output, $return_var );
 	if ( ! isset( $raw_output[0] ) ) {
 		echo 'No results';
@@ -105,16 +78,13 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array() ) {
 	}
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
-		echo '<pre>' . esc_html( $raw_output[0] ) . '</pre>';
+		return esc_html( $raw_output[0] );
 	} else {
 		$output = json_decode( $raw_output[0] );
 		if ( ! empty( $output ) ) {
-			ns_theme_check_render_json_report( $output );
+			return ns_theme_check_render_json_report( $output );
 		}
 	}
-	return $return_var;
-
-
 
 
 }

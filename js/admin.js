@@ -1,9 +1,14 @@
 jQuery( document ).ready(function($) {
+	'use strict';
+
+	var count = 0;
+
 	$('#check-status').click(function(){
 		$('.theme-check-report').empty();
 		$('.theme-check-report').before('<div class="progress-bar"></div>');
 		themeCheckRunPHPCS();
 	});
+
 	function themeCheckRunPHPCS(){
 		$.ajax({
 			type: 'POST',
@@ -22,35 +27,43 @@ jQuery( document ).ready(function($) {
 				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
 			},
 			success:function(data) {
-				$('.theme-check-report').html(data);
+				var data_out = JSON.parse(data);
+				var theme_name  = data_out[0];
+				var theme_args  = data_out[1];
+				var theme_files = data_out[2];
+				var total_files = Object.keys(theme_files).length;
+
+				_.each( theme_files, function(file) {
+					individualSniff( theme_name, theme_args, file, total_files );
+				});
+
 			},
 			error: function(errorThrown){
 				console.log(errorThrown);
 			}
 		});
-
-		t = setTimeout( updateStatus, 1000 );
-
 	}
 
-	function updateStatus() {
-		$.getJSON( ajax_object.output_json, function( data ) {
-			console.log( data );
-			var items = [];
-			pbvalue = 0;
-			if ( data ) {
-				var total = data['total'];
-				var current = data['current'];
-				var pbvalue = Math.floor( (current / total) * 100 );
-				if(pbvalue>0){
-					$('.progress-bar').progressbar({
-						value:pbvalue
-					});
-				}
+	function individualSniff( theme_name, theme_args, theme_file, total_files ) {
+		$.ajax({
+			type: 'POST',
+			url: ajaxurl,
+			data: {
+				'action': 'ns_theme_check_sniff',
+				'theme_name': theme_name,
+				'theme_args': theme_args,
+				'file': theme_file,
+				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
+			},
+			success:function(data) {
+				count++;
+				var percentComplete = (( count / total_files ) * 100).toFixed(2);
+				$('.progress-bar').text( 'Percent completed: ' + percentComplete + '%' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+				$('.theme-check-report').append(data);
+			},
+			error: function(errorThrown){
+				console.log(errorThrown);
 			}
-			if(pbvalue < 100){
-				t = setTimeout( updateStatus, 1000);
-			}
-		});
+		})
 	}
 });

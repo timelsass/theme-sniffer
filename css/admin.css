@@ -76,3 +76,19 @@
 .report-summary tr.field {
 	background-color: #CCCCCC;
 }
+
+.progress-bar{
+	position: relative;
+	padding: 6px 10px;
+	color: #c5c5c5;
+	font-weight: 700;
+}
+.progress-bar .meter {
+    background: #525D76;
+    height: 30px;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}

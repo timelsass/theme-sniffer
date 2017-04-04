@@ -66,9 +66,6 @@ function ns_theme_check_admin_scripts( $hook ) {
 	}
 	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3b' );
 	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array(), '0.1.3' );
-	wp_localize_script( 'ns-theme-check-admin', 'ajax_object', array(
-		'output_json' => NS_THEME_CHECK_DIR . '/output.json',
-	) );
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
 
@@ -169,7 +166,7 @@ function ns_theme_check_render_form() {
 
 add_action( 'wp_ajax_ns_theme_check_run', 'ns_theme_check_render_output' );
 /**
- * Render sniff results.
+ * Start sniffing
  *
  * @since 0.1.0
  */
@@ -211,7 +208,9 @@ function ns_theme_check_render_output() {
 	// Current theme text domain.
 	$args['text_domains'][] = $theme_slug;
 	// Frameworks.
-	foreach ( $files as $key => $value ) {
+	$style_headers = ns_theme_check_style_headers( $theme_slug, $theme );
+
+	foreach ( $files as $key => $file ) {
 		if ( strrpos( $key, 'hybrid.php' ) ) {
 			$args['text_domains'][] = 'hybrid-core';
 		}
@@ -220,8 +219,40 @@ function ns_theme_check_render_output() {
 		}
 	}
 
-	$style_headers = ns_theme_check_style_headers( $theme_slug, $theme );
-	$sniff = ns_theme_check_do_sniff( $theme_slug, $args );
+	wp_die( json_encode( array( $theme_slug, $args, $files ) ) );
+
+}
+
+add_action( 'wp_ajax_ns_theme_check_sniff', 'ns_theme_check_individual_sniff' );
+
+/**
+ * Render sniff results.
+ *
+ * @since 0.1.0
+ */
+function ns_theme_check_individual_sniff() {
+	// Bail if empty.
+	if ( empty( $_POST['theme_name'] ) ) {
+		return;
+	} else {
+		$theme_slug = $_POST['theme_name'];
+	}
+
+	// Verify nonce.
+	if ( ! isset( $_POST['ns_theme_check_nonce'] ) || ! wp_verify_nonce( $_POST['ns_theme_check_nonce'], 'ns_theme_check_run' ) ) {
+		esc_html_e( 'Error', 'ns-theme-check' );
+		return;
+	}
+
+	if ( isset( $_POST['theme_args'] ) && ! empty( $_POST['theme_args'] ) ) {
+		$args = $_POST['theme_args'];
+	}
+
+	if ( isset( $_POST['file'] ) && '' !== $_POST['file'] ) {
+		$file = $_POST['file'];
+	}
+
+	$sniff = ns_theme_check_do_sniff( $theme_slug, $args, $file );
 
 	wp_die();
 
