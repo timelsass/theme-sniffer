@@ -4,7 +4,9 @@ jQuery( document ).ready(function($) {
 	var count = 0;
 
 	$('#check-status').click(function(){
+		count = 0;
 		$('.theme-check-report').empty();
+		$('.progress-bar').remove();
 		$('.theme-check-report').before('<div class="progress-bar"></div>');
 		themeCheckRunPHPCS();
 	});
@@ -58,7 +60,7 @@ jQuery( document ).ready(function($) {
 			success:function(data) {
 				count++;
 				var percentComplete = (( count / total_files ) * 100).toFixed(2);
-				$('.progress-bar').text( 'Percent completed: ' + percentComplete + '%' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+				$('.progress-bar').html( '<span>Percent completed: ' + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
 				$('.theme-check-report').append(data);
 			},
 			error: function(errorThrown){

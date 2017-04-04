@@ -79,9 +79,16 @@
 
 .progress-bar{
 	position: relative;
+	height: 18px;
+	margin: 10px 0;
 	padding: 6px 10px;
-	color: #c5c5c5;
+	color: #fff;
+	background: #c5c5c5;
 	font-weight: 700;
+}
+.progress-bar span{
+	position: absolute;
+	z-index: 3;
 }
 .progress-bar .meter {
     background: #525D76;
@@ -90,5 +97,5 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -1;
+    z-index: 1;
 }

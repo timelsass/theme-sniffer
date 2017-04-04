@@ -72,20 +72,19 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . $cli_args );
 
 	exec( $command, $raw_output, $return_var );
-	if ( ! isset( $raw_output[0] ) ) {
-		echo 'No results';
-		return $return_var;
-	}
+
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
-		return esc_html( $raw_output[0] );
+		if ( ! empty( $raw_output ) ) {
+			$output = implode( "\n", $raw_output );
+			echo '<pre>' . esc_html( $output ) . '</pre>';
+		}
 	} else {
 		$output = json_decode( $raw_output[0] );
 		if ( ! empty( $output ) ) {
 			return ns_theme_check_render_json_report( $output );
 		}
 	}
-
 
 }
 
