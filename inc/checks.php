@@ -101,7 +101,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 								'line'     => 1,
 								'column'   => 1,
 								'fixable'  => false,
-							)
+							),
 						),
 					),
 				),
@@ -113,7 +113,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 		if ( ! empty( $output ) ) {
 			return ns_theme_check_render_json_report( $output );
 		}
-	}
+	} // End if().
 
 }
 
