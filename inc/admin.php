@@ -47,8 +47,6 @@ function ns_theme_check_render_admin_page() {
 		<h1><?php esc_html_e( 'NS Theme Check', 'ns-theme-check' ); ?></h1>
 		<hr />
 		<?php ns_theme_check_render_form(); ?>
-		<hr />
-		<?php ns_theme_check_render_output(); ?>
 	</div>
 	<?php
 }
@@ -64,7 +62,8 @@ function ns_theme_check_admin_scripts( $hook ) {
 	if ( 'appearance_page_ns-theme-check' !== $hook ) {
 		return;
 	}
-	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3b' );
+	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3c' );
+	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.3a' );
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
 
@@ -101,12 +100,12 @@ function ns_theme_check_render_form() {
 	}
 
 	$hide_warning = 0;
-	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
+	if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
 		$hide_warning = 1;
 	}
 
 	$raw_output = 0;
-	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
+	if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
 		$raw_output = 1;
 	}
 
@@ -114,7 +113,7 @@ function ns_theme_check_render_form() {
 
 	if ( isset( $_POST['_wp_http_referer'] ) ) {
 		foreach ( $standards as $key => $standard ) {
-			if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+			if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) {
 				$standard_status[ $key ] = 1;
 			} else {
 				$standard_status[ $key ] = 0;
@@ -133,7 +132,7 @@ function ns_theme_check_render_form() {
 					<?php endforeach; ?>
 				</select>
 			</label>
-			<input type="submit" value="<?php esc_attr_e( 'GO', 'ns-theme-check' ); ?>" class="button button-secondary" />
+			<span id="check-status" class="button button-secondary"/><?php esc_attr_e( 'Go', 'ns-theme-check' ); ?></span>
 		</div><!-- .theme-switcher-wrap -->
 		<div class="standards-wrap">
 			<h2><?php esc_html_e( 'Select Standard', 'ns-theme-check' ); ?></h2>
@@ -159,16 +158,17 @@ function ns_theme_check_render_form() {
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
+	<div class="theme-check-report"></div><!-- .theme-check-report -->
 	<?php
 }
 
+add_action( 'wp_ajax_ns_theme_check_run', 'ns_theme_check_initialize_sniff' );
 /**
- * Render sniff results.
+ * Start sniffing
  *
  * @since 0.1.0
  */
-function ns_theme_check_render_output() {
-
+function ns_theme_check_initialize_sniff() {
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
 		return;
@@ -182,11 +182,11 @@ function ns_theme_check_render_output() {
 		return;
 	}
 
-	if ( isset( $_POST['hide_warning'] ) && 1 === absint( $_POST['hide_warning'] ) ) {
+	if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
 		$args['show_warnings'] = 0;
 	}
 
-	if ( isset( $_POST['raw_output'] ) && 1 === absint( $_POST['raw_output'] ) ) {
+	if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
 		$args['raw_output'] = 1;
 	}
 
@@ -196,17 +196,17 @@ function ns_theme_check_render_output() {
 
 	$standards = ns_theme_check_get_standards();
 	foreach ( $standards as $key => $standard ) {
-		if ( isset( $_POST[ $key ] ) && 1 === absint( $_POST[ $key ] ) ) {
+		if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) {
 			$args['standard'][] = $standard['label'];
 		}
 	}
 
 	$theme = wp_get_theme( $theme_slug );
-	$files = $theme->get_files( 'php', 4, false );
+	$php_files = $theme->get_files( 'php', 4, false );
 	// Current theme text domain.
 	$args['text_domains'][] = $theme_slug;
 	// Frameworks.
-	foreach ( $files as $key => $value ) {
+	foreach ( $php_files as $key => $file ) {
 		if ( strrpos( $key, 'hybrid.php' ) ) {
 			$args['text_domains'][] = 'hybrid-core';
 		}
@@ -215,13 +215,32 @@ function ns_theme_check_render_output() {
 		}
 	}
 
-	?>
-	<div class="theme-check-report">
-		<?php
-			ns_theme_check_style_headers( $theme_slug, $theme );
-			ns_theme_check_do_sniff( $theme_slug, $args );
-		?>
-	</div><!-- .theme-check-report -->
-	<?php
+	$all_files = $theme->get_files( null, -1, false );
+
+	wp_die( json_encode( array( $theme_slug, $args, $all_files ) ) );
+
+}
+
+add_action( 'wp_ajax_ns_theme_check_sniff', 'ns_theme_check_individual_files' );
+/**
+ * Render sniff results.
+ *
+ * @since 0.1.0
+ */
+function ns_theme_check_individual_files() {
+	// Bail if empty.
+	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] )  || empty( $_POST['file'] ) ) {
+		return;
+	}
+
+	// Verify nonce.
+	if ( ! isset( $_POST['ns_theme_check_nonce'] ) || ! wp_verify_nonce( $_POST['ns_theme_check_nonce'], 'ns_theme_check_run' ) ) {
+		esc_html_e( 'Error', 'ns-theme-check' );
+		return;
+	}
+
+	$sniff = ns_theme_check_do_sniff( $_POST['theme_name'], $_POST['theme_args'], $_POST['file'] );
+
+	wp_die();
 
 }
