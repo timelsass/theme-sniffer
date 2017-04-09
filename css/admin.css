@@ -11,14 +11,16 @@
 .report-file-item {
 	margin-top: 10px;
 	padding-bottom: 10px;
-	margin-bottom: 10px;
+	margin-bottom: 20px;
 }
 
 .report-file-heading {
 	font-weight: 700;
-	background-color: #3e4cdc;
-	color: #FFF;
-	padding: 5px 10px;
+	background-color: #737373;
+	color: #fff;
+	padding: 8px 10px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
 }
 
 .report-file-item .report-file-heading .report-file-heading-field {
@@ -26,23 +28,19 @@
 }
 
 .report-table {
-	margin: 5px 0;
 	color: #444;
 	width: 100%;
+	border-collapse: collapse;
 }
 
 .report-table tr td {
-	padding: 5px;
+	padding: 8px;
 	font-weight: 500;
 }
 
-.report-table tr:nth-child(odd) {
-	background-color: #f1f1f1;
-}
-
 .report-table .item-type-error td {
-	background-color: #ec4444;
-	color: #fff;
+	color: #ef5d5d;
+	background:#f3f3f3;
 }
 
 .report-table td {
@@ -53,9 +51,17 @@
 	width: 55px;
 }
 
+.report-table tr:last-of-type td.td-line {
+	border-bottom-left-radius:5px;
+}
+
 .report-table td.td-type {
 	text-transform: uppercase;
 	width: 75px;
+}
+
+.report-table tr:last-of-type td.td-message{
+	border-bottom-right-radius:5px;
 }
 
 .report-summary {
@@ -65,7 +71,7 @@
 
 .report-summary td,
 .report-summary th {
-	border: 1px #DDD solid;
+	border: 1px #ddd solid;
 	padding: 5px;
 }
 
@@ -75,11 +81,11 @@
 
 .report-summary tr.heading {
 	background-color: #525D76;
-	color: #FFF;
+	color: #fff;
 }
 
 .report-summary tr.field {
-	background-color: #CCCCCC;
+	background-color: #ccc;
 }
 
 .progress-bar{
@@ -90,17 +96,19 @@
 	color: #fff;
 	background: #c5c5c5;
 	font-weight: 700;
+	border-radius: 5px;
 }
 .progress-bar span{
 	position: absolute;
 	z-index: 3;
 }
 .progress-bar .meter {
-	background: #3ea9dc;
+	background: #58bf66;
 	height: 40px;
 	display: block;
 	position: absolute;
 	top: 0;
 	left: 0;
 	z-index: 1;
+	border-radius: 5px;
 }
