@@ -47,8 +47,6 @@ function ns_theme_check_render_admin_page() {
 		<h1><?php esc_html_e( 'NS Theme Check', 'ns-theme-check' ); ?></h1>
 		<hr />
 		<?php ns_theme_check_render_form(); ?>
-		<hr />
-		<?php ns_theme_check_render_output(); ?>
 	</div>
 	<?php
 }
@@ -64,8 +62,8 @@ function ns_theme_check_admin_scripts( $hook ) {
 	if ( 'appearance_page_ns-theme-check' !== $hook ) {
 		return;
 	}
-	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3b' );
-	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array(), '0.1.3' );
+	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3c' );
+	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.3a' );
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
 
@@ -164,13 +162,13 @@ function ns_theme_check_render_form() {
 	<?php
 }
 
-add_action( 'wp_ajax_ns_theme_check_run', 'ns_theme_check_render_output' );
+add_action( 'wp_ajax_ns_theme_check_run', 'ns_theme_check_initialize_sniff' );
 /**
  * Start sniffing
  *
  * @since 0.1.0
  */
-function ns_theme_check_render_output() {
+function ns_theme_check_initialize_sniff() {
 	// Bail if empty.
 	if ( empty( $_POST['themename'] ) ) {
 		return;
@@ -204,13 +202,11 @@ function ns_theme_check_render_output() {
 	}
 
 	$theme = wp_get_theme( $theme_slug );
-	$files = $theme->get_files( 'php', 4, false );
+	$php_files = $theme->get_files( 'php', 4, false );
 	// Current theme text domain.
 	$args['text_domains'][] = $theme_slug;
 	// Frameworks.
-	$style_headers = ns_theme_check_style_headers( $theme_slug, $theme );
-
-	foreach ( $files as $key => $file ) {
+	foreach ( $php_files as $key => $file ) {
 		if ( strrpos( $key, 'hybrid.php' ) ) {
 			$args['text_domains'][] = 'hybrid-core';
 		}
@@ -219,23 +215,22 @@ function ns_theme_check_render_output() {
 		}
 	}
 
-	wp_die( json_encode( array( $theme_slug, $args, $files ) ) );
+	$all_files = $theme->get_files( null, -1, false );
+
+	wp_die( json_encode( array( $theme_slug, $args, $all_files ) ) );
 
 }
 
-add_action( 'wp_ajax_ns_theme_check_sniff', 'ns_theme_check_individual_sniff' );
-
+add_action( 'wp_ajax_ns_theme_check_sniff', 'ns_theme_check_individual_files' );
 /**
  * Render sniff results.
  *
  * @since 0.1.0
  */
-function ns_theme_check_individual_sniff() {
+function ns_theme_check_individual_files() {
 	// Bail if empty.
-	if ( empty( $_POST['theme_name'] ) ) {
+	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] )  || empty( $_POST['file'] ) ) {
 		return;
-	} else {
-		$theme_slug = $_POST['theme_name'];
 	}
 
 	// Verify nonce.
@@ -244,15 +239,7 @@ function ns_theme_check_individual_sniff() {
 		return;
 	}
 
-	if ( isset( $_POST['theme_args'] ) && ! empty( $_POST['theme_args'] ) ) {
-		$args = $_POST['theme_args'];
-	}
-
-	if ( isset( $_POST['file'] ) && '' !== $_POST['file'] ) {
-		$file = $_POST['file'];
-	}
-
-	$sniff = ns_theme_check_do_sniff( $theme_slug, $args, $file );
+	$sniff = ns_theme_check_do_sniff( $_POST['theme_name'], $_POST['theme_args'], $_POST['file'] );
 
 	wp_die();
 

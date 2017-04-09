@@ -7,7 +7,7 @@ jQuery( document ).ready(function($) {
 		count = 0;
 		$('.theme-check-report').empty();
 		$('.progress-bar').remove();
-		$('.theme-check-report').before('<div class="progress-bar"></div>');
+		$('.theme-check-report').before('<div class="progress-bar"><span>Check starting...</span></div>');
 		themeCheckRunPHPCS();
 	});
 

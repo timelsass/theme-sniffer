@@ -80,7 +80,36 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 			echo '<pre>' . esc_html( $output ) . '</pre>';
 		}
 	} else {
-		$output = json_decode( $raw_output[0] );
+		if ( empty( $raw_output ) ) {
+			$output = (object) array(
+				'totals' => (object) array(
+					'errors'   => 0,
+					'warnings' => 0,
+					'fixable'  => 0,
+
+				),
+				'files' => (object) array(
+					$file => (object) array(
+						'errors' => 1,
+						'warnings' => 0,
+						'messages' => array(
+							0 => (object) array(
+								'message'  => 'The check has failed. This could be due to running out of memeory. Either reduce the file length or increase PHP memory.',
+								'source'   => 'Internal.Failed',
+								'severity' => 5,
+								'type'     => 'error',
+								'line'     => 1,
+								'column'   => 1,
+								'fixable'  => false,
+							)
+						),
+					),
+				),
+			);
+		} else {
+			$output = json_decode( $raw_output[0] );
+		}
+
 		if ( ! empty( $output ) ) {
 			return ns_theme_check_render_json_report( $output );
 		}
