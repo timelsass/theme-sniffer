@@ -66,6 +66,6 @@ jQuery( document ).ready(function($) {
 			error: function(errorThrown){
 				console.log(errorThrown);
 			}
-		})
+		});
 	}
 });

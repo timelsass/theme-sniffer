@@ -43,7 +43,7 @@ add_action( 'admin_menu', 'ns_theme_check_admin_menu' );
  */
 function ns_theme_check_render_admin_page() {
 	?>
-	<div class="wrap">
+	<div class="wrap ns-theme-check">
 		<h1><?php esc_html_e( 'NS Theme Check', 'ns-theme-check' ); ?></h1>
 		<hr />
 		<?php ns_theme_check_render_form(); ?>
