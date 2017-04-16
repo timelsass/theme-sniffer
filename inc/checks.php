@@ -26,7 +26,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
 	$defaults = array(
-		'show_warnings'       => 1,
+		'show_warnings'       => false,
 		'raw_output'          => 0,
 		'minimum_php_version' => '5.2',
 		'standard'            => array(),
@@ -54,8 +54,10 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	// Ignoring warnings when generating the exit code.
 	$cli_args .= ' --runtime-set ignore_warnings_on_exit 1';
 
-	// Show only warnings?
-	$cli_args .= ' --runtime-set show_warnings ' . absint( $args['show_warnings'] );
+	// Show only errors?
+	if ( $args['show_warnings'] ) {
+		$cli_args .= ' -n';
+	}
 
 	// Ignore unrelated files from the check.
 	$cli_args .= ' --ignore=.*/node_modules/.*';
@@ -101,7 +103,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 								'line'     => 1,
 								'column'   => 1,
 								'fixable'  => false,
-							)
+							),
 						),
 					),
 				),
@@ -113,7 +115,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 		if ( ! empty( $output ) ) {
 			return ns_theme_check_render_json_report( $output );
 		}
-	}
+	} // End if().
 
 }
 

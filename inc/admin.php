@@ -183,7 +183,7 @@ function ns_theme_check_initialize_sniff() {
 	}
 
 	if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
-		$args['show_warnings'] = 0;
+		$args['show_warnings'] = true;
 	}
 
 	if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
