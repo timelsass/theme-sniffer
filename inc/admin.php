@@ -215,7 +215,7 @@ function ns_theme_check_initialize_sniff() {
 		}
 	}
 
-	$all_files = $theme->get_files( null, -1, false );
+	$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
 
 	wp_die( json_encode( array( $theme_slug, $args, $all_files ) ) );
 
