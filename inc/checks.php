@@ -71,7 +71,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	// Path to WordPress Theme coding standards.
 	$cli_args .= ' --runtime-set installed_paths ' . NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/';
 
-	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . $cli_args );
+	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/squizlabs/php_codesniffer/scripts/phpcs ' . $cli_args );
 
 	exec( $command, $raw_output, $return_var );
 
