@@ -26,7 +26,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
 	$defaults = array(
-		'show_warnings'       => false,
+		'show_warnings'       => true,
 		'raw_output'          => 0,
 		'minimum_php_version' => '5.2',
 		'standard'            => array(),
@@ -36,86 +36,61 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	$args = wp_parse_args( $args, $defaults );
 
 	// Set CLI arguments.
-	$cli_args  = $file;
-	$cli_args .= ' --report-width=110';
+	$values['files']       = $file;
+	// $values['reportWidth'] = '110';
 
 	if ( 0 === absint( $args['raw_output'] ) ) {
-		$cli_args .= ' --report=json';
+		$values['reports']['json'] = null;
 	}
 
-	$cli_args .= ' --standard=' . NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
 	if ( ! empty( $args['standard'] ) ) {
-		$cli_args .= ',' . implode( ',', $args['standard'] );
+		$values['standard'] = $args['standard'];
 	}
+	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
+	// $values['verbosity'] = 2;
 
 	// Set default standard.
-	$cli_args .= ' --runtime-set default_standard WordPress-Theme';
+	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
 
 	// Ignoring warnings when generating the exit code.
-	$cli_args .= ' --runtime-set ignore_warnings_on_exit 1';
+	PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
 
 	// Show only errors?
-	if ( $args['show_warnings'] ) {
-		$cli_args .= ' -n';
-	}
+	PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
 
 	// Ignore unrelated files from the check.
-	$cli_args .= ' --ignore=.*/node_modules/.*';
+	$values['ignored'] = array(
+		'.*/node_modules/.*',
+	);
 
 	// Set minimum supported PHP version.
-	$cli_args .= ' --runtime-set testVersion ' . $args['minimum_php_version'] . '-7.0';
+	PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
 
 	// Set text domains.
-	$cli_args .= ' --runtime-set text_domain ' . implode( ',', $args['text_domains'] );
+	PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
 
-	// Path to WordPress Theme coding standards.
-	$cli_args .= ' --runtime-set installed_paths ' . NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/';
+	// Path to WordPress Theme coding standard.
+	PHP_CodeSniffer::setConfigData( 'installed_paths', NS_THEME_CHECK_DIR . '/vendor/wp-coding-standards/wpcs/', true );
 
-	$command = escapeshellcmd( NS_THEME_CHECK_DIR . '/vendor/bin/phpcs ' . $cli_args );
-
-	exec( $command, $raw_output, $return_var );
+	// Initialise CodeSniffer.
+	$phpcs_cli = new PHP_CodeSniffer_CLI();
+	$phpcs_cli->checkRequirements();
+	
+	ob_start();
+	$num_errors = $phpcs_cli->process( $values );
+	$raw_output = ob_get_clean();
 
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
 		if ( ! empty( $raw_output ) ) {
 			$output = implode( "\n", $raw_output );
-			echo '<pre>' . esc_html( $output ) . '</pre>';
+			$output = '<pre>' . esc_html( $output ) . '</pre>';
 		}
 	} else {
-		if ( empty( $raw_output ) ) {
-			$output = (object) array(
-				'totals' => (object) array(
-					'errors'   => 0,
-					'warnings' => 0,
-					'fixable'  => 0,
-
-				),
-				'files' => (object) array(
-					$file => (object) array(
-						'errors' => 1,
-						'warnings' => 0,
-						'messages' => array(
-							0 => (object) array(
-								'message'  => __( 'The check has failed. This could be due to running out of memeory. Either reduce the file length or increase PHP memory.', 'ns-theme-check' ),
-								'source'   => 'Internal.Failed',
-								'severity' => 5,
-								'type'     => 'error',
-								'line'     => 1,
-								'column'   => 1,
-								'fixable'  => false,
-							),
-						),
-					),
-				),
-			);
-		} else {
-			$output = json_decode( $raw_output[0] );
-		}
-
-		if ( ! empty( $output ) ) {
-			return ns_theme_check_render_json_report( $output );
-		}
+		$output = json_decode( $raw_output );
 	} // End if().
+
+	return $output;
 
 }
 

@@ -241,6 +241,6 @@ function ns_theme_check_individual_files() {
 
 	$sniff = ns_theme_check_do_sniff( $_POST['theme_name'], $_POST['theme_args'], $_POST['file'] );
 
-	wp_die();
+	wp_send_json_success( $sniff );
 
 }

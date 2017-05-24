@@ -6,48 +6,6 @@
  */
 
 /**
- * Render JSON data in cleaner format.
- *
- * @since 0.1.0
- *
- * @param string $json JSON data.
- */
-function ns_theme_check_render_json_report( $json ) {
-
-	if ( ! isset( $json->files ) ) {
-		return;
-	}
-	?>
-	<?php foreach ( $json->files as $file_key => $file ) : ?>
-		<?php
-		if ( 0 === absint( $file->errors ) && 0 === absint( $file->warnings ) ) {
-			continue;
-		}
-		$exploded_file_path = explode( '/themes/', $file_key );
-		$file_name = array_pop( $exploded_file_path );
-		?>
-		<div class="report-file-item">
-			<div class="report-file-heading">
-				<span class="report-file-heading-field"><?php printf( esc_html__( 'File: %s','ns-theme-check' ), esc_html( $file_name ) ); ?></span><!-- .report-file-heading-field -->
-			</div><!-- .report-file-heading -->
-			<?php if ( ! empty( $file->messages ) && is_array( $file->messages ) ) : ?>
-				<table class="report-table">
-					<?php foreach ( $file->messages as $item ) : ?>
-						<?php $row_class = ( 'error' === strtolower( $item->type ) ) ?'item-type-error' : 'item-type-warning'; ?>
-						<tr class="<?php echo esc_attr( $row_class ); ?>">
-							<td class="td-line"><?php printf( esc_html__( 'Line: %d','ns-theme-check' ), absint( $item->line ) ); ?></td>
-							<td class="td-type"><?php echo esc_html( $item->type ); ?></td>
-							<td class="td-message"><?php echo esc_html( $item->message ); ?></td>
-						</tr>
-					<?php endforeach; ?>
-				</table>
-			<?php endif; ?>
-		</div><!-- .report-file-item -->
-	<?php endforeach; ?>
-	<?php
-}
-
-/**
  * Returns standards.
  *
  * @since 0.1.3
