@@ -32,12 +32,17 @@ jQuery( document ).ready(function($) {
 				var data_out    = JSON.parse(data),
 					theme_name  = data_out[0],
 					theme_args  = data_out[1],
-					theme_files = data_out[2],
-					total_files = Object.keys(theme_files).length;
-				_.each( theme_files, function(file) {
-					individualSniff( theme_name, theme_args, file, total_files );
-				});
+					theme_files_raw = data_out[2],
+					total_files = Object.keys(theme_files_raw).length,
+					file_number = 0;
 
+					var theme_files = _.reduce(theme_files_raw, function(result, value, key) {
+						result[file_number] = value;
+						file_number++;
+						return result;
+					}, {});
+console.log('bla');
+					individualSniff( theme_name, theme_args, theme_files, total_files );
 			},
 			error: function(errorThrown){
 				console.log(errorThrown);
@@ -45,32 +50,43 @@ jQuery( document ).ready(function($) {
 		});
 	}
 
-	function individualSniff( theme_name, theme_args, theme_file, total_files ) {
-		$.ajax({
-			type: 'POST',
-			url: ajaxurl,
-			data: {
-				'action': 'ns_theme_check_sniff',
-				'theme_name': theme_name,
-				'theme_args': theme_args,
-				'file': theme_file,
-				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
-			},
-			success: function(data, status, xhr) {
-				count++;
-				var percentComplete = (( count / total_files ) * 100).toFixed(2);
-				$('.progress-bar').html( '<span>Percent completed: ' + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
-				renderJSON(data);
-			},
-			error: function(xhr, status, errorThrown){
-				count++;
-				var percentComplete = (( count / total_files ) * 100).toFixed(2);
-				$('.progress-bar').html( '<span>Percent completed: ' + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
-				if ( 500 === xhr.status) {
+	function individualSniff( theme_name, theme_args, theme_files, total_files ) {
+			var file_no = 0;
 
-				}
+			function sniffAjaxCall(file_no) {
+				$.ajax({
+					type: 'POST',
+					url: ajaxurl,
+					data: {
+						'action': 'ns_theme_check_sniff',
+						'theme_name': theme_name,
+						'theme_args': theme_args,
+						'file': theme_files[file_no],
+						'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
+					},
+					success: function(data, status, xhr) {
+						count++;
+						var percentComplete = (( count / total_files ) * 100).toFixed(2);
+						$('.progress-bar').html( '<span>Percent completed: ' + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+						renderJSON(data);
+					},
+					complete: function() {
+						file_no++;
+						if (file_no < total_files) {
+							sniffAjaxCall(file_no);
+						}
+					},
+					error: function(xhr, status, errorThrown){
+						if ( 500 === xhr.status) {
+
+						}
+					}
+				});
+				return false;
 			}
-		});
+
+			sniffAjaxCall(file_no);
+
 	}
 
 	function renderJSON( json ) {
