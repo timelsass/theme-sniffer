@@ -42,7 +42,7 @@ jQuery( document ).ready(function($) {
 						return result;
 					}, {});
 
-					individualSniff( theme_name, theme_args, theme_files, total_files );
+					individualSniff( theme_name, theme_args, theme_files, total_files, file_number = 0 );
 			},
 			error: function(errorThrown){
 				console.log(errorThrown);
@@ -50,10 +50,8 @@ jQuery( document ).ready(function($) {
 		});
 	}
 
-	function individualSniff( theme_name, theme_args, theme_files, total_files ) {
-			var file_no = 0;
-
-			function sniffAjaxCall(file_no) {
+	function individualSniff( theme_name, theme_args, theme_files, total_files, file_number ) {
+				var file_no = file_number;
 				$.ajax({
 					type: 'POST',
 					url: ajaxurl,
@@ -67,16 +65,20 @@ jQuery( document ).ready(function($) {
 					success: function(data, status, xhr) {
 						count++;
 						var percentComplete = (( count / total_files ) * 100).toFixed(2);
-						$('.progress-bar').html( '<span>Percent completed: ' + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+						$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
 						renderJSON(data);
 					},
 					complete: function() {
 						file_no++;
 						if (file_no < total_files) {
-							sniffAjaxCall(file_no);
+							individualSniff( theme_name, theme_args, theme_files, total_files, file_no );
 						}
 					},
 					error: function(xhr, status, errorThrown) {
+						count++;
+						var percentComplete = (( count / total_files ) * 100).toFixed(2);
+						$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+
 						if ( 500 === xhr.status) {
 							var files_val = {};
 							files_val[theme_files[file_no]] = {
@@ -109,7 +111,7 @@ jQuery( document ).ready(function($) {
 					}
 				});
 				return false;
-			}
+
 
 			sniffAjaxCall(file_no);
 
