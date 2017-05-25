@@ -41,7 +41,7 @@ jQuery( document ).ready(function($) {
 						file_number++;
 						return result;
 					}, {});
-console.log('bla');
+
 					individualSniff( theme_name, theme_args, theme_files, total_files );
 			},
 			error: function(errorThrown){
