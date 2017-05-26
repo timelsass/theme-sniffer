@@ -75,16 +75,16 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	// Initialise CodeSniffer.
 	$phpcs_cli = new PHP_CodeSniffer_CLI();
 	$phpcs_cli->checkRequirements();
-	
+
 	ob_start();
 	$num_errors = $phpcs_cli->process( $values );
 	$raw_output = ob_get_clean();
+	$output = '';
 
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
 		if ( ! empty( $raw_output ) ) {
-			$output = implode( "\n", $raw_output );
-			$output = '<pre>' . esc_html( $output ) . '</pre>';
+			$output = '<pre>' . esc_html( $raw_output ) . '</pre>';
 		}
 	} else {
 		$output = json_decode( $raw_output );

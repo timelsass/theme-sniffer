@@ -63,10 +63,13 @@ jQuery( document ).ready(function($) {
 				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
 			},
 			success: function(data, status, xhr) {
+				var percentComplete,
+					wrapper;
 				count++;
-				var percentComplete = (( count / total_files ) * 100).toFixed(2);
+				percentComplete = (( count / total_files ) * 100).toFixed(2);
 				$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
-				renderJSON(data);
+				wrapper = renderJSON(data);
+				$('.theme-check-report').append(wrapper);
 			},
 			complete: function() {
 				file_no++;
@@ -119,6 +122,10 @@ jQuery( document ).ready(function($) {
 			return;
 		}
 
+		if ( typeof json.data.totals == "undefined" || json.data.totals == null ) {
+			return json.data;
+		}
+
 		if ( 0 == json.data.totals.errors && 0 == json.data.totals.warnings ) {
 			return;
 		}
@@ -168,7 +175,7 @@ jQuery( document ).ready(function($) {
 		wrapper.appendChild(heading);
 		wrapper.appendChild(table);
 
-		$('.theme-check-report').append(wrapper);
+		return wrapper;
 
 	}
 });
