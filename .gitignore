@@ -1,2 +1,10 @@
+# Node and composer folders
 node_modules/
 vendor/
+
+# Mac OS custom attribute store and thumbnails
+*.DS_Store
+._*
+
+# Windows thumbnail cache files
+Thumbs.db

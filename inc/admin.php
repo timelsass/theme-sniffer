@@ -64,6 +64,10 @@ function ns_theme_check_admin_scripts( $hook ) {
 	}
 	wp_enqueue_style( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/css/admin.css', array(), '0.1.3c' );
 	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.3a' );
+	wp_localize_script( 'ns-theme-check-admin', 'localization_object', array(
+		'sniff_error' => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'ns-theme-check' ),
+		'percent_complete' => __( 'Percent completed: ', 'ns-theme-check' )
+	));
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
 
@@ -241,6 +245,6 @@ function ns_theme_check_individual_files() {
 
 	$sniff = ns_theme_check_do_sniff( $_POST['theme_name'], $_POST['theme_args'], $_POST['file'] );
 
-	wp_die();
+	wp_send_json_success( $sniff );
 
 }
