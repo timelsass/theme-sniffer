@@ -66,7 +66,7 @@ function ns_theme_check_admin_scripts( $hook ) {
 	wp_enqueue_script( 'ns-theme-check-admin', NS_THEME_CHECK_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.3a' );
 	wp_localize_script( 'ns-theme-check-admin', 'localization_object', array(
 		'sniff_error' => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'ns-theme-check' ),
-		'percent_complete' => __( 'Percent completed: ', 'ns-theme-check' )
+		'percent_complete' => __( 'Percent completed: ', 'ns-theme-check' ),
 	));
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );

@@ -37,7 +37,7 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 
 	// Set CLI arguments.
 	$values['files']       = $file;
-	// $values['reportWidth'] = '110';
+	$values['reportWidth'] = '110';
 
 	if ( 0 === absint( $args['raw_output'] ) ) {
 		$values['reports']['json'] = null;
@@ -47,7 +47,6 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 		$values['standard'] = $args['standard'];
 	}
 	$values['standard'][] = NS_THEME_CHECK_DIR . '/bin/phpcs.xml';
-	// $values['verbosity'] = 2;
 
 	// Set default standard.
 	PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
