@@ -3,7 +3,7 @@
  * Plugin Name:       NS Theme Check
  * Plugin URI:        https://github.com/ernilambar/ns-theme-check
  * Description:       Theme Check using sniffs.
- * Version:           0.1.3
+ * Version:           0.1.4
  * Author:            Nilambar Sharma
  * Author URI:        http://nilambar.net
  * Text Domain:       ns-theme-check
