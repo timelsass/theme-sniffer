@@ -18,11 +18,6 @@
  */
 function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 
-	if ( ! file_exists( NS_THEME_CHECK_DIR . '/vendor/autoload.php' ) ) {
-		printf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'ns-theme-check' ), '<a href="https://github.com/ernilambar/ns-theme-check#installing" target="_blank">', '</a>' );
-		return;
-	}
-
 	require_once NS_THEME_CHECK_DIR . '/vendor/autoload.php';
 
 	$defaults = array(
@@ -90,7 +85,6 @@ function ns_theme_check_do_sniff( $theme_slug, $args = array(), $file ) {
 	} // End if().
 
 	return $output;
-
 }
 
 /**

@@ -7,7 +7,7 @@ jQuery( document ).ready(function($) {
 		count = 0;
 		$('.theme-check-report').empty();
 		$('.progress-bar').remove();
-		$('.theme-check-report').before('<div class="progress-bar"><span>Check starting...</span></div>');
+		$('.theme-check-report').before('<div class="progress-bar"><span>' + localization_object.check_starting + '</span></div>');
 		themeCheckRunPHPCS();
 	});
 
@@ -28,21 +28,24 @@ jQuery( document ).ready(function($) {
 				'wordpress-vip': $('input[name=wordpress-vip]').is(':checked'),
 				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
 			},
-			success:function(data) {
-				var data_out    = JSON.parse(data),
-					theme_name  = data_out[0],
-					theme_args  = data_out[1],
-					theme_files_raw = data_out[2],
-					total_files = Object.keys(theme_files_raw).length,
-					file_number = 0;
-
-					var theme_files = _.reduce(theme_files_raw, function(result, value, key) {
-						result[file_number] = value;
-						file_number++;
-						return result;
-					}, {});
+			success:function(response) {
+				if ( true === response.success ) {
+					var theme_name  = response.data[0],
+						theme_args  = response.data[1],
+						theme_files_raw = response.data[2],
+						total_files = Object.keys(theme_files_raw).length,
+						file_number = 0,
+						theme_files = _.reduce(theme_files_raw, function(result, value, key) {
+							result[file_number] = value;
+							file_number++;
+							return result;
+						}, {});
 
 					individualSniff( theme_name, theme_args, theme_files, total_files, file_number = 0 );
+				} else {
+					$('.theme-check-report').before(response.data[0].message);
+					$('.progress-bar').html( '<span class="error">' + localization_object.check_failed + '</span>' );
+				}
 			},
 			error: function(errorThrown){
 				console.log(errorThrown);
@@ -63,12 +66,10 @@ jQuery( document ).ready(function($) {
 				'ns_theme_check_nonce': $('#ns_theme_check_nonce').val(),
 			},
 			success: function(data, status, xhr) {
-				var percentComplete,
-					wrapper;
+				var wrapper;
 				count++;
-				percentComplete = (( count / total_files ) * 100).toFixed(2);
-				$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
-				wrapper = renderJSON(data);
+				bumpProgressBar(count, total_files);
+				wrapper = renderJSON(data)
 				$('.theme-check-report').append(wrapper);
 			},
 			complete: function() {
@@ -78,9 +79,10 @@ jQuery( document ).ready(function($) {
 				}
 			},
 			error: function(xhr, status, errorThrown) {
+				var wrapper;
+
 				count++;
-				var percentComplete = (( count / total_files ) * 100).toFixed(2);
-				$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+				bumpProgressBar(count, total_files);
 
 				if ( 500 === xhr.status) {
 					var files_val = {};
@@ -108,9 +110,9 @@ jQuery( document ).ready(function($) {
 							}
 						}
 					};
-
-					renderJSON(error_data)
+					wrapper = renderJSON(error_data)
 				}
+				$('.theme-check-report').append(wrapper);
 			}
 		});
 		return false;
@@ -177,5 +179,10 @@ jQuery( document ).ready(function($) {
 
 		return wrapper;
 
+	}
+
+	function bumpProgressBar(count, total_files){
+		var percentComplete = (( count / total_files ) * 100).toFixed(2);
+		$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
 	}
 });

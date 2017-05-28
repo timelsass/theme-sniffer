@@ -67,6 +67,8 @@ function ns_theme_check_admin_scripts( $hook ) {
 	wp_localize_script( 'ns-theme-check-admin', 'localization_object', array(
 		'sniff_error' => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'ns-theme-check' ),
 		'percent_complete' => __( 'Percent completed: ', 'ns-theme-check' ),
+		'check_starting' => __( 'Check starting...', 'ns-theme-check' ),
+		'check_failed' => __( 'Check has failed :(', 'ns-theme-check' ),
 	));
 }
 add_action( 'admin_enqueue_scripts', 'ns_theme_check_admin_scripts' );
@@ -178,6 +180,12 @@ function ns_theme_check_initialize_sniff() {
 		return;
 	}
 
+	if ( ! file_exists( NS_THEME_CHECK_DIR . '/vendor/autoload.php' ) ) {
+		$message = sprintf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'ns-theme-check' ), '<a href="https://github.com/ernilambar/ns-theme-check#installing" target="_blank">', '</a>' );
+		$error = new WP_Error( '-1', $message );
+		wp_send_json_error( $error );
+	}
+
 	$theme_slug = esc_html( $_POST['themename'] );
 
 	// Verify nonce.
@@ -221,7 +229,7 @@ function ns_theme_check_initialize_sniff() {
 
 	$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
 
-	wp_die( json_encode( array( $theme_slug, $args, $all_files ) ) );
+	wp_send_json_success( array( $theme_slug, $args, $all_files ) );
 
 }
 
@@ -233,13 +241,12 @@ add_action( 'wp_ajax_ns_theme_check_sniff', 'ns_theme_check_individual_files' );
  */
 function ns_theme_check_individual_files() {
 	// Bail if empty.
-	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] )  || empty( $_POST['file'] ) ) {
+	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] ) || empty( $_POST['file'] ) ) {
 		return;
 	}
 
 	// Verify nonce.
 	if ( ! isset( $_POST['ns_theme_check_nonce'] ) || ! wp_verify_nonce( $_POST['ns_theme_check_nonce'], 'ns_theme_check_run' ) ) {
-		esc_html_e( 'Error', 'ns-theme-check' );
 		return;
 	}
 
