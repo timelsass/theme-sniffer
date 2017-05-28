@@ -4,7 +4,7 @@
   "description": "Theme Check plugin using sniffs. `WordPress-Theme` standard is used from WPTRT/WordPress-Coding-Standards.",
   "main": "index.js",
   "dependencies": {
-    "csslint": "^1.0.5"
+    "stylelint": "^7.10.1"
   },
   "devDependencies": {},
   "scripts": {
