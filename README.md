@@ -8,7 +8,7 @@ Theme Sniffer plugin using sniffs. `WordPress-Theme` standard is used from [WPTR
 
 ### Option 1: Easy
 
-* Download [zip file](https://github.com/ernilambar/theme-sniffer/releases/download/0.1.4/theme-sniffer.0.1.4.zip). [Note: Please use this distribution plugin zip. GitHub provided zip will not work.]
+* Download [zip file](https://github.com/WPTRT/theme-sniffer/releases/download/0.1.4/theme-sniffer.0.1.4.zip). [Note: Please use this distribution plugin zip. GitHub provided zip will not work.]
 * Install this as you normally install a WordPress plugin
 * Activate plugin
 
