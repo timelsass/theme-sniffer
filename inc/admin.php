@@ -69,7 +69,7 @@ function theme_sniffer_admin_scripts( $hook ) {
 		'percent_complete' => __( 'Percent completed: ', 'theme-sniffer' ),
 		'check_starting'   => __( 'Check starting...', 'theme-sniffer' ),
 		'check_failed'     => __( 'Check has failed :(', 'theme-sniffer' ),
-		'check_done'     	 => __( 'All done!', 'theme-sniffer' ),
+		'check_done'       => __( 'All done!', 'theme-sniffer' ),
 	));
 }
 add_action( 'admin_enqueue_scripts', 'theme_sniffer_admin_scripts' );

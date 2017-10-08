@@ -93,7 +93,6 @@ function theme_sniffer_run_sniffer() {
  * @since 0.1.0
  */
 function theme_sniffer_individual_sniff() {
-	
 	// Bail if empty.
 	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] ) || empty( $_POST['file'] ) ) {
 		return;
