@@ -8,7 +8,7 @@ jQuery( document ).ready(function($) {
 		count = 0;
 		$sniff_report.empty();
 		$('.progress-bar').remove();
-		$sniff_report.before('<div class="progress-bar"><span>' + localization_object.check_starting + '</span></div>');
+		$sniff_report.before('<div class="progress-bar"><span>' + localizationObject.check_starting + '</span></div>');
 		themeCheckRunPHPCS();
 	});
 
@@ -26,23 +26,28 @@ jQuery( document ).ready(function($) {
 	});
 
 	function themeCheckRunPHPCS() {
+
+		var data = {
+			'themename': $('select[name=themename]').val(),
+			'hide_warning': $('input[name=hide_warning]').is(':checked'),
+			'raw_output': $('input[name=raw_output]').is(':checked'),
+			'minimum_php_version': $('select[name=minimum_php_version]').val(),
+			'wordpress-theme': $('input[name=wordpress-theme]').is(':checked'),
+			'wordpress-core': $('input[name=wordpress-core]').is(':checked'),
+			'wordpress-extra': $('input[name=wordpress-extra]').is(':checked'),
+			'wordpress-docs': $('input[name=wordpress-docs]').is(':checked'),
+			'wordpress-vip': $('input[name=wordpress-vip]').is(':checked'),
+			'theme_sniffer_nonce': $('#theme_sniffer_nonce').val(),
+		};
+
 		$.ajax({
 			type: 'POST',
-			url: ajaxurl,
-			data: {
-				'action': 'theme_sniffer_run',
-				'themename': $('select[name=themename]').val(),
-				'hide_warning': $('input[name=hide_warning]').is(':checked'),
-				'raw_output': $('input[name=raw_output]').is(':checked'),
-				'minimum_php_version': $('select[name=minimum_php_version]').val(),
-				'wordpress-theme': $('input[name=wordpress-theme]').is(':checked'),
-				'wordpress-core': $('input[name=wordpress-core]').is(':checked'),
-				'wordpress-extra': $('input[name=wordpress-extra]').is(':checked'),
-				'wordpress-docs': $('input[name=wordpress-docs]').is(':checked'),
-				'wordpress-vip': $('input[name=wordpress-vip]').is(':checked'),
-				'theme_sniffer_nonce': $('#theme_sniffer_nonce').val(),
+			url: '/wp-json/wp/v2/theme-sniffer/sniff-run',
+			data: data,
+			beforeSend: function(xhr) {
+					xhr.setRequestHeader( 'X-WP-Nonce', data.theme_sniffer_nonce );
 			},
-			success:function(response) {
+			success: function(response) {
 				if ( true === response.success ) {
 					var theme_name  = response.data[0],
 						theme_args  = response.data[1],
@@ -58,7 +63,7 @@ jQuery( document ).ready(function($) {
 					individualSniff( theme_name, theme_args, theme_files, total_files, file_number = 0 );
 				} else {
 					$('.theme-sniffer-report').before(response.data[0].message);
-					$('.progress-bar').html( '<span class="error">' + localization_object.check_failed + '</span>' ).addClass('install-error');
+					$('.progress-bar').html( '<span class="error">' + localizationObject.check_failed + '</span>' ).addClass('install-error');
 				}
 			},
 			error: function(errorThrown){
@@ -71,16 +76,19 @@ jQuery( document ).ready(function($) {
 	function individualSniff( theme_name, theme_args, theme_files, total_files, file_number ) {
 		var file_no = file_number;
 		var $sniff_report = $('.theme-sniffer-report');
+		var data = {
+			'theme_name': theme_name,
+			'theme_args': theme_args,
+			'file': theme_files[file_no],
+			'theme_sniffer_nonce': $('#theme_sniffer_nonce').val()
+		};
 
 		$.ajax({
 			type: 'POST',
-			url: ajaxurl,
-			data: {
-				'action': 'theme_sniffer_sniff',
-				'theme_name': theme_name,
-				'theme_args': theme_args,
-				'file': theme_files[file_no],
-				'theme_sniffer_nonce': $('#theme_sniffer_nonce').val(),
+			url: '/wp-json/wp/v2/theme-sniffer/individual-sniff',
+			data: data,
+			beforeSend: function(xhr) {
+				xhr.setRequestHeader( 'X-WP-Nonce', data.theme_sniffer_nonce );
 			},
 			success: function(data, status, xhr) {
 				var wrapper;
@@ -93,6 +101,8 @@ jQuery( document ).ready(function($) {
 				file_no++;
 				if (file_no < total_files) {
 					individualSniff( theme_name, theme_args, theme_files, total_files, file_no );
+				} else {
+					$sniff_report.after('<div>' + localizationObject.check_done + '</div>');
 				}
 			},
 			error: function(xhr, status, errorThrown) {
@@ -110,7 +120,7 @@ jQuery( document ).ready(function($) {
 							'column': 1,
 							'fixable': false,
 							'line': 1,
-							'message': localization_object.sniff_error,
+							'message': localizationObject.sniff_error,
 							'severity': 5,
 							'type': 'ERROR'
 						}]
@@ -198,6 +208,6 @@ jQuery( document ).ready(function($) {
 
 	function bumpProgressBar(count, total_files) {
 		var percentComplete = (( count / total_files ) * 100).toFixed(2);
-		$('.progress-bar').html( '<span>' + localization_object.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
+		$('.progress-bar').html( '<span>' + localizationObject.percent_complete + percentComplete + '%</span>' ).append('<span class="meter" style="width: ' + percentComplete + '%"></span>');
 	}
 });

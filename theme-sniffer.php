@@ -67,3 +67,6 @@ require_once THEME_SNIFFER_DIR . '/inc/helpers.php';
 // Load admin.
 require_once THEME_SNIFFER_DIR . '/inc/admin.php';
 require_once THEME_SNIFFER_DIR . '/inc/checks.php';
+
+// Load routes for theme sniffer files.
+require_once THEME_SNIFFER_DIR . '/inc/routes.php';
