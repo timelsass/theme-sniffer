@@ -124,7 +124,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 		);
 	}
 
-	if ( strpos( $theme_slug, 'wordpress' ) || strpos( $theme_slug, 'theme' ) ) {
+	if ( strpos( $theme_slug, 'wordpress' ) || strpos( $theme_slug, 'theme' ) ) { // WPCS: spelling ok.
 		$notices[] = array(
 			'message'  => __( 'The theme name cannot contain WordPress or Theme.', 'theme-sniffer' ),
 			'severity' => 'error',
