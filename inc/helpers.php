@@ -107,6 +107,7 @@ function theme_sniffer_get_theme_tags() {
 		'threaded-comments'     => 'threaded-comments',
 		'translation-ready'     => 'translation-ready',
 	);
+
 	$tags['subject_tags'] = array(
 		'blog'           => 'blog',
 		'e-commerce'     => 'e-commerce',
