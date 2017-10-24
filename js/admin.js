@@ -88,6 +88,10 @@ jQuery( document ).ready(function($) {
 			url: '/wp-json/wp/v2/theme-sniffer/individual-sniff',
 			data: data,
 			beforeSend: function(xhr) {
+				var $checkNotice = $('.check-done');
+				if($checkNotice.length){
+					$checkNotice.remove();
+				}
 				xhr.setRequestHeader( 'X-WP-Nonce', data.theme_sniffer_nonce );
 			},
 			success: function(data, status, xhr) {
@@ -102,7 +106,7 @@ jQuery( document ).ready(function($) {
 				if (file_no < total_files) {
 					individualSniff( theme_name, theme_args, theme_files, total_files, file_no );
 				} else {
-					$sniff_report.after('<div>' + localizationObject.check_done + '</div>');
+					$sniff_report.after('<div class="check-done">' + localizationObject.check_done + '</div>');
 				}
 			},
 			error: function(xhr, status, errorThrown) {
