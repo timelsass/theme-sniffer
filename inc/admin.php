@@ -64,12 +64,14 @@ function theme_sniffer_admin_scripts( $hook ) {
 	}
 	wp_enqueue_style( 'theme-sniffer-admin', THEME_SNIFFER_URL . '/css/admin.css', array(), '0.1.3c' );
 	wp_enqueue_script( 'theme-sniffer-admin', THEME_SNIFFER_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.4' );
+
 	wp_localize_script( 'theme-sniffer-admin', 'localizationObject', array(
 		'sniff_error'      => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 		'percent_complete' => __( 'Percent completed: ', 'theme-sniffer' ),
 		'check_starting'   => __( 'Check starting...', 'theme-sniffer' ),
 		'check_failed'     => __( 'Check has failed :(', 'theme-sniffer' ),
 		'check_done'       => __( 'All done!', 'theme-sniffer' ),
+
 	));
 }
 add_action( 'admin_enqueue_scripts', 'theme_sniffer_admin_scripts' );
