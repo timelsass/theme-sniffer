@@ -14,12 +14,12 @@ add_action( 'rest_api_init', 'theme_sniffer_endpoint_init' );
  */
 function theme_sniffer_endpoint_init() {
 	register_rest_route( 'wp/v2/theme-sniffer/', '/sniff-run', array(
-		'methods'  => 'POST',
+		'methods'  => 'GET',
 		'callback' => 'theme_sniffer_run_sniffer',
 	) );
 
 	register_rest_route( 'wp/v2/theme-sniffer/', '/individual-sniff', array(
-		'methods'  => 'POST',
+		'methods'  => 'GET',
 		'callback' => 'theme_sniffer_individual_sniff',
 	) );
 }
@@ -31,12 +31,12 @@ function theme_sniffer_endpoint_init() {
  */
 function theme_sniffer_run_sniffer() {
 	// Bail if empty.
-	if ( empty( $_POST['themename'] ) ) {
+	if ( empty( $_GET['themename'] ) ) {
 		return;
 	}
 
 	// Verify nonce.
-	if ( ! isset( $_POST['theme_sniffer_nonce'] ) || ! wp_verify_nonce( $_POST['theme_sniffer_nonce'], 'wp_rest' ) ) {
+	if ( ! isset( $_GET['theme_sniffer_nonce'] ) || ! wp_verify_nonce( $_GET['theme_sniffer_nonce'], 'wp_rest' ) ) {
 		esc_html_e( 'Nonce error', 'theme-sniffer' );
 		return;
 	}
@@ -47,23 +47,23 @@ function theme_sniffer_run_sniffer() {
 		wp_send_json_error( $error );
 	}
 
-	$theme_slug = esc_html( $_POST['themename'] );
+	$theme_slug = esc_html( $_GET['themename'] );
 
-	if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
+	if ( isset( $_GET['hide_warning'] ) && 'true' === $_GET['hide_warning'] ) {
 		$args['show_warnings'] = true;
 	}
 
-	if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
+	if ( isset( $_GET['raw_output'] ) && 'true' === $_GET['raw_output'] ) {
 		$args['raw_output'] = 1;
 	}
 
-	if ( isset( $_POST['minimum_php_version'] ) && ! empty( $_POST['minimum_php_version'] ) ) {
-		$args['minimum_php_version'] = esc_html( $_POST['minimum_php_version'] );
+	if ( isset( $_GET['minimum_php_version'] ) && ! empty( $_GET['minimum_php_version'] ) ) {
+		$args['minimum_php_version'] = esc_html( $_GET['minimum_php_version'] );
 	}
 
 	$standards = theme_sniffer_get_standards();
 	foreach ( $standards as $key => $standard ) {
-		if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) {
+		if ( isset( $_GET[ $key ] ) && 'true' === $_GET[ $key ] ) {
 			$args['standard'][] = $standard['label'];
 		}
 	}
@@ -94,17 +94,17 @@ function theme_sniffer_run_sniffer() {
  */
 function theme_sniffer_individual_sniff() {
 	// Bail if empty.
-	if ( empty( $_POST['theme_name'] ) || empty( $_POST['theme_args'] ) || empty( $_POST['file'] ) ) {
+	if ( empty( $_GET['theme_name'] ) || empty( $_GET['theme_args'] ) || empty( $_GET['file'] ) ) {
 		return;
 	}
 
 	// Verify nonce.
-	if ( ! isset( $_POST['theme_sniffer_nonce'] ) || ! wp_verify_nonce( $_POST['theme_sniffer_nonce'], 'wp_rest' ) ) {
+	if ( ! isset( $_GET['theme_sniffer_nonce'] ) || ! wp_verify_nonce( $_GET['theme_sniffer_nonce'], 'wp_rest' ) ) {
 		esc_html_e( 'Nonce error', 'theme-sniffer' );
 		return;
 	}
 
-	$sniff = theme_sniffer_do_sniff( $_POST['theme_name'], $_POST['theme_args'], $_POST['file'] );
+	$sniff = theme_sniffer_do_sniff( $_GET['theme_name'], $_GET['theme_args'], $_GET['file'] );
 
 	wp_send_json_success( $sniff );
 }

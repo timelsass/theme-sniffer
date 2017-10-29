@@ -18,6 +18,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+define( 'THEME_SNIFFER_VERSION', '0.1.5' );
+
 add_action( 'admin_init', 'theme_sniffer_check_php' );
 
 /**

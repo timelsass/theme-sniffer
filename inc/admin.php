@@ -62,15 +62,17 @@ function theme_sniffer_admin_scripts( $hook ) {
 	if ( 'appearance_page_theme-sniffer' !== $hook ) {
 		return;
 	}
-	wp_enqueue_style( 'theme-sniffer-admin', THEME_SNIFFER_URL . '/css/admin.css', array(), '0.1.3c' );
-	wp_enqueue_script( 'theme-sniffer-admin', THEME_SNIFFER_URL . '/js/admin.js', array( 'jquery', 'underscore' ), '0.1.4' );
+	wp_enqueue_style( 'theme-sniffer-admin-css', THEME_SNIFFER_URL . '/assets/build/styles/application.css', array(), THEME_SNIFFER_VERSION );
+	wp_enqueue_script( 'theme-sniffer-admin-js', THEME_SNIFFER_URL . '/assets/build/scripts/application.js', array(), THEME_SNIFFER_VERSION );
 
-	wp_localize_script( 'theme-sniffer-admin', 'localizationObject', array(
-		'sniff_error'      => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
-		'percent_complete' => __( 'Percent completed: ', 'theme-sniffer' ),
-		'check_starting'   => __( 'Check starting...', 'theme-sniffer' ),
-		'check_failed'     => __( 'Check has failed :(', 'theme-sniffer' ),
-		'check_done'       => __( 'All done!', 'theme-sniffer' ),
+	wp_localize_script( 'theme-sniffer-admin-js', 'localizationObject', array(
+		'sniff_error'     => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
+		'percentComplete' => __( 'Percent completed: ', 'theme-sniffer' ),
+		'check_starting'  => __( 'Check starting...', 'theme-sniffer' ),
+		'check_failed'    => __( 'Check has failed :(', 'theme-sniffer' ),
+		'check_done'      => __( 'All done!', 'theme-sniffer' ),
+		'root'            => esc_url_raw( rest_url() ),
+    'restNonce'       => wp_create_nonce( 'wp_rest' ),
 
 	));
 }
@@ -147,7 +149,7 @@ function theme_sniffer_render_form() {
 			<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>
 			<?php foreach ( $standards as $key => $standard ) : ?>
 				<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
-					<input type="checkbox" name="<?php echo esc_attr( $key ); ?>" id="<?php echo esc_attr( $key ); ?>" value="1" <?php checked( $standard_status[ $key ], 1 ); ?> />
+					<input type="checkbox" name="selected_ruleset[]" id="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $key ); ?>" <?php checked( $standard_status[ $key ], 1 ); ?> />
 					<?php echo '<strong>' . esc_html( $standard['label'] ) . '</strong>: ' . esc_html( $standard['description'] ); ?>
 				</label><br>
 			<?php endforeach; ?>
@@ -167,6 +169,9 @@ function theme_sniffer_render_form() {
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
-	<div class="theme-sniffer-report"></div><!-- .theme-sniffer-report -->
+	<div class="progress-bar js-progress-bar">'<span class="error"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ) ?></span><span class="starting"><?php esc_html__( 'Check starting...', 'theme-sniffer' ); ?></span></div>
+	<div class="theme-sniffer-info js-sniffer-info"></div>
+	<div class="theme-sniffer-report js-sniff-report"></div><!-- .theme-sniffer-report -->
+	<div class="check-done js-check-done"><?php esc_html_e( 'All done!', 'theme-sniffer' ); ?></div>
 	<?php
 }
