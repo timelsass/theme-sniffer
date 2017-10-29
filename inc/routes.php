@@ -13,12 +13,12 @@ add_action( 'rest_api_init', 'theme_sniffer_endpoint_init' );
  * @since 0.1.0
  */
 function theme_sniffer_endpoint_init() {
-	register_rest_route( 'wp/v2/theme-sniffer/', '/sniff-run', array(
+	register_rest_route( 'theme-sniffer/v1', '/sniff-run', array(
 		'methods'  => 'POST',
 		'callback' => 'theme_sniffer_run_sniffer',
 	) );
 
-	register_rest_route( 'wp/v2/theme-sniffer/', '/individual-sniff', array(
+	register_rest_route( 'theme-sniffer/v1', '/individual-sniff', array(
 		'methods'  => 'POST',
 		'callback' => 'theme_sniffer_individual_sniff',
 	) );

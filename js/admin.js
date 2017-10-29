@@ -42,7 +42,7 @@ jQuery( document ).ready(function($) {
 
 		$.ajax({
 			type: 'POST',
-			url: '/wp-json/wp/v2/theme-sniffer/sniff-run',
+			url: '/wp-json/theme-sniffer/v1/sniff-run',
 			data: data,
 			beforeSend: function(xhr) {
 					xhr.setRequestHeader( 'X-WP-Nonce', data.theme_sniffer_nonce );
@@ -85,7 +85,7 @@ jQuery( document ).ready(function($) {
 
 		$.ajax({
 			type: 'POST',
-			url: '/wp-json/wp/v2/theme-sniffer/individual-sniff',
+			url: '/wp-json/theme-sniffer/v1/individual-sniff',
 			data: data,
 			beforeSend: function(xhr) {
 				var $checkNotice = $('.check-done');
