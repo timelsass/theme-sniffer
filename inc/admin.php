@@ -164,9 +164,13 @@ function theme_sniffer_render_form() {
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
-	<div class="progress-bar js-progress-bar"><span class="error"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ); ?></span><span class="starting"><?php esc_html__( 'Check starting...', 'theme-sniffer' ); ?></span></div>
-	<div class="theme-sniffer-info js-sniffer-info"></div>
+	<div class="progress-bar js-progress-bar">
+		<span class="error-notice js-error-notice"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ); ?></span>
+		<span class="percentage js-percentage-bar"><?php esc_html_e( 'Percent completed: ', 'theme-sniffer' ); ?><span class="js-percentage-count"></span></span>
+		<span class="meter js-meter-bar"></span>
+	</div>
 	<div class="theme-sniffer-report js-sniff-report"></div><!-- .theme-sniffer-report -->
+	<div class="theme-sniffer-info js-sniffer-info"></div>
 	<div class="check-done js-check-done"><?php esc_html_e( 'All done!', 'theme-sniffer' ); ?></div>
 	<?php
 }

@@ -67,8 +67,7 @@ function theme_sniffer_do_sniff( $theme_slug, $args = array(), $file ) {
 
 	// Path to WordPress Theme coding standard.
 	PHP_CodeSniffer::setConfigData( 'installed_paths', THEME_SNIFFER_DIR . '/vendor/wp-coding-standards/wpcs/', true );
-error_log( print_r( $args, true ) );
-error_log( print_r( $values, true ) );
+
 	// Initialise CodeSniffer.
 	$phpcs_cli = new PHP_CodeSniffer_CLI();
 	$phpcs_cli->checkRequirements();

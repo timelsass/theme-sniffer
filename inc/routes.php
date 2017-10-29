@@ -112,7 +112,9 @@ function theme_sniffer_run_sniffer( \WP_REST_Request $request ) {
  */
 function theme_sniffer_individual_sniff( \WP_REST_Request $request ) {
 	$headers = $request->get_headers();
-
+error_log( print_r( $_GET['themeName'], true ) );
+error_log( print_r( $_GET['themeArgs'], true ) );
+error_log( print_r( $_GET['file'], true ) );
 	// Bail if empty.
 	if ( empty( $_GET['themeName'] ) || empty( $_GET['themeArgs'] ) || empty( $_GET['file'] ) ) {
 		$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );

@@ -6,11 +6,15 @@ import ajax from './utils/ajax';
 export default class ThemeSniffer {
   constructor(options) {
     this.SHOW_CLASS = 'is-shown';
-    this.SHOW_ERROR_CLASS = 'install-error';
+    this.ERROR_CLASS = 'error';
     this.$sniffReport = options.sniffReport;
     this.$progressBar = options.progressBar;
     this.$snifferInfo = options.snifferInfo;
     this.$checkNotice = options.checkNotice;
+    this.$percentageBar = options.percentageBar;
+    this.$percentageCount = options.percentageCount;
+    this.$errorNotice = options.errorNotice;
+    this.$meterBar = options.meterBar;
     this.nonce = options.nonce;
     this.count = 0;
   }
@@ -30,7 +34,10 @@ export default class ThemeSniffer {
       data: snifferRunData,
       beforeSend: (xhr) => {
         this.$progressBar.removeClass(this.SHOW_CLASS);
+        this.$errorNotice.removeClass(this.SHOW_CLASS);
         this.$checkNotice.removeClass(this.SHOW_CLASS);
+        this.$percentageBar.removeClass(this.SHOW_CLASS);
+        this.$percentageCount.empty();
         this.$sniffReport.empty();
         xhr.setRequestHeader('X-WP-Nonce', this.nonce);
       }
@@ -43,16 +50,16 @@ export default class ThemeSniffer {
         const themeFilesRaw = response.data[2];
         const totalFiles = Object.keys(themeFilesRaw).length;
         let fileNumber = 0;
-        const themeFiles = Object.keys(themeFilesRaw).reduce((result, value) => {
+        const themeFiles = Object.values(themeFilesRaw).reduce((result, value) => {
           result[fileNumber] = value;
           fileNumber++;
           return result;
         }, {});
         this.individualSniff(themeName, themeArgs, themeFiles, totalFiles, fileNumber = 0);
       } else {
+        this.$progressBar.addClass(this.ERROR_CLASS);
         this.$snifferInfo.addClass(this.SHOW_CLASS);
         this.$snifferInfo.html(response.data[0].message);
-        this.$progressBar.addClass(this.SHOW_ERROR_CLASS);
       }
     }, (xhr, textStatus, errorThrown) => {
       throw new Error(`Error: ${errorThrown}: ${xhr} ${textStatus}`);
@@ -76,19 +83,20 @@ export default class ThemeSniffer {
     }).then((response) => {
       if (response.success === true) {
         this.count++;
+        const singleFileNumber = this.count;
         this.bumpProgressBar(this.count, totalFiles);
         const sniffWrapper = this.renderJSON(response);
         this.$sniffReport.append(sniffWrapper);
 
         if (fileNumber < totalFiles) {
-          this.individualSniff(name, args, themeFiles, totalFiles, fileNumber);
+          this.individualSniff(name, args, themeFiles, totalFiles, singleFileNumber);
         } else {
           this.$checkNotice.addClass(this.SHOW_CLASS);
         }
       } else {
         this.$snifferInfo.addClass(this.SHOW_CLASS);
         this.$snifferInfo.html(response.data[0].message);
-        this.$progressBar.addClass(this.SHOW_ERROR_CLASS);
+        this.$progressBar.addClass(this.ERROR_CLASS);
       }
     }, (xhr) => {
       this.count++;
@@ -121,13 +129,14 @@ export default class ThemeSniffer {
             }
           }
         };
-        this.$progressBar.addClass(this.SHOW_ERROR_CLASS);
+        this.$progressBar.addClass(this.ERROR_CLASS);
         sniffWrapper = this.renderJSON(errorData);
       }
       this.$sniffReport.append(sniffWrapper);
     });
   }
 
+  // This needs to be refactored. Table should be set in the DOM, and then cloned and filled here.
   renderJSON(json) {
     if (typeof json.data === 'undefined' || json.data === null) {
       return;
@@ -190,7 +199,11 @@ export default class ThemeSniffer {
 
   bumpProgressBar(count, totalFiles) {
     const completed = ((count / totalFiles) * 100).toFixed(2);
-    $('.progress-bar').html(`<span>${localizationObject.percentComplete} ${completed}%</span>`).append(`<span class="meter" style="width:${completed}%"></span>`);
+    this.$percentageBar.addClass(this.SHOW_CLASS);
+    this.$percentageCount.addClass(this.SHOW_CLASS);
+    this.$meterBar.addClass(this.SHOW_CLASS);
+    this.$percentageCount.text(`${completed}%`);
+    this.$meterBar.css('width', `${completed}%`);
   }
 
 
