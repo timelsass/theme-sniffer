@@ -108,33 +108,42 @@
 	display: none;
 }
 
-.progress-bar.is-shown {
-	display: block;
-}
-
-.progress-bar .starting {
+.progress-bar .percentage,
+.progress-bar .meter,
+.progress-bar .starting,
+.check-done {
 	display: none;
-}
-
-.progress-bar.is-shown .starting {
-	display: inline-block;
-}
-
-.progress-bar span {
 	position: absolute;
 	z-index: 3;
 }
 
-.progress-bar.install-error,
-.progress-bar.install-error .meter {
+.progress-bar.is-shown,
+.progress-bar .percentage.is-shown,
+.progress-bar .meter.is-shown,
+.progress-bar .starting.is-shown,
+.check-done.is-shown {
+	display: block;
+}
+
+.progress-bar .starting.is-shown {
+	display: inline-block;
+}
+
+.progress-bar.error,
+.progress-bar.error .meter {
 	background: #EF5D5D;
 }
 
-.progress-bar .error {
+.progress-bar.error .check-done,
+.progress-bar.error .starting {
 	display: none;
 }
 
-.progress-bar.install-error .error{
+.progress-bar .error-notice {
+	display: none;
+}
+
+.progress-bar.error .error-notice{
 	display: inline-block;
 }
 
@@ -147,12 +156,4 @@
 	left: 0;
 	z-index: 1;
 	border-radius: 5px;
-}
-
-.check-done {
-	display: none;
-}
-
-.check-done.is-shown {
-	display: block;
 }

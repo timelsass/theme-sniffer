@@ -39,7 +39,11 @@ __Note__: If you build the plugin this way you'll have extra `node_modules/` and
 
 All of the development asset files are located in the `assets/dev/` folder. We have refactored the plugin to use the latest JavaScript development methods. This is why we are using [webpack](https://webpack.js.org/) to bundle our assets.
 
-To start developing, first clone this repo under `wp-content/plugins/`, then you can make changes in the def folder. After you're done in your terminal run
+To start developing, first clone this repo under `wp-content/plugins/`. Then run in the terminal
+
+`npm start`
+
+This will run webpack in the watch mode, so your changes will be saved in the build folder on the fly. After you're done making changes, run
 
 `npm run build`
 

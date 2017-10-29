@@ -8,13 +8,21 @@ $(function() {
   const $progressBar = $('.js-progress-bar');
   const $snifferInfo = $('.js-sniffer-info');
   const $checkNotice = $('.js-check-done');
-  let isSearchLoading = false;
+  const $percentageBar = $('.js-percentage-bar');
+  const $percentageCount = $('.js-percentage-count');
+  const $errorNotice = $('.js-error-notice');
+  const $meterBar = $('.js-meter-bar');
+  let isSearchLoading = false; // This should be added along with the stopping button.
 
   const options = {
     sniffReport: $sniffReport,
     progressBar: $progressBar,
     snifferInfo: $snifferInfo,
     checkNotice: $checkNotice,
+    percentageBar: $percentageBar,
+    percentageCount: $percentageCount,
+    errorNotice: $errorNotice,
+    meterBar: $meterBar,
     nonce: localizationObject.restNonce
   };
 
