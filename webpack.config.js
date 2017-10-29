@@ -2,6 +2,7 @@ const path = require('path');
 
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const appPath = `${path.resolve(__dirname)}`;
@@ -41,6 +42,15 @@ const allPlugins = [
   new CleanWebpackPlugin([pluginPublicPath]),
   new ExtractTextPlugin(outputCss),
   new webpack.optimize.ModuleConcatenationPlugin(),
+  new UglifyJSPlugin({
+    uglifyOptions: {
+      output: {
+        comments: false,
+        beautify: false
+      },
+      sourceMap: true
+    }
+  }),
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')

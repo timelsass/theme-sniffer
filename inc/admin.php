@@ -66,14 +66,10 @@ function theme_sniffer_admin_scripts( $hook ) {
 	wp_enqueue_script( 'theme-sniffer-admin-js', THEME_SNIFFER_URL . '/assets/build/scripts/application.js', array(), THEME_SNIFFER_VERSION );
 
 	wp_localize_script( 'theme-sniffer-admin-js', 'localizationObject', array(
-		'sniff_error'     => __( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
-		'percentComplete' => __( 'Percent completed: ', 'theme-sniffer' ),
-		'check_starting'  => __( 'Check starting...', 'theme-sniffer' ),
-		'check_failed'    => __( 'Check has failed :(', 'theme-sniffer' ),
-		'check_done'      => __( 'All done!', 'theme-sniffer' ),
+		'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
+		'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
 		'root'            => esc_url_raw( rest_url() ),
-    'restNonce'       => wp_create_nonce( 'wp_rest' ),
-
+		'restNonce'       => wp_create_nonce( 'wp_rest' ),
 	));
 }
 add_action( 'admin_enqueue_scripts', 'theme_sniffer_admin_scripts' );
@@ -133,7 +129,6 @@ function theme_sniffer_render_form() {
 	}
 	?>
 	<form action="<?php echo esc_url( admin_url( 'themes.php?page=theme-sniffer' ) ); ?>" method="post" class="frm-theme-sniffer">
-		<?php wp_nonce_field( 'wp_rest', 'theme_sniffer_nonce' ); ?>
 		<div class="theme-switcher-wrap">
 			<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
 			<label for="themename">
@@ -169,7 +164,7 @@ function theme_sniffer_render_form() {
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
-	<div class="progress-bar js-progress-bar">'<span class="error"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ) ?></span><span class="starting"><?php esc_html__( 'Check starting...', 'theme-sniffer' ); ?></span></div>
+	<div class="progress-bar js-progress-bar"><span class="error"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ); ?></span><span class="starting"><?php esc_html__( 'Check starting...', 'theme-sniffer' ); ?></span></div>
 	<div class="theme-sniffer-info js-sniffer-info"></div>
 	<div class="theme-sniffer-report js-sniff-report"></div><!-- .theme-sniffer-report -->
 	<div class="check-done js-check-done"><?php esc_html_e( 'All done!', 'theme-sniffer' ); ?></div>
