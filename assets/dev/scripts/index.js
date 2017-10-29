@@ -20,7 +20,6 @@ $(function() {
 
   const themeSniffer = new ThemeSniffer(options);
 
-
   $('#check-status').on('click', function() {
     const theme = $('select[name=themename]').val();
     const warningHide = $('input[name=hide_warning]').is(':checked');
@@ -36,7 +35,7 @@ $(function() {
   });
 
   $('select[name="themename"]').on('change', function() {
-    if ($progressBar.length) {
+    if ($progressBar.hasClass('is-shown')) {
       $progressBar.removeClass('is-shown');
     }
 

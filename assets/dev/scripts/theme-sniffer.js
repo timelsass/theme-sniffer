@@ -4,7 +4,7 @@ import $ from 'jquery';
 import ajax from './utils/ajax';
 
 export default class ThemeSniffer {
-  construct(options) {
+  constructor(options) {
     this.SHOW_CLASS = 'is-shown';
     this.SHOW_ERROR_CLASS = 'install-error';
     this.$sniffReport = options.sniffReport;
@@ -26,11 +26,11 @@ export default class ThemeSniffer {
 
     return ajax({
       type: 'GET',
-      url: `${localizationObject.root}wp/v2/theme-sniffer/sniff-run`,
+      url: `${localizationObject.root}theme-sniffer/v1/sniff-run`,
       data: snifferRunData,
       beforeSend: (xhr) => {
         this.$progressBar.removeClass(this.SHOW_CLASS);
-        this.checkNotice.removeClass(this.SHOW_CLASS);
+        this.$checkNotice.removeClass(this.SHOW_CLASS);
         this.$sniffReport.empty();
         xhr.setRequestHeader('X-WP-Nonce', this.nonce);
       }
@@ -43,7 +43,7 @@ export default class ThemeSniffer {
         const themeFilesRaw = response.data[2];
         const totalFiles = Object.keys(themeFilesRaw).length;
         let fileNumber = 0;
-        const themeFiles = themeFilesRaw.reduce((result, value) => {
+        const themeFiles = Object.keys(themeFilesRaw).reduce((result, value) => {
           result[fileNumber] = value;
           fileNumber++;
           return result;
@@ -55,7 +55,7 @@ export default class ThemeSniffer {
         this.$progressBar.addClass(this.SHOW_ERROR_CLASS);
       }
     }, (xhr, textStatus, errorThrown) => {
-      throw new Error(`Error: ${errorThrown}: ${textStatus}`);
+      throw new Error(`Error: ${errorThrown}: ${xhr} ${textStatus}`);
     });
   }
 
@@ -68,21 +68,27 @@ export default class ThemeSniffer {
 
     return ajax({
       type: 'GET',
-      url: `${localizationObject.root}wp/v2/theme-sniffer/individual-sniff`,
+      url: `${localizationObject.root}theme-sniffer/v1/individual-sniff`,
       data: individualSniffData,
       beforeSend: (xhr) => {
         xhr.setRequestHeader('X-WP-Nonce', this.nonce);
       }
     }).then((response) => {
-      this.count++;
-      this.bumpProgressBar(this.count, totalFiles);
-      const sniffWrapper = this.renderJSON(response);
-      this.$sniffReport.append(sniffWrapper);
+      if (response.success === true) {
+        this.count++;
+        this.bumpProgressBar(this.count, totalFiles);
+        const sniffWrapper = this.renderJSON(response);
+        this.$sniffReport.append(sniffWrapper);
 
-      if (fileNumber < totalFiles) {
-        this.individualSniff(name, args, themeFiles, totalFiles, fileNumber);
+        if (fileNumber < totalFiles) {
+          this.individualSniff(name, args, themeFiles, totalFiles, fileNumber);
+        } else {
+          this.$checkNotice.addClass(this.SHOW_CLASS);
+        }
       } else {
-        this.checkNotice.addClass(this.SHOW_CLASS);
+        this.$snifferInfo.addClass(this.SHOW_CLASS);
+        this.$snifferInfo.html(response.data[0].message);
+        this.$progressBar.addClass(this.SHOW_ERROR_CLASS);
       }
     }, (xhr) => {
       this.count++;
@@ -98,7 +104,7 @@ export default class ThemeSniffer {
             column: 1,
             fixable: false,
             line: 1,
-            message: localizationObject.sniff_error,
+            message: localizationObject.sniffError,
             severity: 5,
             type: 'ERROR'
           }]
@@ -184,7 +190,7 @@ export default class ThemeSniffer {
 
   bumpProgressBar(count, totalFiles) {
     const completed = ((count / totalFiles) * 100).toFixed(2);
-    $('.progress-bar').html(`<span>${localizationObject.percentComplete} + ${completed}%</span>`).append(`<span class="meter" style="width:${completed}%"></span>`);
+    $('.progress-bar').html(`<span>${localizationObject.percentComplete} ${completed}%</span>`).append(`<span class="meter" style="width:${completed}%"></span>`);
   }
 
 

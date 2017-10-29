@@ -54,7 +54,7 @@ function theme_sniffer_check_php() {
 function theme_sniffer_error_activation_notice() {
 	?>
 	<div class="error">
-		<p><?php _e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
+		<p><?php esc_html_e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
 	</div>
 	<?php
 }
