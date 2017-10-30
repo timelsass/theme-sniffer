@@ -7,6 +7,15 @@ export default class ThemeSniffer {
   constructor(options) {
     this.SHOW_CLASS = 'is-shown';
     this.ERROR_CLASS = 'error';
+    this.WARNING_CLASS = 'warning';
+    this.DISABLED_CLASS = 'is-disabled';
+    this.reportItemHeading = options.reportItemHeading;
+    this.reportReportTable = options.reportReportTable;
+    this.reportNoticeType = options.reportNoticeType;
+    this.reportItemLine = options.reportItemLine;
+    this.reportItemType = options.reportItemType;
+    this.reportItemMessage = options.reportItemMessage;
+
     this.$sniffReport = options.sniffReport;
     this.$progressBar = options.progressBar;
     this.$snifferInfo = options.snifferInfo;
@@ -16,11 +25,13 @@ export default class ThemeSniffer {
     this.$errorNotice = options.errorNotice;
     this.$startNotice = options.startNotice;
     this.$meterBar = options.meterBar;
+    this.$reportItem = options.reportItem;
     this.nonce = options.nonce;
+
     this.count = 0;
   }
 
-  themeCheckRunPHPCS(theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
+  themeCheckRunPHPCS(button, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
     const snifferRunData = {
       themeName: theme,
       hideWarning: warningHide,
@@ -42,6 +53,7 @@ export default class ThemeSniffer {
         this.$percentageCount.empty();
         this.$meterBar.css('width', 0);
         this.$sniffReport.empty();
+        $(button).addClass(this.DISABLED_CLASS);
 
         xhr.setRequestHeader('X-WP-Nonce', this.nonce);
       }
@@ -61,7 +73,7 @@ export default class ThemeSniffer {
           return result;
         }, {});
         this.$startNotice.removeClass(this.SHOW_CLASS);
-        this.individualSniff(themeName, themeArgs, themeFiles, totalFiles, 0);
+        this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
       } else {
         this.$progressBar.addClass(this.ERROR_CLASS);
         this.$snifferInfo.addClass(this.SHOW_CLASS);
@@ -72,7 +84,7 @@ export default class ThemeSniffer {
     });
   }
 
-  individualSniff(name, args, themeFiles, totalFiles, fileNumber) {
+  individualSniff(button, name, args, themeFiles, totalFiles, fileNumber) {
     const individualSniffData = {
       themeName: name,
       themeArgs: args,
@@ -90,13 +102,14 @@ export default class ThemeSniffer {
       if (response.success === true) {
         this.count++;
         this.bumpProgressBar(this.count, totalFiles);
-        const sniffWrapper = this.renderJSON(response);
+        const $clonedReportElement = this.$reportItem.clone().addClass(this.SHOW_CLASS);
+        const sniffWrapper = this.renderJSON(response, $clonedReportElement, args);
         this.$sniffReport.append(sniffWrapper);
-
         if (this.count < totalFiles) {
-          this.individualSniff(name, args, themeFiles, totalFiles, this.count);
+          this.individualSniff(button, name, args, themeFiles, totalFiles, this.count);
         } else {
           this.$checkNotice.addClass(this.SHOW_CLASS);
+          $(button).removeClass(this.DISABLED_CLASS);
         }
       } else {
         this.$snifferInfo.addClass(this.SHOW_CLASS);
@@ -141,65 +154,52 @@ export default class ThemeSniffer {
     });
   }
 
-  // This needs to be refactored. Table should be set in the DOM, and then cloned and filled here.
-  renderJSON(json) {
+  renderJSON(json, reportElement, args) {
     if (typeof json.data === 'undefined' || json.data === null) {
-      return;
+      return `<div>${localizationObject.errorReport}</div>`;
     }
 
-    if (typeof json.data.totals === 'undefined' || json.data.totals === null) {
-      return;
-    }
+    let report;
 
-    if (json.data.totals.errors === 0 && json.data.totals.warnings === 0) {
-      return;
-    }
+    if (args.raw_output) {
+      report = json.data;
+    } else {
+      if (typeof json.data.totals === 'undefined' || json.data.totals === null) {
+        return;
+      }
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'report-file-item';
+      if (json.data.totals.errors === 0 && json.data.totals.warnings === 0) {
+        return;
+      }
 
-    const heading = document.createElement('div');
-    heading.className = 'report-file-heading';
+      report = reportElement;
 
-    const table = document.createElement('table');
-    table.className = 'report-table';
+      const $reportItemHeading = report.find(this.reportItemHeading);
+      const $reportReportTable = report.find(this.reportReportTable);
+      const $reportNoticeType = report.find(this.reportNoticeType);
 
-    $.each(json.data.files, (files, value) => {
-      const filepath = files.split('/themes/');
-      heading.textContent = filepath[1];
+      const filepath = Object.keys(json.data.files)[0].split('/themes/')[1];
+      const notices = Object.values(json.data.files)[0].messages;
 
-      $.each(value.messages, (index, val) => {
-        const row = document.createElement('tr');
+      $reportItemHeading.text(filepath);
 
-        row.className = 'item-type-warning';
+      $.each(notices, (index, val) => {
+        const line = val.line;
+        const message = val.message;
+        const type = val.type;
 
-        if (val.type === 'ERROR') {
-          row.className = 'item-type-error';
-        }
+        const $singleItem = $reportNoticeType.clone().addClass(type.toLowerCase());
+        $singleItem.find(this.reportItemLine).text(line);
+        $singleItem.find(this.reportItemType).text(type);
+        $singleItem.find(this.reportItemMessage).text(message);
 
-        const line = document.createElement('td');
-        line.className = 'td-line';
-        line.textContent = val.line;
-        row.appendChild(line);
-
-        const type = document.createElement('td');
-        type.className = 'td-type';
-        type.textContent = val.type;
-        row.appendChild(type);
-
-        const message = document.createElement('td');
-        message.className = 'td-message';
-        message.textContent = val.message;
-        row.appendChild(message);
-
-        table.appendChild(row);
+        $singleItem.appendTo($reportReportTable);
       });
-    });
 
-    wrapper.appendChild(heading);
-    wrapper.appendChild(table);
+      $reportNoticeType.remove();
+    }
 
-    return wrapper;
+    return report;
   }
 
   bumpProgressBar(count, totalFiles) {

@@ -10376,7 +10376,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
   var $errorNotice = (0, _jquery2.default)('.js-error-notice');
   var $startNotice = (0, _jquery2.default)('.js-start-notice');
   var $meterBar = (0, _jquery2.default)('.js-meter-bar');
-  var isSearchLoading = false; // This should be added along with the stopping button.
+  var $reportItem = (0, _jquery2.default)('.js-report-item');
+  var reportItemHeading = '.js-report-item-heading';
+  var reportReportTable = '.js-report-table';
+  var reportNoticeType = '.js-report-notice-type';
+  var reportItemLine = '.js-report-item-line';
+  var reportItemType = '.js-report-item-type';
+  var reportItemMessage = '.js-report-item-message';
 
   var options = {
     sniffReport: $sniffReport,
@@ -10388,6 +10394,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
     errorNotice: $errorNotice,
     startNotice: $startNotice,
     meterBar: $meterBar,
+    reportItem: $reportItem,
+    reportItemHeading: reportItemHeading,
+    reportReportTable: reportReportTable,
+    reportNoticeType: reportNoticeType,
+    reportItemLine: reportItemLine,
+    reportItemType: reportItemType,
+    reportItemMessage: reportItemMessage,
     nonce: localizationObject.restNonce
   };
 
@@ -10404,7 +10417,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
       selectedRulesets.push(this.value);
     });
 
-    themeSniffer.themeCheckRunPHPCS(theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
+    themeSniffer.themeCheckRunPHPCS(this, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
+  });
+
+  (0, _jquery2.default)('.js-stop-check').on('click', function () {
+    // Add stopping method.
   });
 
   (0, _jquery2.default)('select[name="themename"]').on('change', function () {
@@ -10449,6 +10466,15 @@ var ThemeSniffer = function () {
 
     this.SHOW_CLASS = 'is-shown';
     this.ERROR_CLASS = 'error';
+    this.WARNING_CLASS = 'warning';
+    this.DISABLED_CLASS = 'is-disabled';
+    this.reportItemHeading = options.reportItemHeading;
+    this.reportReportTable = options.reportReportTable;
+    this.reportNoticeType = options.reportNoticeType;
+    this.reportItemLine = options.reportItemLine;
+    this.reportItemType = options.reportItemType;
+    this.reportItemMessage = options.reportItemMessage;
+
     this.$sniffReport = options.sniffReport;
     this.$progressBar = options.progressBar;
     this.$snifferInfo = options.snifferInfo;
@@ -10458,13 +10484,15 @@ var ThemeSniffer = function () {
     this.$errorNotice = options.errorNotice;
     this.$startNotice = options.startNotice;
     this.$meterBar = options.meterBar;
+    this.$reportItem = options.reportItem;
     this.nonce = options.nonce;
+
     this.count = 0;
   }
 
   _createClass(ThemeSniffer, [{
     key: 'themeCheckRunPHPCS',
-    value: function themeCheckRunPHPCS(theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
+    value: function themeCheckRunPHPCS(button, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
       var _this = this;
 
       var snifferRunData = {
@@ -10488,6 +10516,7 @@ var ThemeSniffer = function () {
           _this.$percentageCount.empty();
           _this.$meterBar.css('width', 0);
           _this.$sniffReport.empty();
+          (0, _jquery2.default)(button).addClass(_this.DISABLED_CLASS);
 
           xhr.setRequestHeader('X-WP-Nonce', _this.nonce);
         }
@@ -10507,7 +10536,7 @@ var ThemeSniffer = function () {
             return result;
           }, {});
           _this.$startNotice.removeClass(_this.SHOW_CLASS);
-          _this.individualSniff(themeName, themeArgs, themeFiles, totalFiles, 0);
+          _this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
         } else {
           _this.$progressBar.addClass(_this.ERROR_CLASS);
           _this.$snifferInfo.addClass(_this.SHOW_CLASS);
@@ -10519,7 +10548,7 @@ var ThemeSniffer = function () {
     }
   }, {
     key: 'individualSniff',
-    value: function individualSniff(name, args, themeFiles, totalFiles, fileNumber) {
+    value: function individualSniff(button, name, args, themeFiles, totalFiles, fileNumber) {
       var _this2 = this;
 
       var individualSniffData = {
@@ -10539,13 +10568,14 @@ var ThemeSniffer = function () {
         if (response.success === true) {
           _this2.count++;
           _this2.bumpProgressBar(_this2.count, totalFiles);
-          var sniffWrapper = _this2.renderJSON(response);
+          var $clonedReportElement = _this2.$reportItem.clone().addClass(_this2.SHOW_CLASS);
+          var sniffWrapper = _this2.renderJSON(response, $clonedReportElement, args);
           _this2.$sniffReport.append(sniffWrapper);
-
           if (_this2.count < totalFiles) {
-            _this2.individualSniff(name, args, themeFiles, totalFiles, _this2.count);
+            _this2.individualSniff(button, name, args, themeFiles, totalFiles, _this2.count);
           } else {
             _this2.$checkNotice.addClass(_this2.SHOW_CLASS);
+            (0, _jquery2.default)(button).removeClass(_this2.DISABLED_CLASS);
           }
         } else {
           _this2.$snifferInfo.addClass(_this2.SHOW_CLASS);
@@ -10589,69 +10619,56 @@ var ThemeSniffer = function () {
         _this2.$sniffReport.append(sniffWrapper);
       });
     }
-
-    // This needs to be refactored. Table should be set in the DOM, and then cloned and filled here.
-
   }, {
     key: 'renderJSON',
-    value: function renderJSON(json) {
+    value: function renderJSON(json, reportElement, args) {
+      var _this3 = this;
+
       if (typeof json.data === 'undefined' || json.data === null) {
-        return;
+        return '<div>' + localizationObject.errorReport + '</div>';
       }
 
-      if (typeof json.data.totals === 'undefined' || json.data.totals === null) {
-        return;
-      }
+      var report = void 0;
 
-      if (json.data.totals.errors === 0 && json.data.totals.warnings === 0) {
-        return;
-      }
+      if (args.raw_output) {
+        report = json.data;
+      } else {
+        if (typeof json.data.totals === 'undefined' || json.data.totals === null) {
+          return;
+        }
 
-      var wrapper = document.createElement('div');
-      wrapper.className = 'report-file-item';
+        if (json.data.totals.errors === 0 && json.data.totals.warnings === 0) {
+          return;
+        }
 
-      var heading = document.createElement('div');
-      heading.className = 'report-file-heading';
+        report = reportElement;
 
-      var table = document.createElement('table');
-      table.className = 'report-table';
+        var $reportItemHeading = report.find(this.reportItemHeading);
+        var $reportReportTable = report.find(this.reportReportTable);
+        var $reportNoticeType = report.find(this.reportNoticeType);
 
-      _jquery2.default.each(json.data.files, function (files, value) {
-        var filepath = files.split('/themes/');
-        heading.textContent = filepath[1];
+        var filepath = Object.keys(json.data.files)[0].split('/themes/')[1];
+        var notices = Object.values(json.data.files)[0].messages;
 
-        _jquery2.default.each(value.messages, function (index, val) {
-          var row = document.createElement('tr');
+        $reportItemHeading.text(filepath);
 
-          row.className = 'item-type-warning';
+        _jquery2.default.each(notices, function (index, val) {
+          var line = val.line;
+          var message = val.message;
+          var type = val.type;
 
-          if (val.type === 'ERROR') {
-            row.className = 'item-type-error';
-          }
+          var $singleItem = $reportNoticeType.clone().addClass(type.toLowerCase());
+          $singleItem.find(_this3.reportItemLine).text(line);
+          $singleItem.find(_this3.reportItemType).text(type);
+          $singleItem.find(_this3.reportItemMessage).text(message);
 
-          var line = document.createElement('td');
-          line.className = 'td-line';
-          line.textContent = val.line;
-          row.appendChild(line);
-
-          var type = document.createElement('td');
-          type.className = 'td-type';
-          type.textContent = val.type;
-          row.appendChild(type);
-
-          var message = document.createElement('td');
-          message.className = 'td-message';
-          message.textContent = val.message;
-          row.appendChild(message);
-
-          table.appendChild(row);
+          $singleItem.appendTo($reportReportTable);
         });
-      });
 
-      wrapper.appendChild(heading);
-      wrapper.appendChild(table);
+        $reportNoticeType.remove();
+      }
 
-      return wrapper;
+      return report;
     }
   }, {
     key: 'bumpProgressBar',
