@@ -14,6 +14,7 @@ export default class ThemeSniffer {
     this.$percentageBar = options.percentageBar;
     this.$percentageCount = options.percentageCount;
     this.$errorNotice = options.errorNotice;
+    this.$startNotice = options.startNotice;
     this.$meterBar = options.meterBar;
     this.nonce = options.nonce;
     this.count = 0;
@@ -33,16 +34,20 @@ export default class ThemeSniffer {
       url: `${localizationObject.root}theme-sniffer/v1/sniff-run`,
       data: snifferRunData,
       beforeSend: (xhr) => {
+        this.$startNotice.addClass(this.SHOW_CLASS);
         this.$progressBar.removeClass(this.SHOW_CLASS);
         this.$errorNotice.removeClass(this.SHOW_CLASS);
         this.$checkNotice.removeClass(this.SHOW_CLASS);
         this.$percentageBar.removeClass(this.SHOW_CLASS);
         this.$percentageCount.empty();
+        this.$meterBar.css('width', 0);
         this.$sniffReport.empty();
+
         xhr.setRequestHeader('X-WP-Nonce', this.nonce);
       }
     }).then((response) => {
       this.$progressBar.addClass(this.SHOW_CLASS);
+      this.count = 0;
 
       if (response.success === true) {
         const themeName = response.data[0];
@@ -55,7 +60,8 @@ export default class ThemeSniffer {
           fileNumber++;
           return result;
         }, {});
-        this.individualSniff(themeName, themeArgs, themeFiles, totalFiles, fileNumber = 0);
+        this.$startNotice.removeClass(this.SHOW_CLASS);
+        this.individualSniff(themeName, themeArgs, themeFiles, totalFiles, 0);
       } else {
         this.$progressBar.addClass(this.ERROR_CLASS);
         this.$snifferInfo.addClass(this.SHOW_CLASS);
@@ -83,13 +89,12 @@ export default class ThemeSniffer {
     }).then((response) => {
       if (response.success === true) {
         this.count++;
-        const singleFileNumber = this.count;
         this.bumpProgressBar(this.count, totalFiles);
         const sniffWrapper = this.renderJSON(response);
         this.$sniffReport.append(sniffWrapper);
 
-        if (fileNumber < totalFiles) {
-          this.individualSniff(name, args, themeFiles, totalFiles, singleFileNumber);
+        if (this.count < totalFiles) {
+          this.individualSniff(name, args, themeFiles, totalFiles, this.count);
         } else {
           this.$checkNotice.addClass(this.SHOW_CLASS);
         }
@@ -198,14 +203,12 @@ export default class ThemeSniffer {
   }
 
   bumpProgressBar(count, totalFiles) {
-    const completed = ((count / totalFiles) * 100).toFixed(2);
+    const completed = (((count) / totalFiles) * 100).toFixed(2);
     this.$percentageBar.addClass(this.SHOW_CLASS);
     this.$percentageCount.addClass(this.SHOW_CLASS);
     this.$meterBar.addClass(this.SHOW_CLASS);
     this.$percentageCount.text(`${completed}%`);
     this.$meterBar.css('width', `${completed}%`);
   }
-
-
 }
 

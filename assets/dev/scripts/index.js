@@ -11,6 +11,7 @@ $(function() {
   const $percentageBar = $('.js-percentage-bar');
   const $percentageCount = $('.js-percentage-count');
   const $errorNotice = $('.js-error-notice');
+  const $startNotice = $('.js-start-notice');
   const $meterBar = $('.js-meter-bar');
   let isSearchLoading = false; // This should be added along with the stopping button.
 
@@ -22,13 +23,14 @@ $(function() {
     percentageBar: $percentageBar,
     percentageCount: $percentageCount,
     errorNotice: $errorNotice,
+    startNotice: $startNotice,
     meterBar: $meterBar,
     nonce: localizationObject.restNonce
   };
 
   const themeSniffer = new ThemeSniffer(options);
 
-  $('#check-status').on('click', function() {
+  $('.js-start-check').on('click', function() {
     const theme = $('select[name=themename]').val();
     const warningHide = $('input[name=hide_warning]').is(':checked');
     const outputRaw = $('input[name=raw_output]').is(':checked');

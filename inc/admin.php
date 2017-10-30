@@ -138,7 +138,8 @@ function theme_sniffer_render_form() {
 					<?php endforeach; ?>
 				</select>
 			</label>
-			<span id="check-status" class="button button-secondary"><?php esc_attr_e( 'Go', 'theme-sniffer' ); ?></span>
+			<span class="button button-secondary js-start-check"><?php esc_attr_e( 'Go', 'theme-sniffer' ); ?></span>
+			<span class="button button-secondary js-stop-check"><?php esc_attr_e( 'Stop', 'theme-sniffer' ); ?></span>
 		</div><!-- .theme-switcher-wrap -->
 		<div class="standards-wrap">
 			<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>
@@ -164,6 +165,7 @@ function theme_sniffer_render_form() {
 			</label>
 		</div><!-- .options-wrap -->
 	</form>
+	<div class="start-notice js-start-notice"><?php esc_html_e( 'Check starting', 'theme-sniffer' ); ?></div>
 	<div class="progress-bar js-progress-bar">
 		<span class="error-notice js-error-notice"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ); ?></span>
 		<span class="percentage js-percentage-bar"><?php esc_html_e( 'Percent completed: ', 'theme-sniffer' ); ?><span class="js-percentage-count"></span></span>
