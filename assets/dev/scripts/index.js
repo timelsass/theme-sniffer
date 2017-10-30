@@ -13,7 +13,13 @@ $(function() {
   const $errorNotice = $('.js-error-notice');
   const $startNotice = $('.js-start-notice');
   const $meterBar = $('.js-meter-bar');
-  let isSearchLoading = false; // This should be added along with the stopping button.
+  const $reportItem = $('.js-report-item');
+  const reportItemHeading = '.js-report-item-heading';
+  const reportReportTable = '.js-report-table';
+  const reportNoticeType = '.js-report-notice-type';
+  const reportItemLine = '.js-report-item-line';
+  const reportItemType = '.js-report-item-type';
+  const reportItemMessage = '.js-report-item-message';
 
   const options = {
     sniffReport: $sniffReport,
@@ -25,6 +31,13 @@ $(function() {
     errorNotice: $errorNotice,
     startNotice: $startNotice,
     meterBar: $meterBar,
+    reportItem: $reportItem,
+    reportItemHeading: reportItemHeading,
+    reportReportTable: reportReportTable,
+    reportNoticeType: reportNoticeType,
+    reportItemLine: reportItemLine,
+    reportItemType: reportItemType,
+    reportItemMessage: reportItemMessage,
     nonce: localizationObject.restNonce
   };
 
@@ -41,7 +54,11 @@ $(function() {
       selectedRulesets.push(this.value);
     });
 
-    themeSniffer.themeCheckRunPHPCS(theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
+    themeSniffer.themeCheckRunPHPCS(this, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
+  });
+
+  $('.js-stop-check').on('click', function() {
+    // Add stopping method.
   });
 
   $('select[name="themename"]').on('change', function() {

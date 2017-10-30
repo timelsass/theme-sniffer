@@ -68,6 +68,7 @@ function theme_sniffer_admin_scripts( $hook ) {
 	wp_localize_script( 'theme-sniffer-admin-js', 'localizationObject', array(
 		'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 		'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
+		'errorReport' => esc_html__( 'Error', 'theme-sniffer' ),
 		'root'            => esc_url_raw( rest_url() ),
 		'restNonce'       => wp_create_nonce( 'wp_rest' ),
 	));
@@ -171,7 +172,18 @@ function theme_sniffer_render_form() {
 		<span class="percentage js-percentage-bar"><?php esc_html_e( 'Percent completed: ', 'theme-sniffer' ); ?><span class="js-percentage-count"></span></span>
 		<span class="meter js-meter-bar"></span>
 	</div>
-	<div class="theme-sniffer-report js-sniff-report"></div><!-- .theme-sniffer-report -->
+	<div class="theme-sniffer-report js-sniff-report">
+		<div class="report-file-item js-report-item">
+			<div class="report-file-heading js-report-item-heading"></div>
+			<table class="report-table js-report-table">
+				<tr class="item-type js-report-notice-type">
+					<td class="td-line js-report-item-line"></td>
+					<td class="td-type js-report-item-type"></td>
+					<td class="td-message js-report-item-message"></td>
+				</tr>
+			</table>
+		</div>
+	</div><!-- .theme-sniffer-report -->
 	<div class="theme-sniffer-info js-sniffer-info"></div>
 	<div class="check-done js-check-done"><?php esc_html_e( 'All done!', 'theme-sniffer' ); ?></div>
 	<?php
