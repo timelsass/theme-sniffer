@@ -28,7 +28,7 @@
   },
   "scripts": {
     "start": "webpack --progress --watch --display-error-details --display-modules --display-reasons",
-    "build": "webpack --progress"
+    "build": "NODE_ENV=production webpack --progress"
   },
   "repository": {
     "type": "git",

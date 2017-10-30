@@ -108,9 +108,18 @@
 	display: none;
 }
 
+.start-notice {
+	display: none;
+	font-weight: 700;
+	padding: 20px 0 15px;
+}
+
+.start-notice.is-shown {
+	display: block;
+}
+
 .progress-bar .percentage,
 .progress-bar .meter,
-.progress-bar .starting,
 .check-done {
 	display: none;
 	position: absolute;
@@ -120,7 +129,6 @@
 .progress-bar.is-shown,
 .progress-bar .percentage.is-shown,
 .progress-bar .meter.is-shown,
-.progress-bar .starting.is-shown,
 .check-done.is-shown {
 	display: block;
 }
