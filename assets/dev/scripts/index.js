@@ -4,40 +4,23 @@ import $ from 'jquery';
 import ThemeSniffer from './theme-sniffer';
 
 $(function() {
-  const $sniffReport = $('.js-sniff-report');
-  const $progressBar = $('.js-progress-bar');
-  const $snifferInfo = $('.js-sniffer-info');
-  const $checkNotice = $('.js-check-done');
-  const $percentageBar = $('.js-percentage-bar');
-  const $percentageCount = $('.js-percentage-count');
-  const $errorNotice = $('.js-error-notice');
-  const $startNotice = $('.js-start-notice');
-  const $meterBar = $('.js-meter-bar');
-  const $reportItem = $('.js-report-item');
-  const reportItemHeading = '.js-report-item-heading';
-  const reportReportTable = '.js-report-table';
-  const reportNoticeType = '.js-report-notice-type';
-  const reportItemLine = '.js-report-item-line';
-  const reportItemType = '.js-report-item-type';
-  const reportItemMessage = '.js-report-item-message';
-
   const options = {
-    sniffReport: $sniffReport,
-    progressBar: $progressBar,
-    snifferInfo: $snifferInfo,
-    checkNotice: $checkNotice,
-    percentageBar: $percentageBar,
-    percentageCount: $percentageCount,
-    errorNotice: $errorNotice,
-    startNotice: $startNotice,
-    meterBar: $meterBar,
-    reportItem: $reportItem,
-    reportItemHeading: reportItemHeading,
-    reportReportTable: reportReportTable,
-    reportNoticeType: reportNoticeType,
-    reportItemLine: reportItemLine,
-    reportItemType: reportItemType,
-    reportItemMessage: reportItemMessage,
+    sniffReport: $('.js-sniff-report'),
+    progressBar: $('.js-progress-bar'),
+    snifferInfo: $('.js-sniffer-info'),
+    checkNotice: $('.js-check-done'),
+    percentageBar: $('.js-percentage-bar'),
+    percentageCount: $('.js-percentage-count'),
+    errorNotice: $('.js-error-notice'),
+    startNotice: $('.js-start-notice'),
+    meterBar: $('.js-meter-bar'),
+    reportItem: $('.js-report-item'),
+    reportItemHeading: '.js-report-item-heading',
+    reportReportTable: '.js-report-table',
+    reportNoticeType: '.js-report-notice-type',
+    reportItemLine: '.js-report-item-line',
+    reportItemType: '.js-report-item-type',
+    reportItemMessage: '.js-report-item-message',
     nonce: localizationObject.restNonce
   };
 
@@ -63,12 +46,12 @@ $(function() {
   });
 
   $('select[name="themename"]').on('change', function() {
-    if ($progressBar.hasClass('is-shown')) {
-      $progressBar.removeClass('is-shown');
+    if (options.progressBar.hasClass('is-shown')) {
+      options.progressBar.removeClass('is-shown');
     }
 
-    if ($sniffReport.length) {
-      $sniffReport.empty();
+    if (options.sniffReport.length) {
+      options.sniffReport.empty();
     }
   });
 });
