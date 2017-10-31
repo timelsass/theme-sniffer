@@ -10,4 +10,4 @@ vendor/
 Thumbs.db
 
 # Build assets
-assets/build/*
+assets/build/
