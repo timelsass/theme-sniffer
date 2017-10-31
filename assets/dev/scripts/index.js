@@ -54,11 +54,12 @@ $(function() {
       selectedRulesets.push(this.value);
     });
 
+    themeSniffer.enableAjax();
     themeSniffer.themeCheckRunPHPCS(this, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
   });
 
   $('.js-stop-check').on('click', function() {
-    // Add stopping method.
+    themeSniffer.preventAjax('.js-start-check');
   });
 
   $('select[name="themename"]').on('change', function() {

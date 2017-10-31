@@ -29,6 +29,19 @@ export default class ThemeSniffer {
     this.nonce = options.nonce;
 
     this.count = 0;
+    this.ajaxAllow = true;
+  }
+
+  enableAjax() {
+    this.ajaxAllow = true;
+    this.$snifferInfo.removeClass(this.SHOW_CLASS);
+  }
+
+  preventAjax(enableButton) {
+    this.ajaxAllow = false;
+    this.$snifferInfo.addClass(this.SHOW_CLASS);
+    this.$snifferInfo.html(localizationObject.ajaxStopped);
+    $(enableButton).removeClass(this.DISABLED_CLASS);
   }
 
   themeCheckRunPHPCS(button, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
@@ -40,48 +53,51 @@ export default class ThemeSniffer {
       wpRulesets: selectedRulesets
     };
 
-    return ajax({
-      type: 'GET',
-      url: `${localizationObject.root}theme-sniffer/v1/sniff-run`,
-      data: snifferRunData,
-      beforeSend: (xhr) => {
-        this.$startNotice.addClass(this.SHOW_CLASS);
-        this.$progressBar.removeClass(this.SHOW_CLASS);
-        this.$errorNotice.removeClass(this.SHOW_CLASS);
-        this.$checkNotice.removeClass(this.SHOW_CLASS);
-        this.$percentageBar.removeClass(this.SHOW_CLASS);
-        this.$percentageCount.empty();
-        this.$meterBar.css('width', 0);
-        this.$sniffReport.empty();
-        $(button).addClass(this.DISABLED_CLASS);
+    if (this.ajaxAllow) {
+      return ajax({
+        type: 'GET',
+        url: `${localizationObject.root}theme-sniffer/v1/sniff-run`,
+        data: snifferRunData,
+        beforeSend: (xhr) => {
+          this.$startNotice.addClass(this.SHOW_CLASS);
+          this.$progressBar.removeClass(this.SHOW_CLASS);
+          this.$errorNotice.removeClass(this.SHOW_CLASS);
+          this.$checkNotice.removeClass(this.SHOW_CLASS);
+          this.$percentageBar.removeClass(this.SHOW_CLASS);
+          this.$percentageCount.empty();
+          this.$meterBar.css('width', 0);
+          this.$sniffReport.empty();
+          this.$snifferInfo.empty();
+          $(button).addClass(this.DISABLED_CLASS);
 
-        xhr.setRequestHeader('X-WP-Nonce', this.nonce);
-      }
-    }).then((response) => {
-      this.$progressBar.addClass(this.SHOW_CLASS);
-      this.count = 0;
+          xhr.setRequestHeader('X-WP-Nonce', this.nonce);
+        }
+      }).then((response) => {
+        this.$progressBar.addClass(this.SHOW_CLASS);
+        this.count = 0;
 
-      if (response.success === true) {
-        const themeName = response.data[0];
-        const themeArgs = response.data[1];
-        const themeFilesRaw = response.data[2];
-        const totalFiles = Object.keys(themeFilesRaw).length;
-        let fileNumber = 0;
-        const themeFiles = Object.values(themeFilesRaw).reduce((result, value) => {
-          result[fileNumber] = value;
-          fileNumber++;
-          return result;
-        }, {});
-        this.$startNotice.removeClass(this.SHOW_CLASS);
-        this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
-      } else {
-        this.$progressBar.addClass(this.ERROR_CLASS);
-        this.$snifferInfo.addClass(this.SHOW_CLASS);
-        this.$snifferInfo.html(response.data[0].message);
-      }
-    }, (xhr, textStatus, errorThrown) => {
-      throw new Error(`Error: ${errorThrown}: ${xhr} ${textStatus}`);
-    });
+        if (response.success === true) {
+          const themeName = response.data[0];
+          const themeArgs = response.data[1];
+          const themeFilesRaw = response.data[2];
+          const totalFiles = Object.keys(themeFilesRaw).length;
+          let fileNumber = 0;
+          const themeFiles = Object.values(themeFilesRaw).reduce((result, value) => {
+            result[fileNumber] = value;
+            fileNumber++;
+            return result;
+          }, {});
+          this.$startNotice.removeClass(this.SHOW_CLASS);
+          this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
+        } else {
+          this.$progressBar.addClass(this.ERROR_CLASS);
+          this.$snifferInfo.addClass(this.SHOW_CLASS);
+          this.$snifferInfo.html(response.data[0].message);
+        }
+      }, (xhr, textStatus, errorThrown) => {
+        throw new Error(`Error: ${errorThrown}: ${xhr} ${textStatus}`);
+      });
+    }
   }
 
   individualSniff(button, name, args, themeFiles, totalFiles, fileNumber) {
@@ -91,67 +107,69 @@ export default class ThemeSniffer {
       file: themeFiles[fileNumber]
     };
 
-    return ajax({
-      type: 'GET',
-      url: `${localizationObject.root}theme-sniffer/v1/individual-sniff`,
-      data: individualSniffData,
-      beforeSend: (xhr) => {
-        xhr.setRequestHeader('X-WP-Nonce', this.nonce);
-      }
-    }).then((response) => {
-      if (response.success === true) {
-        this.count++;
-        this.bumpProgressBar(this.count, totalFiles);
-        const $clonedReportElement = this.$reportItem.clone().addClass(this.SHOW_CLASS);
-        const sniffWrapper = this.renderJSON(response, $clonedReportElement, args);
-        this.$sniffReport.append(sniffWrapper);
-        if (this.count < totalFiles) {
-          this.individualSniff(button, name, args, themeFiles, totalFiles, this.count);
-        } else {
-          this.$checkNotice.addClass(this.SHOW_CLASS);
-          $(button).removeClass(this.DISABLED_CLASS);
+    if (this.ajaxAllow) {
+      return ajax({
+        type: 'GET',
+        url: `${localizationObject.root}theme-sniffer/v1/individual-sniff`,
+        data: individualSniffData,
+        beforeSend: (xhr) => {
+          xhr.setRequestHeader('X-WP-Nonce', this.nonce);
         }
-      } else {
-        this.$snifferInfo.addClass(this.SHOW_CLASS);
-        this.$snifferInfo.html(response.data[0].message);
-        this.$progressBar.addClass(this.ERROR_CLASS);
-      }
-    }, (xhr) => {
-      this.count++;
-      let sniffWrapper = '';
-      this.bumpProgressBar(this.count, totalFiles);
-
-      if (xhr.status === 500) {
-        const filesVal = {};
-        filesVal[themeFiles[fileNumber]] = {
-          errors: 1,
-          warnings: 0,
-          messages: [{
-            column: 1,
-            fixable: false,
-            line: 1,
-            message: localizationObject.sniffError,
-            severity: 5,
-            type: 'ERROR'
-          }]
-        };
-        const errorData = {
-          success: false,
-          data: {
-            files: filesVal,
-            totals: {
-              errors: 1,
-              fixable: 0,
-              warnings: 0,
-              fatalError: 1
-            }
+      }).then((response) => {
+        if (response.success === true) {
+          this.count++;
+          this.bumpProgressBar(this.count, totalFiles);
+          const $clonedReportElement = this.$reportItem.clone().addClass(this.SHOW_CLASS);
+          const sniffWrapper = this.renderJSON(response, $clonedReportElement, args);
+          this.$sniffReport.append(sniffWrapper);
+          if (this.count < totalFiles) {
+            this.individualSniff(button, name, args, themeFiles, totalFiles, this.count);
+          } else {
+            this.$checkNotice.addClass(this.SHOW_CLASS);
+            $(button).removeClass(this.DISABLED_CLASS);
           }
-        };
-        this.$progressBar.addClass(this.ERROR_CLASS);
-        sniffWrapper = this.renderJSON(errorData);
-      }
-      this.$sniffReport.append(sniffWrapper);
-    });
+        } else {
+          this.$snifferInfo.addClass(this.SHOW_CLASS);
+          this.$snifferInfo.html(response.data[0].message);
+          this.$progressBar.addClass(this.ERROR_CLASS);
+        }
+      }, (xhr) => {
+        this.count++;
+        let sniffWrapper = '';
+        this.bumpProgressBar(this.count, totalFiles);
+
+        if (xhr.status === 500) {
+          const filesVal = {};
+          filesVal[themeFiles[fileNumber]] = {
+            errors: 1,
+            warnings: 0,
+            messages: [{
+              column: 1,
+              fixable: false,
+              line: 1,
+              message: localizationObject.sniffError,
+              severity: 5,
+              type: 'ERROR'
+            }]
+          };
+          const errorData = {
+            success: false,
+            data: {
+              files: filesVal,
+              totals: {
+                errors: 1,
+                fixable: 0,
+                warnings: 0,
+                fatalError: 1
+              }
+            }
+          };
+          this.$progressBar.addClass(this.ERROR_CLASS);
+          sniffWrapper = this.renderJSON(errorData);
+        }
+        this.$sniffReport.append(sniffWrapper);
+      });
+    }
   }
 
   renderJSON(json, reportElement, args) {
