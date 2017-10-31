@@ -10417,11 +10417,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
       selectedRulesets.push(this.value);
     });
 
+    themeSniffer.enableAjax();
     themeSniffer.themeCheckRunPHPCS(this, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets);
   });
 
   (0, _jquery2.default)('.js-stop-check').on('click', function () {
-    // Add stopping method.
+    themeSniffer.preventAjax('.js-start-check');
   });
 
   (0, _jquery2.default)('select[name="themename"]').on('change', function () {
@@ -10488,9 +10489,24 @@ var ThemeSniffer = function () {
     this.nonce = options.nonce;
 
     this.count = 0;
+    this.ajaxAllow = true;
   }
 
   _createClass(ThemeSniffer, [{
+    key: 'enableAjax',
+    value: function enableAjax() {
+      this.ajaxAllow = true;
+      this.$snifferInfo.removeClass(this.SHOW_CLASS);
+    }
+  }, {
+    key: 'preventAjax',
+    value: function preventAjax(enableButton) {
+      this.ajaxAllow = false;
+      this.$snifferInfo.addClass(this.SHOW_CLASS);
+      this.$snifferInfo.html(localizationObject.ajaxStopped);
+      (0, _jquery2.default)(enableButton).removeClass(this.DISABLED_CLASS);
+    }
+  }, {
     key: 'themeCheckRunPHPCS',
     value: function themeCheckRunPHPCS(button, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets) {
       var _this = this;
@@ -10503,48 +10519,51 @@ var ThemeSniffer = function () {
         wpRulesets: selectedRulesets
       };
 
-      return (0, _ajax2.default)({
-        type: 'GET',
-        url: localizationObject.root + 'theme-sniffer/v1/sniff-run',
-        data: snifferRunData,
-        beforeSend: function beforeSend(xhr) {
-          _this.$startNotice.addClass(_this.SHOW_CLASS);
-          _this.$progressBar.removeClass(_this.SHOW_CLASS);
-          _this.$errorNotice.removeClass(_this.SHOW_CLASS);
-          _this.$checkNotice.removeClass(_this.SHOW_CLASS);
-          _this.$percentageBar.removeClass(_this.SHOW_CLASS);
-          _this.$percentageCount.empty();
-          _this.$meterBar.css('width', 0);
-          _this.$sniffReport.empty();
-          (0, _jquery2.default)(button).addClass(_this.DISABLED_CLASS);
+      if (this.ajaxAllow) {
+        return (0, _ajax2.default)({
+          type: 'GET',
+          url: localizationObject.root + 'theme-sniffer/v1/sniff-run',
+          data: snifferRunData,
+          beforeSend: function beforeSend(xhr) {
+            _this.$startNotice.addClass(_this.SHOW_CLASS);
+            _this.$progressBar.removeClass(_this.SHOW_CLASS);
+            _this.$errorNotice.removeClass(_this.SHOW_CLASS);
+            _this.$checkNotice.removeClass(_this.SHOW_CLASS);
+            _this.$percentageBar.removeClass(_this.SHOW_CLASS);
+            _this.$percentageCount.empty();
+            _this.$meterBar.css('width', 0);
+            _this.$sniffReport.empty();
+            _this.$snifferInfo.empty();
+            (0, _jquery2.default)(button).addClass(_this.DISABLED_CLASS);
 
-          xhr.setRequestHeader('X-WP-Nonce', _this.nonce);
-        }
-      }).then(function (response) {
-        _this.$progressBar.addClass(_this.SHOW_CLASS);
-        _this.count = 0;
+            xhr.setRequestHeader('X-WP-Nonce', _this.nonce);
+          }
+        }).then(function (response) {
+          _this.$progressBar.addClass(_this.SHOW_CLASS);
+          _this.count = 0;
 
-        if (response.success === true) {
-          var themeName = response.data[0];
-          var themeArgs = response.data[1];
-          var themeFilesRaw = response.data[2];
-          var totalFiles = Object.keys(themeFilesRaw).length;
-          var fileNumber = 0;
-          var themeFiles = Object.values(themeFilesRaw).reduce(function (result, value) {
-            result[fileNumber] = value;
-            fileNumber++;
-            return result;
-          }, {});
-          _this.$startNotice.removeClass(_this.SHOW_CLASS);
-          _this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
-        } else {
-          _this.$progressBar.addClass(_this.ERROR_CLASS);
-          _this.$snifferInfo.addClass(_this.SHOW_CLASS);
-          _this.$snifferInfo.html(response.data[0].message);
-        }
-      }, function (xhr, textStatus, errorThrown) {
-        throw new Error('Error: ' + errorThrown + ': ' + xhr + ' ' + textStatus);
-      });
+          if (response.success === true) {
+            var themeName = response.data[0];
+            var themeArgs = response.data[1];
+            var themeFilesRaw = response.data[2];
+            var totalFiles = Object.keys(themeFilesRaw).length;
+            var fileNumber = 0;
+            var themeFiles = Object.values(themeFilesRaw).reduce(function (result, value) {
+              result[fileNumber] = value;
+              fileNumber++;
+              return result;
+            }, {});
+            _this.$startNotice.removeClass(_this.SHOW_CLASS);
+            _this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
+          } else {
+            _this.$progressBar.addClass(_this.ERROR_CLASS);
+            _this.$snifferInfo.addClass(_this.SHOW_CLASS);
+            _this.$snifferInfo.html(response.data[0].message);
+          }
+        }, function (xhr, textStatus, errorThrown) {
+          throw new Error('Error: ' + errorThrown + ': ' + xhr + ' ' + textStatus);
+        });
+      }
     }
   }, {
     key: 'individualSniff',
@@ -10557,67 +10576,69 @@ var ThemeSniffer = function () {
         file: themeFiles[fileNumber]
       };
 
-      return (0, _ajax2.default)({
-        type: 'GET',
-        url: localizationObject.root + 'theme-sniffer/v1/individual-sniff',
-        data: individualSniffData,
-        beforeSend: function beforeSend(xhr) {
-          xhr.setRequestHeader('X-WP-Nonce', _this2.nonce);
-        }
-      }).then(function (response) {
-        if (response.success === true) {
-          _this2.count++;
-          _this2.bumpProgressBar(_this2.count, totalFiles);
-          var $clonedReportElement = _this2.$reportItem.clone().addClass(_this2.SHOW_CLASS);
-          var sniffWrapper = _this2.renderJSON(response, $clonedReportElement, args);
-          _this2.$sniffReport.append(sniffWrapper);
-          if (_this2.count < totalFiles) {
-            _this2.individualSniff(button, name, args, themeFiles, totalFiles, _this2.count);
-          } else {
-            _this2.$checkNotice.addClass(_this2.SHOW_CLASS);
-            (0, _jquery2.default)(button).removeClass(_this2.DISABLED_CLASS);
+      if (this.ajaxAllow) {
+        return (0, _ajax2.default)({
+          type: 'GET',
+          url: localizationObject.root + 'theme-sniffer/v1/individual-sniff',
+          data: individualSniffData,
+          beforeSend: function beforeSend(xhr) {
+            xhr.setRequestHeader('X-WP-Nonce', _this2.nonce);
           }
-        } else {
-          _this2.$snifferInfo.addClass(_this2.SHOW_CLASS);
-          _this2.$snifferInfo.html(response.data[0].message);
-          _this2.$progressBar.addClass(_this2.ERROR_CLASS);
-        }
-      }, function (xhr) {
-        _this2.count++;
-        var sniffWrapper = '';
-        _this2.bumpProgressBar(_this2.count, totalFiles);
-
-        if (xhr.status === 500) {
-          var filesVal = {};
-          filesVal[themeFiles[fileNumber]] = {
-            errors: 1,
-            warnings: 0,
-            messages: [{
-              column: 1,
-              fixable: false,
-              line: 1,
-              message: localizationObject.sniffError,
-              severity: 5,
-              type: 'ERROR'
-            }]
-          };
-          var errorData = {
-            success: false,
-            data: {
-              files: filesVal,
-              totals: {
-                errors: 1,
-                fixable: 0,
-                warnings: 0,
-                fatalError: 1
-              }
+        }).then(function (response) {
+          if (response.success === true) {
+            _this2.count++;
+            _this2.bumpProgressBar(_this2.count, totalFiles);
+            var $clonedReportElement = _this2.$reportItem.clone().addClass(_this2.SHOW_CLASS);
+            var sniffWrapper = _this2.renderJSON(response, $clonedReportElement, args);
+            _this2.$sniffReport.append(sniffWrapper);
+            if (_this2.count < totalFiles) {
+              _this2.individualSniff(button, name, args, themeFiles, totalFiles, _this2.count);
+            } else {
+              _this2.$checkNotice.addClass(_this2.SHOW_CLASS);
+              (0, _jquery2.default)(button).removeClass(_this2.DISABLED_CLASS);
             }
-          };
-          _this2.$progressBar.addClass(_this2.ERROR_CLASS);
-          sniffWrapper = _this2.renderJSON(errorData);
-        }
-        _this2.$sniffReport.append(sniffWrapper);
-      });
+          } else {
+            _this2.$snifferInfo.addClass(_this2.SHOW_CLASS);
+            _this2.$snifferInfo.html(response.data[0].message);
+            _this2.$progressBar.addClass(_this2.ERROR_CLASS);
+          }
+        }, function (xhr) {
+          _this2.count++;
+          var sniffWrapper = '';
+          _this2.bumpProgressBar(_this2.count, totalFiles);
+
+          if (xhr.status === 500) {
+            var filesVal = {};
+            filesVal[themeFiles[fileNumber]] = {
+              errors: 1,
+              warnings: 0,
+              messages: [{
+                column: 1,
+                fixable: false,
+                line: 1,
+                message: localizationObject.sniffError,
+                severity: 5,
+                type: 'ERROR'
+              }]
+            };
+            var errorData = {
+              success: false,
+              data: {
+                files: filesVal,
+                totals: {
+                  errors: 1,
+                  fixable: 0,
+                  warnings: 0,
+                  fatalError: 1
+                }
+              }
+            };
+            _this2.$progressBar.addClass(_this2.ERROR_CLASS);
+            sniffWrapper = _this2.renderJSON(errorData);
+          }
+          _this2.$sniffReport.append(sniffWrapper);
+        });
+      }
     }
   }, {
     key: 'renderJSON',

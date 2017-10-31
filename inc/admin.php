@@ -68,7 +68,8 @@ function theme_sniffer_admin_scripts( $hook ) {
 	wp_localize_script( 'theme-sniffer-admin-js', 'localizationObject', array(
 		'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 		'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
-		'errorReport' => esc_html__( 'Error', 'theme-sniffer' ),
+		'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
+		'ajaxStopped'     => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
 		'root'            => esc_url_raw( rest_url() ),
 		'restNonce'       => wp_create_nonce( 'wp_rest' ),
 	));
