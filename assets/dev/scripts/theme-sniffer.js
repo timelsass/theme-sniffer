@@ -54,7 +54,7 @@ export default class ThemeSniffer {
     };
 
     if (!this.ajaxAllow) {
-      return;
+      return false;
     }
 
     return ajax({
@@ -84,12 +84,7 @@ export default class ThemeSniffer {
         const themeArgs = response.data[1];
         const themeFilesRaw = response.data[2];
         const totalFiles = Object.keys(themeFilesRaw).length;
-        let fileNumber = 0;
-        const themeFiles = Object.values(themeFilesRaw).reduce((result, value) => {
-          result[fileNumber] = value;
-          fileNumber++;
-          return result;
-        }, {});
+        const themeFiles = Object.values(themeFilesRaw);
         this.$startNotice.removeClass(this.SHOW_CLASS);
         this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
       } else {
@@ -110,7 +105,7 @@ export default class ThemeSniffer {
     };
 
     if (!this.ajaxAllow) {
-      return;
+      return false;
     }
 
     return ajax({
@@ -127,6 +122,7 @@ export default class ThemeSniffer {
         const $clonedReportElement = this.$reportItem.clone().addClass(this.SHOW_CLASS);
         const sniffWrapper = this.renderJSON(response, $clonedReportElement, args);
         this.$sniffReport.append(sniffWrapper);
+
         if (this.count < totalFiles) {
           this.individualSniff(button, name, args, themeFiles, totalFiles, this.count);
         } else {
@@ -187,11 +183,11 @@ export default class ThemeSniffer {
       report = json.data;
     } else {
       if (typeof json.data.totals === 'undefined' || json.data.totals === null) {
-        return;
+        return false;
       }
 
       if (json.data.totals.errors === 0 && json.data.totals.warnings === 0) {
-        return;
+        return false;
       }
 
       report = reportElement;

@@ -6,7 +6,7 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const DEV = process.env.NODE_ENV !== 'production';
 
-const appPath = `${path.resolve(__dirname)}`;
+const appPath = __dirname;
 
 // Entry
 const pluginPath = '/assets';
@@ -52,7 +52,7 @@ const allPlugins = [
 
 if (!DEV) {
   allPlugins.push(
-    new UglifyJSPlugin({
+    new webpack.optimize.UglifyJSPlugin({
       uglifyOptions: {
         output: {
           comments: false,
@@ -64,22 +64,20 @@ if (!DEV) {
   );
 }
 
-module.exports = [
-  {
-    devServer: {
-      outputPath: path.join(__dirname, 'build')
-    },
-    entry: {
-      application: [pluginEntry]
-    },
-    output: {
-      path: pluginPublicPath,
-      publicPath: '',
-      filename: outputJs
-    },
+module.exports = [{
+  devServer: {
+    outputPath: path.join(__dirname, 'build')
+  },
+  entry: {
+    application: [pluginEntry]
+  },
+  output: {
+    path: pluginPublicPath,
+    publicPath: '',
+    filename: outputJs
+  },
 
-    module: allModules,
+  module: allModules,
 
-    plugins: allPlugins
-  }
-];
+  plugins: allPlugins
+}];
