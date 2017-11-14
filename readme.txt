@@ -1,9 +1,9 @@
 === Theme Sniffer ===
-Contributors: rabmalin, grapplerulrich
+Contributors: rabmalin, grapplerulrich, dingo_bastard
 Tags: check, checker, template, theme, tool
 Requires at least: 4.0
 Tested up to: 4.8
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,10 +42,12 @@ When it’s finished, activate the plugin via the prompt. A message will show co
 
 = What options are there? =
 
+* `Select Standard` - Select the standard with which you would like to sniff the theme
 * `Hide Warning` - Enable this to hide warnings
-* Raw Output` - Enable this to display sniff report in plaintext format. Suitable to copy/paste report to trac ticket
+* `Raw Output` - Enable this to display sniff report in plaintext format. Suitable to copy/paste report to trac ticket
+* `PHP version` - Select the minimum PHP Version to check if your theme will work with that version
 
 == Changelog ==
 
-= 1.0 =
-* Initial release
+= 0.1.5 =
+* Initial pre-release
