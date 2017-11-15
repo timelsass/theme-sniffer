@@ -170,7 +170,7 @@ function theme_sniffer_render_form() {
 	<div class="start-notice js-start-notice"><?php esc_html_e( 'Check starting', 'theme-sniffer' ); ?></div>
 	<div class="progress-bar js-progress-bar">
 		<span class="error-notice js-error-notice"><?php esc_html_e( 'Check has failed :(', 'theme-sniffer' ); ?></span>
-		<span class="percentage js-percentage-bar"><?php esc_html_e( 'Percent completed: ', 'theme-sniffer' ); ?><span class="js-percentage-count"></span></span>
+		<span class="percentage js-percentage-bar"><span class="js-percentage-text"><?php esc_html_e( 'Percent completed: ', 'theme-sniffer' ); ?></span><span class="percentage-count js-percentage-count"></span></span>
 		<span class="meter js-meter-bar"></span>
 	</div>
 	<div class="theme-sniffer-report js-sniff-report">

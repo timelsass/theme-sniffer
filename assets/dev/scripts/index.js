@@ -10,6 +10,7 @@ $(function() {
     snifferInfo: $('.js-sniffer-info'),
     checkNotice: $('.js-check-done'),
     percentageBar: $('.js-percentage-bar'),
+    percentageText: $('.js-percentage-text'),
     percentageCount: $('.js-percentage-count'),
     errorNotice: $('.js-error-notice'),
     startNotice: $('.js-start-notice'),
@@ -46,6 +47,8 @@ $(function() {
   });
 
   $('select[name="themename"]').on('change', function() {
+    themeSniffer.preventAjax('.js-start-check');
+
     if (options.progressBar.hasClass('is-shown')) {
       options.progressBar.removeClass('is-shown');
     }

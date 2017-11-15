@@ -52,7 +52,7 @@ const allPlugins = [
 
 if (!DEV) {
   allPlugins.push(
-    new webpack.optimize.UglifyJSPlugin({
+    new UglifyJSPlugin({
       uglifyOptions: {
         output: {
           comments: false,
