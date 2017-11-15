@@ -21,6 +21,7 @@ export default class ThemeSniffer {
     this.$snifferInfo = options.snifferInfo;
     this.$checkNotice = options.checkNotice;
     this.$percentageBar = options.percentageBar;
+    this.$percentageText = options.percentageText;
     this.$percentageCount = options.percentageCount;
     this.$errorNotice = options.errorNotice;
     this.$startNotice = options.startNotice;
@@ -39,8 +40,8 @@ export default class ThemeSniffer {
 
   preventAjax(enableButton) {
     this.ajaxAllow = false;
-    this.$snifferInfo.addClass(this.SHOW_CLASS);
-    this.$snifferInfo.html(localizationObject.ajaxStopped);
+    this.$percentageText.html(localizationObject.ajaxStopped);
+    this.$percentageCount.removeClass(this.SHOW_CLASS);
     $(enableButton).removeClass(this.DISABLED_CLASS);
   }
 
@@ -77,6 +78,9 @@ export default class ThemeSniffer {
       }
     }).then((response) => {
       this.$progressBar.addClass(this.SHOW_CLASS);
+      this.$percentageBar.addClass(this.SHOW_CLASS);
+      this.$percentageCount.addClass(this.SHOW_CLASS);
+      this.$meterBar.addClass(this.SHOW_CLASS);
       this.count = 0;
 
       if (response.success === true) {
@@ -86,6 +90,7 @@ export default class ThemeSniffer {
         const totalFiles = Object.keys(themeFilesRaw).length;
         const themeFiles = Object.values(themeFilesRaw);
         this.$startNotice.removeClass(this.SHOW_CLASS);
+        this.$percentageText.text(localizationObject.percentComplete);
         this.individualSniff(button, themeName, themeArgs, themeFiles, totalFiles, 0);
       } else {
         this.$progressBar.addClass(this.ERROR_CLASS);
@@ -222,9 +227,6 @@ export default class ThemeSniffer {
 
   bumpProgressBar(count, totalFiles) {
     const completed = (((count) / totalFiles) * 100).toFixed(2);
-    this.$percentageBar.addClass(this.SHOW_CLASS);
-    this.$percentageCount.addClass(this.SHOW_CLASS);
-    this.$meterBar.addClass(this.SHOW_CLASS);
     this.$percentageCount.text(`${completed}%`);
     this.$meterBar.css('width', `${completed}%`);
   }

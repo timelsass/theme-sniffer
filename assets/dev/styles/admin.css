@@ -131,6 +131,14 @@
 	z-index: 3;
 }
 
+.percentage-count {
+	display: none;
+}
+
+.percentage-count.is-shown {
+	display: inline-block;
+}
+
 .progress-bar.is-shown,
 .progress-bar .percentage.is-shown,
 .progress-bar .meter.is-shown,
