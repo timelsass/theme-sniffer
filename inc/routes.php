@@ -36,14 +36,14 @@ function theme_sniffer_run_sniffer( \WP_REST_Request $request ) {
 	// Bail if empty.
 	if ( empty( $_GET['themeName'] ) ) {
 		$message = esc_html__( 'Theme name not selected.', 'theme-sniffer' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 
 	// Verify nonce.
 	if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
 		$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 
@@ -51,13 +51,13 @@ function theme_sniffer_run_sniffer( \WP_REST_Request $request ) {
 	if ( ! file_exists( THEME_SNIFFER_DIR . '/vendor/autoload.php' ) ) {
 		// translators: Placeholders are used for inserting hardcoded links to the repository.
 		$message = sprintf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 
 	if ( empty( $_GET['wpRulesets'] ) ) {
 		$message = esc_html__( 'Please select at least one standard.', 'theme-sniffer' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 
@@ -85,7 +85,7 @@ function theme_sniffer_run_sniffer( \WP_REST_Request $request ) {
 		}
 	}
 
-	$theme = wp_get_theme( $theme_slug );
+	$theme     = wp_get_theme( $theme_slug );
 	$php_files = $theme->get_files( 'php', 4, false );
 	// Current theme text domain.
 	$args['text_domains'][] = $theme_slug;
@@ -116,14 +116,14 @@ function theme_sniffer_individual_sniff( \WP_REST_Request $request ) {
 	// Bail if empty.
 	if ( empty( $_GET['themeName'] ) || empty( $_GET['themeArgs'] ) || empty( $_GET['file'] ) ) {
 		$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 
 	// Verify nonce.
 	if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
 		$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-		$error = new WP_Error( '-1', $message );
+		$error   = new WP_Error( '-1', $message );
 		wp_send_json_error( $error );
 	}
 

@@ -86,7 +86,7 @@ function theme_sniffer_render_form() {
 	$standards = theme_sniffer_get_standards();
 
 	$all_themes = wp_get_themes();
-	$themes = array();
+	$themes     = array();
 
 	if ( ! empty( $all_themes ) ) {
 		foreach ( $all_themes as $key => $theme ) {
