@@ -117,8 +117,8 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 			continue;
 		}
 		$notices[] = array(
-			/* translators: 1: comment header line, 2: style.css */
 			'message'  => sprintf(
+				/* translators: 1: comment header line, 2: style.css */
 				__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
 				$header
 			),
@@ -170,6 +170,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 		if ( $tags_count[ $tag ] > 1 ) {
 			$notices[] = array(
 				'message'  => sprintf(
+					/* translators: %s: Theme tag */
 					__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
 					$tag
 				),
@@ -185,6 +186,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 		if ( ! isset( $registered_tags['allowed_tags'][ $tag ] ) ) {
 			$notices[] = array(
 				'message'  => sprintf(
+					/* translators: %s: Theme tag */
 					__( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ),
 					$tag
 				),
@@ -205,6 +207,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	if ( $subject_tags_count > 3 ) {
 		$notices[] = array(
 			'message'  => sprintf(
+				/* translators: 1: Subject theme tag, 2: Tags list */
 				__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
 				$subject_tags_count,
 				implode( ',', $subject_tags_names )
@@ -220,7 +223,13 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	?>
 	<div class="report-file-item">
 		<div class="report-file-heading">
-			<span class="heading-field"><?php printf( esc_html__( 'File: %s', 'theme-sniffer' ), $theme_slug . '/style.css' ); ?></span>
+			<span class="heading-field">
+			<?php
+			printf(
+				/* translators: 1: File name */
+			esc_html__( 'File: %s', 'theme-sniffer' ), esc_html( $theme_slug ) . '/style.css' );
+			?>
+			</span>
 		</div><!-- .report-file-heading -->
 		<table class="report-table">
 		<?php foreach ( $notices as $notice ) : ?>
