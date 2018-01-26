@@ -18,6 +18,8 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+define( 'THEME_SNIFFER_VERSION', '0.1.5' );
+
 add_action( 'admin_init', 'theme_sniffer_check_php' );
 
 /**
@@ -52,7 +54,7 @@ function theme_sniffer_check_php() {
 function theme_sniffer_error_activation_notice() {
 	?>
 	<div class="error">
-		<p><?php _e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
+		<p><?php esc_html_e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
 	</div>
 	<?php
 }
@@ -67,3 +69,6 @@ require_once THEME_SNIFFER_DIR . '/inc/helpers.php';
 // Load admin.
 require_once THEME_SNIFFER_DIR . '/inc/admin.php';
 require_once THEME_SNIFFER_DIR . '/inc/checks.php';
+
+// Load routes for theme sniffer files.
+require_once THEME_SNIFFER_DIR . '/inc/routes.php';

@@ -20,7 +20,7 @@ function theme_sniffer_get_standards() {
 			'description' => __( 'Ruleset for WordPress theme review requirements (Required)', 'theme-sniffer' ),
 			'default'     => 1,
 		),
-		'wordpress-core' => array(
+		'wordpress-core'  => array(
 			'label'       => 'WordPress-Core',
 			'description' => __( 'Main ruleset for WordPress core coding standards (Optional)', 'theme-sniffer' ),
 			'default'     => 0,
@@ -30,12 +30,12 @@ function theme_sniffer_get_standards() {
 			'description' => __( 'Extended ruleset for recommended best practices (Optional)', 'theme-sniffer' ),
 			'default'     => 0,
 		),
-		'wordpress-docs' => array(
+		'wordpress-docs'  => array(
 			'label'       => 'WordPress-Docs',
 			'description' => __( 'Additional ruleset for WordPress inline documentation standards (Optional)', 'theme-sniffer' ),
 			'default'     => 0,
 		),
-		'wordpress-vip' => array(
+		'wordpress-vip'   => array(
 			'label'       => 'WordPress-VIP',
 			'description' => __( 'Extended ruleset for WordPress VIP coding requirements (Optional)', 'theme-sniffer' ),
 			'default'     => 0,
@@ -107,6 +107,7 @@ function theme_sniffer_get_theme_tags() {
 		'threaded-comments'     => 'threaded-comments',
 		'translation-ready'     => 'translation-ready',
 	);
+
 	$tags['subject_tags'] = array(
 		'blog'           => 'blog',
 		'e-commerce'     => 'e-commerce',

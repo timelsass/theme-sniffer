@@ -1,0 +1,180 @@
+.wrap.theme-sniffer {
+	padding: 50px;
+	background: #FFFFFF;
+	margin: 20px 20px 0 0;
+}
+
+.wrap.theme-sniffer h1 {
+	font-weight: 500;
+}
+
+.button.is-disabled {
+	pointer-events: none;
+	color: #CCC;
+}
+
+.report-file-item {
+	margin-top: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	display: none;
+}
+
+.report-file-item.is-shown {
+	display: block;
+}
+
+.report-file-heading {
+	font-weight: 700;
+	background-color: #737373;
+	color: #FFFFFF;
+	padding: 8px 10px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.report-table {
+	color: #444444;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.report-table tr {
+	display: block;
+	padding: 5px 15px;
+}
+
+.report-table tr td {
+	padding: 8px;
+	font-weight: 500;
+}
+
+.report-table .item-type.error {
+	background:#F3F3F3;
+}
+
+.report-table .item-type.error td {
+	color: #EF5D5D;
+}
+
+.report-table td.td-line {
+	width: 55px;
+}
+
+.report-table tr:last-of-type td.td-line {
+	border-bottom-left-radius:5px;
+}
+
+.report-table td.td-type {
+	text-transform: uppercase;
+	width: 75px;
+}
+
+.report-table tr:last-of-type td.td-message{
+	border-bottom-right-radius:5px;
+}
+
+.report-summary td,
+.report-summary th {
+	border: 1px #DDDDDD solid;
+	padding: 5px;
+}
+
+.report-summary tr {
+	background-color: #EFEFEF;
+}
+
+.report-summary tr.heading {
+	background-color: #525D76;
+	color: #FFFFFF;
+}
+
+.report-summary tr.field {
+	background-color: #CCCCCC;
+}
+
+.theme-sniffer-info {
+	display: none;
+}
+
+.theme-sniffer-info.is-shown {
+	display: block;
+}
+
+.progress-bar {
+	position: relative;
+	height: 18px;
+	margin: 20px 0 40px;
+	padding: 11px 10px;
+	color: #FFFFFF;
+	background: #C5C5C5;
+	font-weight: 700;
+	border-radius: 5px;
+	display: none;
+}
+
+.start-notice {
+	display: none;
+	font-weight: 700;
+	padding: 20px 0 15px;
+}
+
+.start-notice.is-shown {
+	display: block;
+}
+
+.progress-bar .percentage,
+.progress-bar .meter,
+.check-done {
+	display: none;
+	position: absolute;
+	z-index: 3;
+}
+
+.percentage-count {
+	display: none;
+}
+
+.percentage-count.is-shown {
+	display: inline-block;
+}
+
+.progress-bar.is-shown,
+.progress-bar .percentage.is-shown,
+.progress-bar .meter.is-shown,
+.check-done.is-shown {
+	display: block;
+}
+
+.progress-bar .starting.is-shown {
+	display: inline-block;
+}
+
+.progress-bar.error,
+.progress-bar.error .meter {
+	background: #EF5D5D;
+}
+
+.progress-bar.error .check-done,
+.progress-bar.error .starting {
+	display: none;
+}
+
+.progress-bar .error-notice {
+	display: none;
+}
+
+.progress-bar.error .error-notice{
+	display: inline-block;
+}
+
+.progress-bar .meter {
+	background: #58BF66;
+	height: 40px;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	border-radius: 5px;
+}
