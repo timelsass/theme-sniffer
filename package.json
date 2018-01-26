@@ -1,23 +1,52 @@
 {
   "name": "theme-sniffer",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Theme Sniffer plugin using sniffs. `WordPress-Theme` standard is used from WPTRT/WordPress-Coding-Standards.",
-  "main": "index.js",
+  "main": "",
+  "browserslist": [
+    "android >= 4.2",
+    "not ie < 11",
+    "last 2 versions"
+  ],
   "dependencies": {
-    "stylelint": "^7.10.1"
+    "eslint-config-wordpress": "^2.0.0",
+    "jquery": "^3.2.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "autoprefixer": "^7.2.5",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.9",
+    "eslint": "^4.15.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "style-loader": "^0.19.1",
+    "stylelint": "^8.4.0",
+    "uglifyjs-webpack-plugin": "^1.1.6",
+    "webpack": "^3.10.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack --progress --watch --display-error-details --display-modules --display-reasons",
+    "build": "NODE_ENV=production webpack --progress"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ernilambar/theme-sniffer.git"
+    "url": "git+https://github.com/WPTRT/theme-sniffer.git"
   },
   "author": "Nilambar Sharma <nilambar@outlook.com>",
+  "contributors": [
+    {
+      "name": "Ulrich Pogson"
+    },
+    {
+      "name": "Denis Žoljom"
+    }
+  ],
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/ernilambar/theme-sniffer/issues"
+    "url": "https://github.com/WPTRT/theme-sniffer/issues"
   },
-  "homepage": "https://github.com/ernilambar/theme-sniffer#readme"
+  "homepage": "https://github.com/WPTRT/theme-sniffer#readme"
 }

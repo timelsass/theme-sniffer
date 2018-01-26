@@ -55,6 +55,8 @@ function theme_sniffer_do_sniff( $theme_slug, $args = array(), $file ) {
 	// Ignore unrelated files from the check.
 	$values['ignored'] = array(
 		'.*/node_modules/.*',
+		'.*/vendor/.*',
+		'.*/assets/build/.*',
 	);
 
 	// Set minimum supported PHP version.
@@ -73,7 +75,7 @@ function theme_sniffer_do_sniff( $theme_slug, $args = array(), $file ) {
 	ob_start();
 	$num_errors = $phpcs_cli->process( $values );
 	$raw_output = ob_get_clean();
-	$output = '';
+	$output     = '';
 
 	// Sniff theme files.
 	if ( 1 === absint( $args['raw_output'] ) ) {
@@ -115,8 +117,8 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 			continue;
 		}
 		$notices[] = array(
-			/* translators: 1: comment header line, 2: style.css */
 			'message'  => sprintf(
+				/* translators: 1: comment header line, 2: style.css */
 				__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
 				$header
 			),
@@ -133,14 +135,14 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 
 	if ( preg_match( '|[^\d\.]|', $theme->get( 'Version' ) ) ) {
 		$notices[] = array(
-			'message' => __( 'Version strings can only contain numeric and period characters (like 1.2).', 'theme-sniffer' ),
+			'message'  => __( 'Version strings can only contain numeric and period characters (like 1.2).', 'theme-sniffer' ),
 			'severity' => 'error',
 		);
 	}
 
 	// Prevent duplicate URLs.
-	$themeuri  = trim( $theme->get( 'ThemeURI' ) , '/\\' );
-	$authoruri = trim( $theme->get( 'AuthorURI' ) , '/\\' );
+	$themeuri  = trim( $theme->get( 'ThemeURI' ), '/\\' );
+	$authoruri = trim( $theme->get( 'AuthorURI' ), '/\\' );
 	if ( $themeuri === $authoruri ) {
 		$notices[] = array(
 			'message'  => __( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'theme-sniffer' ),
@@ -151,7 +153,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	if ( $theme_slug === $theme->get( 'Text Domain' ) ) {
 		$notices[] = array(
 			/* translators: %1$s: Text Domain, %2$s: Theme Slug */
-			'message' => sprintf( __( 'The text domain "%1$s" must match the theme slug "%2$s".', 'theme-sniffer' ),
+			'message'  => sprintf( __( 'The text domain "%1$s" must match the theme slug "%2$s".', 'theme-sniffer' ),
 				$theme->get( 'TextDomain' ),
 				$theme_slug
 			),
@@ -167,7 +169,8 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	foreach ( $tags as $tag ) {
 		if ( $tags_count[ $tag ] > 1 ) {
 			$notices[] = array(
-				'message' => sprintf(
+				'message'  => sprintf(
+					/* translators: %s: Theme tag */
 					__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
 					$tag
 				),
@@ -182,7 +185,8 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 
 		if ( ! isset( $registered_tags['allowed_tags'][ $tag ] ) ) {
 			$notices[] = array(
-				'message' => sprintf(
+				'message'  => sprintf(
+					/* translators: %s: Theme tag */
 					__( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ),
 					$tag
 				),
@@ -193,7 +197,7 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 
 		if ( 'accessibility-ready' === $tag ) {
 			$notices[] = array(
-				'message' => __( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ),
+				'message'  => __( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ),
 				'severity' => 'warning',
 			);
 		}
@@ -202,7 +206,8 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	$subject_tags_count = count( $subject_tags_names );
 	if ( $subject_tags_count > 3 ) {
 		$notices[] = array(
-			'message' => sprintf(
+			'message'  => sprintf(
+				/* translators: 1: Subject theme tag, 2: Tags list */
 				__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
 				$subject_tags_count,
 				implode( ',', $subject_tags_names )
@@ -218,7 +223,13 @@ function theme_sniffer_style_headers( $theme_slug, $theme ) {
 	?>
 	<div class="report-file-item">
 		<div class="report-file-heading">
-			<span class="heading-field"><?php printf( esc_html__( 'File: %s', 'theme-sniffer' ), $theme_slug . '/style.css' ); ?></span>
+			<span class="heading-field">
+			<?php
+			printf(
+				/* translators: 1: File name */
+			esc_html__( 'File: %s', 'theme-sniffer' ), esc_html( $theme_slug ) . '/style.css' );
+			?>
+			</span>
 		</div><!-- .report-file-heading -->
 		<table class="report-table">
 		<?php foreach ( $notices as $notice ) : ?>
