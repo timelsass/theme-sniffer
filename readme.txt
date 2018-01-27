@@ -1,7 +1,7 @@
 === Theme Sniffer ===
 Contributors: rabmalin, grapplerulrich, dingo_bastard
 Tags: check, checker, template, theme, tool
-Requires at least: 4.0
+Requires at least: 4.4
 Tested up to: 4.9.2
 Requires PHP: 5.3
 Stable tag: 0.1.5
