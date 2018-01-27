@@ -2,7 +2,8 @@
 Contributors: rabmalin, grapplerulrich, dingo_bastard
 Tags: check, checker, template, theme, tool
 Requires at least: 4.0
-Tested up to: 4.8
+Tested up to: 4.9.2
+Requires PHP: 5.3
 Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -47,7 +48,29 @@ When it’s finished, activate the plugin via the prompt. A message will show co
 * `Raw Output` - Enable this to display sniff report in plaintext format. Suitable to copy/paste report to trac ticket
 * `PHP version` - Select the minimum PHP Version to check if your theme will work with that version
 
+== Upgrade Notice ==
+
+The latest upgrade mostly with development changes and some minor improvements in sniff handling.
+
 == Changelog ==
 
 = 0.1.5 =
+* Change the development process
+* Modern JS development workflow
+
+= 0.1.4 =
+* Using REST instead of admin-ajax for checks
+* Code optimisation
+
+= 0.1.3 =
+* Update zip link in the readme file
+
+= 0.1.2 =
+* Add option to display report in HTML or raw format
+* Update to latest sniffs
+
+= 0.1.1 =
+* Fix sniffer issues in admin files
+
+= 0.1.0 =
 * Initial pre-release
