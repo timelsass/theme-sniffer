@@ -137,9 +137,9 @@ class Theme_Sniffer {
 	 * @access   private
 	 */
 	private function register_rest_routes() {
-		$plugin_rest = new Admin\Rest_Functionality( $this->get_plugin_name(), $this->get_version() );
+		$plugin_rest = new Admin\Routes( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'rest_api_init', $plugin_rest, 'api_fields_init' );
+		$this->loader->add_action( 'rest_api_init', $plugin_rest, 'endpoint_init' );
 	}
 
 	/**

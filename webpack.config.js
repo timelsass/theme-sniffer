@@ -40,12 +40,12 @@ const allModules = {
 };
 
 const allPlugins = [
-	new CleanWebpackPlugin( [ pluginPublicPath ] ),
+	new CleanWebpackPlugin([ pluginPublicPath ]),
 	new ExtractTextPlugin( outputCss ),
 	new webpack.optimize.ModuleConcatenationPlugin(),
 	new webpack.DefinePlugin({
 		'process.env': {
-			NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development' )
+			NODE_ENV: JSON.stringify( process.env.NODE_ENV || 'development' )
 		}
 	})
 ];

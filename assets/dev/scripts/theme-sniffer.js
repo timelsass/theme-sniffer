@@ -33,7 +33,7 @@ export default class ThemeSniffer {
 		this.ajaxAllow = true;
 	}
 
-	enableAjax(  ) {
+	enableAjax() {
 		this.ajaxAllow = true;
 		this.$snifferInfo.removeClass( this.SHOW_CLASS );
 	}
@@ -68,10 +68,10 @@ export default class ThemeSniffer {
 				this.$errorNotice.removeClass( this.SHOW_CLASS );
 				this.$checkNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageBar.removeClass( this.SHOW_CLASS );
-				this.$percentageCount.empty(  );
+				this.$percentageCount.empty();
 				this.$meterBar.css( 'width', 0 );
-				this.$sniffReport.empty(  );
-				this.$snifferInfo.empty(  );
+				this.$sniffReport.empty();
+				this.$snifferInfo.empty();
 				$( button ).addClass( this.DISABLED_CLASS );
 
 				xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
@@ -124,7 +124,7 @@ export default class ThemeSniffer {
 			if ( response.success === true ) {
 				this.count++;
 				this.bumpProgressBar( this.count, totalFiles );
-				const $clonedReportElement = this.$reportItem.clone(  ).addClass( this.SHOW_CLASS );
+				const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
 				const sniffWrapper = this.renderJSON( response, $clonedReportElement, args );
 				this.$sniffReport.append( sniffWrapper );
 
@@ -211,7 +211,7 @@ export default class ThemeSniffer {
 				const message = val.message;
 				const type = val.type;
 
-				const $singleItem = $reportNoticeType.clone(  ).addClass( type.toLowerCase(  ) );
+				const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
 				$singleItem.find( this.reportItemLine ).text( line );
 				$singleItem.find( this.reportItemType ).text( type );
 				$singleItem.find( this.reportItemMessage ).text( message );
@@ -219,7 +219,7 @@ export default class ThemeSniffer {
 				$singleItem.appendTo( $reportReportTable );
 			});
 
-			$reportNoticeType.remove(  );
+			$reportNoticeType.remove();
 		}
 
 		return report;
