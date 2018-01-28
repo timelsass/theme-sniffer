@@ -9,5 +9,5 @@ vendor/
 # Windows thumbnail cache files
 Thumbs.db
 
-# Build assets
-assets/build/
+# Project build folder
+/build/
