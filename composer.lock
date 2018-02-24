@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf46ac90bae3abfe6e9c4337b5b158d1",
+    "content-hash": "eac4a0a11ef4931142bf9190e54d9ce2",
     "packages": [
         {
             "name": "squizlabs/php_codesniffer",
@@ -86,25 +86,22 @@
         },
         {
             "name": "wimg/php-compatibility",
-            "version": "7.1.4",
+            "version": "7.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wimg/PHPCompatibility.git",
-                "reference": "95e143e5937bb0e8aea45b1d79355a755bd911f1"
+                "reference": "1649732fb1a2115608dfe805a644e4405fb6444b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wimg/PHPCompatibility/zipball/95e143e5937bb0e8aea45b1d79355a755bd911f1",
-                "reference": "95e143e5937bb0e8aea45b1d79355a755bd911f1",
+                "url": "https://api.github.com/repos/wimg/PHPCompatibility/zipball/1649732fb1a2115608dfe805a644e4405fb6444b",
+                "reference": "1649732fb1a2115608dfe805a644e4405fb6444b",
                 "shasum": ""
             },
             "require": {
                 "ext-tokenizer": "*",
                 "php": ">=5.1.2",
-                "squizlabs/php_codesniffer": "~2.0"
-            },
-            "require-dev": {
-                "satooshi/php-coveralls": "dev-master"
+                "squizlabs/php_codesniffer": "^2.0"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -129,7 +126,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-05-06T19:28:14+00:00"
+            "time": "2017-07-15T23:03:53+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -176,7 +173,7 @@
                 "issues": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/issues",
                 "source": "https://github.com/WPTRT/WordPress-Coding-Standards/tree/feature/theme-review-sniffs"
             },
-            "time": "2017-04-09 11:42:31"
+            "time": "2017-04-09T11:42:31+00:00"
         }
     ],
     "packages-dev": [],
