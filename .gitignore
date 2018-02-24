@@ -4,6 +4,7 @@ vendor/
 
 # Project build folder
 /build/
+/src/assets/build/
 
 # Mac OS custom attribute store and thumbnails
 *.DS_Store

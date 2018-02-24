@@ -8,7 +8,7 @@ const DEV = process.env.NODE_ENV !== 'production';
 const appPath = __dirname;
 
 // Entry
-const pluginPath = '/assets';
+const pluginPath = '/src/assets';
 const pluginFullPath = `${appPath}${pluginPath}`;
 const pluginEntry = `${pluginFullPath}/dev/application.js`;
 const pluginPublicPath = `${pluginFullPath}/build`;
