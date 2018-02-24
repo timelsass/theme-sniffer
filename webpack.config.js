@@ -64,20 +64,22 @@ if ( ! DEV ) {
 	);
 }
 
-module.exports = [ {
-	devServer: {
-		outputPath: path.join( __dirname, 'build' )
-	},
-	entry: {
-		application: [ pluginEntry ]
-	},
-	output: {
-		path: pluginPublicPath,
-		publicPath: '',
-		filename: outputJs
-	},
+module.exports = [
+	{
+		devServer: {
+			outputPath: path.join( __dirname, 'build' )
+		},
+		entry: {
+			application: [ pluginEntry ]
+		},
+		output: {
+			path: pluginPublicPath,
+			publicPath: '',
+			filename: outputJs
+		},
 
-	module: allModules,
+		module: allModules,
 
-	plugins: allPlugins
-} ];
+		plugins: allPlugins
+	}
+];
