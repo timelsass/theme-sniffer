@@ -8,6 +8,7 @@
  */
 
 namespace Theme_Sniffer\Admin;
+
 use Theme_Sniffer\Admin\Checks as Checks;
 
 /**
@@ -43,7 +44,7 @@ class Routes {
 	 */
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 	}
 
 	/**

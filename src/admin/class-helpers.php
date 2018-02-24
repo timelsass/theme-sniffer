@@ -42,7 +42,7 @@ class Helpers {
 	 */
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
-		$this->version = $version;
+		$this->version     = $version;
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Helpers {
 	 *
 	 * @return array List of extra headers.
 	 */
-	function add_headers( $extra_headers ) {
+	public function add_headers( $extra_headers ) {
 		$extra_headers[] = 'License';
 		$extra_headers[] = 'License URI';
 		$extra_headers[] = 'Template Version';

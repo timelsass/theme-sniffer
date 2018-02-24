@@ -10,6 +10,7 @@
  */
 
 namespace Theme_Sniffer\Admin\Partials;
+
 use Theme_Sniffer\Admin\Helpers as Helpers;
 
 $helpers = new Helpers();
