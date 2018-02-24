@@ -9,11 +9,12 @@ $green-color: #58BF66;
 
 .wrap {
 	&.theme-sniffer {
+		background-color: $white-color;
+		margin: 20px 20px 0 0;
+		padding: 50px;
 
 		h1 {
 			font-weight: 500;
-			background-color: $white-color;
-			margin: 20px 20px 0 0;
 		}
 	}
 }

@@ -10,6 +10,7 @@
 namespace Theme_Sniffer\Admin;
 
 use Theme_Sniffer\Admin\Checks as Checks;
+use Theme_Sniffer\Admin\Helpers as Helpers;
 
 /**
  * Class that holds the methods for the REST query
@@ -36,6 +37,15 @@ class Routes {
 	private $version;
 
 	/**
+	 * The helpers object.
+	 *
+	 * @since    0.2.0
+	 * @access   private
+	 * @var      string    $version    The current version of this plugin.
+	 */
+	private $helpers;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    0.2.0
@@ -45,6 +55,7 @@ class Routes {
 	public function __construct( $plugin_name, $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
+		$this->helpers     = new Helpers();
 	}
 
 	/**
@@ -76,28 +87,28 @@ class Routes {
 		// Bail if empty.
 		if ( empty( $_GET['themeName'] ) ) { // Input var okay.
 			$message = esc_html__( 'Theme name not selected.', 'theme-sniffer' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
 		// Verify nonce.
 		if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
 		// Exit if plugin not bundled properly.
-		if ( ! file_exists( rtrim( plugin_dir_path( __FILE__ ), '/' ) . '/vendor/autoload.php' ) ) {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php' ) ) {
 			// translators: Placeholders are used for inserting hardcoded links to the repository.
 			$message = sprintf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
 		if ( empty( $_GET['wpRulesets'] ) ) { // Input var okay.
 			$message = esc_html__( 'Please select at least one standard.', 'theme-sniffer' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
@@ -115,7 +126,7 @@ class Routes {
 			$args['minimum_php_version'] = sanitize_text_field( wp_unslash( $_GET['minimumPHPVersion'] ) );// Input var okay.
 		}
 
-		$standards = theme_sniffer_get_standards();
+		$standards = $this->helpers->get_wpcs_standards();
 
 		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_GET['wpRulesets'] ) ); // Input var okay.
 
@@ -156,14 +167,14 @@ class Routes {
 		// Bail if empty.
 		if ( empty( $_GET['themeName'] ) || empty( $_GET['themeArgs'] ) || empty( $_GET['file'] ) ) { // Input var okay.
 			$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
 		// Verify nonce.
 		if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-			$error   = new WP_Error( '-1', $message );
+			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 

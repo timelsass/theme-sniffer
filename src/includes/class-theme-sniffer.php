@@ -122,7 +122,7 @@ class Theme_Sniffer {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin   = new Admin\Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_helpers = new Admin\Helpers( $this->get_plugin_name(), $this->get_version() );
+		$plugin_helpers = new Admin\Helpers();
 
 		$this->loader->add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), $plugin_admin, 'plugin_settings_link' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );

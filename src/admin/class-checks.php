@@ -63,7 +63,7 @@ class Checks {
 	 */
 	public function perform_sniff( $theme_slug, $args = array(), $file ) {
 
-		require_once rtrim( plugin_dir_path( __FILE__ ), '/' ) . '/vendor/autoload.php';
+		require_once WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php';
 
 		$defaults = array(
 			'show_warnings'       => true,
@@ -86,7 +86,8 @@ class Checks {
 		if ( ! empty( $args['standard'] ) ) {
 			$values['standard'] = $args['standard'];
 		}
-		$values['standard'][] = rtrim( plugin_dir_path( __FILE__ ), '/' ) . '/bin/phpcs.xml';
+
+		$values['standard'][] = WP_PLUGIN_DIR . '/' . $this->plugin_name . '/phpcs.xml';
 
 		// Set default standard.
 		PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
@@ -112,7 +113,7 @@ class Checks {
 		PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
 
 		// Path to WordPress Theme coding standard.
-		PHP_CodeSniffer::setConfigData( 'installed_paths', rtrim( plugin_dir_path( __FILE__ ), '/' ) . '/vendor/wp-coding-standards/wpcs/', true );
+		PHP_CodeSniffer::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
 
 		// Initialize CodeSniffer.
 		$phpcs_cli = new PHP_CodeSniffer_CLI();
@@ -207,7 +208,7 @@ class Checks {
 			);
 		}
 
-		$helpers = new Helpers( $this->plugin_name, $this->version );
+		$helpers = new Helpers();
 
 		$registered_tags    = $helpers->get_theme_tags();
 		$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );

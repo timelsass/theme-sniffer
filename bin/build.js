@@ -29,9 +29,6 @@ const copyDir = ( src, dest ) => {
 
 				if ( current.isDirectory() ) {
 					copyDir( path.join( src, currentObject ), path.join( dest, currentObject ) );
-				} else if ( current.isSymbolicLink() ) {
-					const symLink = fs.readlinkSync( path.join( src, currentObject ) );
-					fs.symlinkSync( symLink, path.join( src, currentObject ) );
 				} else {
 					copy( path.join( src, currentObject ), path.join( dest, currentObject ), ( err ) => {
 						console.info( `Error occured: ${err}.` );
@@ -87,7 +84,6 @@ const createZip = ( zipName, source ) => {
 };
 
 const finalize = () => {
-	rimraf.sync( './build/theme-sniffer/assets/dev' );
 	// console.info( 'Development folder removed, creating a zip file.' );
 	// createZip( 'theme-sniffer.zip', './build/theme-sniffer' );
 	// rimraf.sync( './build/theme-sniffer/' );
@@ -99,6 +95,11 @@ rimraf( './build', () => {
 	console.info( 'Deleted build directory.' );
 	mkdir( './build' );
 	copyDir( './src', './build/theme-sniffer/' );
+	copy( './composer.json', './build/theme-sniffer/composer.json', ( err ) => {
+		console.info( `Error occured: ${err}.` );
+	});
+	copyDir( './vendor', './build/theme-sniffer/vendor/' );
+	rimraf.sync( './build/theme-sniffer/assets/dev' );
 	finalize();
 });
 
