@@ -2,7 +2,6 @@ const path = require( 'path' );
 
 const webpack = require( 'webpack' );
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
-const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
 const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -30,10 +29,10 @@ const allModules = {
 			use: 'json-loader'
 		},
 		{
-			test: /\.css$/,
+			test: /\.scss$/,
 			use: ExtractTextPlugin.extract({
 				fallback: 'style-loader',
-				use: [ 'css-loader' ]
+				use: [ 'css-loader', 'sass-loader' ]
 			})
 		}
 	]

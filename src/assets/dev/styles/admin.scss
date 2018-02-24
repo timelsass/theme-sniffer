@@ -1,0 +1,215 @@
+$white-color: #FFFFFF;
+$dirtyWhite-color: #F3F3F3;
+$grayWhite-color: #DDDDDD;
+$gray-color: #CCCCCC;
+$darkGray-color: #737373;
+$dark-color: #444444;
+$red-color: #EF5D5D;
+$green-color: #58BF66;
+
+.wrap {
+	&.theme-sniffer {
+
+		h1 {
+			font-weight: 500;
+			background-color: $white-color;
+			margin: 20px 20px 0 0;
+		}
+	}
+}
+
+.button {
+	&.is-disabled {
+		pointer-events: none;
+		color: $gray-color;
+	}
+}
+
+.report-file-item {
+	margin-top: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	display: none;
+
+	&.is-shown {
+		display: block;
+	}
+}
+
+.report-file-heading {
+	font-weight: 700;
+	background-color: $darkGray-color;
+	color: $white-color;
+	padding: 8px 10px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.report-table {
+	color: $dark-color;
+	width: 100%;
+	border-collapse: collapse;
+
+	tr {
+		display: block;
+		padding: 5px 15px;
+
+		td {
+			padding: 8px;
+			font-weight: 500;
+
+			&.td-line {
+				width: 55px;
+			}
+		}
+
+		&:last-of-type {
+			td {
+				&.td-line {
+					border-bottom-left-radius: 5px;
+				}
+
+				&.td-message {
+					border-bottom-right-radius: 5px;
+				}
+			}
+		}
+	}
+
+	td {
+		&.td-type {
+			text-transform: uppercase;
+			width: 75px;
+		}
+	}
+
+	.item-type {
+		&.error {
+			background-color: $dirtyWhite-color;
+
+			td {
+				color: $red-color;
+			}
+		}
+	}
+}
+
+.report-summary {
+	td,th {
+		border: 1px $grayWhite-color solid;
+		padding: 5px;
+	}
+
+	tr {
+		background-color: $dirtyWhite-color;
+
+		&.heading {
+			background-color: $dark-color;
+			color: $white-color;
+		}
+
+		&.field {
+			background-color: $gray-color;
+		}
+	}
+}
+
+.theme-sniffer-info {
+	display: none;
+
+	&.is-shown {
+		display: block;
+	}
+}
+
+.progress-bar {
+	position: relative;
+	height: 18px;
+	margin: 20px 0 40px;
+	padding: 11px 10px;
+	color: $white-color;
+	background: $grayWhite-color;
+	font-weight: 700;
+	border-radius: 5px;
+	display: none;
+
+	&.is-shown {
+		display: block;
+	}
+
+	&.error {
+		background-color: $red-color;
+
+		.meter {
+			background-color: $red-color;
+		}
+
+		.error-notice{
+			display: inline-block;
+		}
+
+		.check-done,
+		.starting {
+			display: none;
+		}
+	}
+
+	.percentage, .meter {
+		display: none;
+		position: absolute;
+		z-index: 3;
+
+		&.is-shown {
+			display: block;
+		}
+	}
+
+	.meter {
+		background: $green-color;
+		height: 40px;
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+		border-radius: 5px;
+	}
+
+	.starting {
+		&.is-shown {
+			display: inline-block;
+		}
+	}
+
+	.error-notice {
+		display: none;
+	}
+}
+
+.start-notice {
+	display: none;
+	font-weight: 700;
+	padding: 20px 0 15px;
+
+	&.is-shown {
+		display: block;
+	}
+}
+
+.check-done {
+	display: none;
+	position: absolute;
+	z-index: 3;
+
+	&.is-shown {
+		display: block;
+	}
+}
+
+.percentage-count {
+	display: none;
+
+	&.is-shown {
+		display: inline-block;
+	}
+}
