@@ -30,6 +30,7 @@
     "webpack": "^3.11.0"
   },
   "scripts": {
+    "precommit": "eslint src/assets/scripts/*.js && stylelint \"src/assets/styles/**/*.scss\" --syntax scss && phpcs --standard=WordPress --extensions=php src/",
     "start": "webpack --progress --watch --display-error-details --display-modules --display-reasons",
     "postBuild": "./bin/build.js",
     "build": "NODE_ENV=production webpack --progress && npm run postBuild"

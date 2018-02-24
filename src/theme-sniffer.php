@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Theme Sniffer
  * Plugin URI:        https://github.com/WPTRT/theme-sniffer
- * Description:       Theme Sniffer plugin which uses phpcs for automatic theme checking.
+ * Description:       Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.
  * Version:           0.2.0
  * Author:            WPTRT
  * Author URI:        https://make.wordpress.org/themes/
@@ -15,6 +15,7 @@
  */
 
 namespace Theme_Sniffer;
+
 use Theme_Sniffer\Includes as Includes;
 
 // If this file is called directly, abort.
@@ -26,7 +27,7 @@ define( 'THEME_SNIFFER_VERSION', '0.2.0' );
 define( 'THEME_SNIFFER_NAME', 'theme-sniffer' );
 
 // Include the autoloader so we can dynamically include the rest of the classes.
-include_once( 'lib/autoloader.php' );
+require_once 'lib/autoloader.php';
 
 add_action( 'admin_init', __NAMESPACE__ . '\\check_php' );
 
@@ -46,7 +47,7 @@ function check_php() {
 
 		if ( is_plugin_active( $plugin ) ) {
 			deactivate_plugins( $plugin );
-			add_action( 'admin_notices',  __NAMESPACE__ . '\\error_activation_notice' );
+			add_action( 'admin_notices', __NAMESPACE__ . '\\error_activation_notice' );
 			remove_filter( 'plugin_action_links_' . $plugin, 'theme_sniffer_plugin_settings_link' );
 			unset( $_GET['activate'] ); // Input var okay.
 		}
@@ -76,11 +77,12 @@ function error_activation_notice() {
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    1.0.0
+ * @since    0.1.0
+ * @since    0.2.0
  */
-function run_theme_sniffer() {
+function run_plugin() {
 	$plugin = new Includes\Theme_Sniffer();
 	$plugin->run();
 }
 
-run_theme_sniffer();
+run_plugin();

@@ -3,7 +3,7 @@
  * Plugin Name:       Theme Sniffer
  * Plugin URI:        https://github.com/ernilambar/theme-sniffer
  * Description:       Theme Sniffer plugin which uses phpcs for automatic theme checking.
- * Version:           0.1.4
+ * Version:           0.2.0
  * Author:            Nilambar Sharma
  * Author URI:        http://nilambar.net
  * Text Domain:       theme-sniffer
@@ -18,7 +18,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'THEME_SNIFFER_VERSION', '0.1.5' );
+define( 'THEME_SNIFFER_VERSION', '0.2.0' );
 
 add_action( 'admin_init', 'theme_sniffer_check_php' );
 

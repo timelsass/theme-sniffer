@@ -2,7 +2,7 @@ const path = require( 'path' );
 
 const webpack = require( 'webpack' );
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
-const UglifyJSPlugin = require( 'uglifyjs-webpack-plugin' );
+const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
 const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -52,14 +52,15 @@ const allPlugins = [
 
 if ( ! DEV ) {
 	allPlugins.push(
-		new UglifyJSPlugin({
-			uglifyOptions: {
-				output: {
-					comments: false,
-					beautify: false
-				},
-				sourceMap: true
-			}
+		new webpack.optimize.UglifyJsPlugin({
+			output: {
+				comments: false
+			},
+			compress: {
+				warnings: false,
+				drop_console: true // eslint-disable-line camelcase
+			},
+			sourceMap: true
 		})
 	);
 }

@@ -1,17 +1,20 @@
 {
-	"name": "ernilambar/theme-sniffer",
+	"name": "WPTRT/theme-sniffer",
 	"type": "wordpress-plugin",
-	"description": "Theme Sniffer with sniff",
-	"authors": [{
-		"name": "Nilambar Sharma",
-		"email": "nilambar@outlook.com"
-	}],
+	"keywords": ["plugin", "phpcs", "standards", "WordPress"],
+	"description": "Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.",
+	"authors"    : [
+		{
+			"name"    : "Contributors",
+			"homepage": "https://github.com/WPTRT/theme-sniffer/graphs/contributors"
+		}
+	],
 	"repositories": [
-	        {
-	            "type": "vcs",
-	            "url": "https://github.com/WPTRT/WordPress-Coding-Standards"
-	        }
-	    ],
+		{
+			"type": "vcs",
+			"url": "https://github.com/WPTRT/theme-sniffer"
+		}
+	],
 	"require": {
 		"wp-coding-standards/wpcs": "dev-feature/theme-review-sniffs",
 		"wimg/php-compatibility": "~7.1"

@@ -11,6 +11,7 @@
  */
 
 namespace Theme_Sniffer\Includes;
+
 use Theme_Sniffer\Admin as Admin;
 
 /**
