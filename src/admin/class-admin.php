@@ -82,7 +82,7 @@ class Admin {
 	 *
 	 * @since 0.1.0
 	 */
-	private function render_admin_page() {
+	public function render_admin_page() {
 		?>
 		<div class="wrap theme-sniffer">
 			<?php wp_nonce_field( 'theme_sniffer_nonce', 'theme_sniffer' ); ?>
