@@ -122,13 +122,12 @@ class Theme_Sniffer {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin   = new Admin\Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_helpers = new Admin\Helpers();
+		$plugin_helpers = $this->get_plugin_helpers();
 
 		$this->loader->add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), $plugin_admin, 'plugin_settings_link' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_filter( 'extra_theme_headers', $plugin_helpers, 'add_headers' );
-
 	}
 
 	/**
@@ -138,9 +137,23 @@ class Theme_Sniffer {
 	 * @access   private
 	 */
 	private function register_rest_routes() {
-		$plugin_rest = new Admin\Routes( $this->get_plugin_name(), $this->get_version() );
+		$plugin_helpers = $this->get_plugin_helpers();
+		$plugin_checks  = new Admin\Checks();
+
+		$plugin_rest = new Admin\Routes( $this->get_plugin_name(), $plugin_helpers, $plugin_checks );
 
 		$this->loader->add_action( 'rest_api_init', $plugin_rest, 'endpoint_init' );
+	}
+
+	/**
+	 * Method that returns instance of Helpers class.
+	 *
+	 * @return Admin\Helpers Instance of Helpers class.
+	 * @since    0.2.0
+	 * @access   private
+	 */
+	private function get_plugin_helpers() {
+		return new Admin\Helpers();
 	}
 
 	/**

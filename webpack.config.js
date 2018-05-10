@@ -2,7 +2,9 @@ const path = require( 'path' );
 
 const webpack = require( 'webpack' );
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
-const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
+
 const DEV = process.env.NODE_ENV !== 'production';
 
 const appPath = __dirname;
@@ -21,8 +23,8 @@ const allModules = {
 	rules: [
 		{
 			test: /\.(js|jsx)$/,
-			use: 'babel-loader',
-			exclude: /node_modules/
+			exclude: /node_modules/,
+			use: 'babel-loader'
 		},
 		{
 			test: /\.json$/,
@@ -30,17 +32,20 @@ const allModules = {
 		},
 		{
 			test: /\.scss$/,
-			use: ExtractTextPlugin.extract({
-				fallback: 'style-loader',
-				use: [ 'css-loader', 'sass-loader' ]
-			})
+			exclude: /node_modules/,
+			use: [
+				MiniCssExtractPlugin.loader,
+				'css-loader', 'sass-loader'
+			]
 		}
 	]
 };
 
 const allPlugins = [
 	new CleanWebpackPlugin([ pluginPublicPath ]),
-	new ExtractTextPlugin( outputCss ),
+	new MiniCssExtractPlugin({
+		filename: outputCss
+	}),
 	new webpack.optimize.ModuleConcatenationPlugin(),
 	new webpack.DefinePlugin({
 		'process.env': {
@@ -51,15 +56,19 @@ const allPlugins = [
 
 if ( ! DEV ) {
 	allPlugins.push(
-		new webpack.optimize.UglifyJsPlugin({
-			output: {
-				comments: false
-			},
-			compress: {
-				warnings: false,
-				drop_console: true // eslint-disable-line camelcase
-			},
-			sourceMap: true
+		new UglifyJsPlugin({
+			cache: true,
+			parallel: true,
+			sourceMap: true,
+			uglifyOptions: {
+				output: {
+					comments: false
+				},
+				compress: {
+					warnings: false,
+					drop_console: true // eslint-disable-line camelcase
+				}
+			}
 		})
 	);
 }

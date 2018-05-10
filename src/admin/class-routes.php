@@ -28,34 +28,35 @@ class Routes {
 	private $plugin_name;
 
 	/**
-	 * The version of this plugin.
-	 *
-	 * @since    0.2.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
-
-	/**
 	 * The helpers object.
 	 *
 	 * @since    0.2.0
 	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
+	 * @var      string    $version    Helpers variable.
 	 */
 	private $helpers;
+
+	/**
+	 * Checks object
+	 *
+	 * @since    0.2.0
+	 * @access   private
+	 * @var      string    $checks    Checks variable.
+	 */
+	private $checks;
 
 	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    0.2.0
-	 * @param    string $plugin_name  The name of this plugin.
-	 * @param    string $version      The version of this plugin.
+	 * @param    string  $plugin_name  The name of this plugin.
+	 * @param    Helpers $helpers      Helpers class instance.
+	 * @param    Checks  $checks       Checks class instance.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, Helpers $helpers, Checks $checks ) {
 		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
-		$this->helpers     = new Helpers();
+		$this->helpers     = $helpers;
+		$this->checks      = $checks;
 	}
 
 	/**
@@ -178,13 +179,11 @@ class Routes {
 			wp_send_json_error( $error );
 		}
 
-		$checks = new Checks( $this->plugin_name, $this->version );
-
 		$theme_name = sanitize_text_field( wp_unslash( $_GET['themeName'] ) ); // Input var okay.
 		$theme_args = array_map( 'sanitize_text_field', wp_unslash( $_GET['themeArgs'] ) ); // Input var okay.
 		$theme_file = sanitize_text_field( wp_unslash( $_GET['file'] ) ); // Input var okay.
 
-		$sniff = $checks->perform_sniff( $theme_name, $theme_args, $theme_file );
+		$sniff = $this->checks->perform_sniff( $theme_name, $theme_args, $theme_file );
 
 		wp_send_json_success( $sniff );
 	}

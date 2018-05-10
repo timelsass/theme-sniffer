@@ -1,7 +1,7 @@
 /* global localizationObject */
 
 import $ from 'jquery';
-import ajax from './utils/ajax';
+import {ajax} from './utils/ajax';
 
 export default class ThemeSniffer {
 	constructor( options ) {

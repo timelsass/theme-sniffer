@@ -39,15 +39,26 @@ class Checks {
 	private $version;
 
 	/**
+	 * Helpers object
+	 *
+	 * @since    0.2.0
+	 * @access   private
+	 * @var      string    $helpers    Helpers object
+	 */
+	private $helpers;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    0.2.0
-	 * @param    string $plugin_name  The name of this plugin.
-	 * @param    string $version      The version of this plugin.
+	 * @param    string  $plugin_name  The name of this plugin.
+	 * @param    string  $version      The version of this plugin.
+	 * @param    Helpers $helpers      Helpers class instance.
 	 */
-	public function __construct( $plugin_name, $version ) {
+	public function __construct( $plugin_name, $version, Helpers $helpers ) {
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
+		$this->helpers     = $helpers;
 	}
 
 	/**
@@ -76,8 +87,9 @@ class Checks {
 		$args = wp_parse_args( $args, $defaults );
 
 		// Set CLI arguments.
-		$values['files']       = $file;
-		$values['reportWidth'] = '110';
+		$values['files']              = $file;
+		$values['reportWidth']        = '110';
+		$values['ignore-annotations'] = true;
 
 		if ( 0 === absint( $args['raw_output'] ) ) {
 			$values['reports']['json'] = null;
@@ -166,7 +178,7 @@ class Checks {
 			$notices[] = array(
 				'message'  => sprintf(
 					/* translators: 1: comment header line, 2: style.css */
-					__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
+					esc_html__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
 					$header
 				),
 				'severity' => 'error',
@@ -220,7 +232,7 @@ class Checks {
 				$notices[] = array(
 					'message'  => sprintf(
 						/* translators: %s: Theme tag */
-						__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
+						esc_html__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
 						$tag
 					),
 					'severity' => 'error',
@@ -236,7 +248,7 @@ class Checks {
 				$notices[] = array(
 					'message'  => sprintf(
 						/* translators: %s: Theme tag */
-						__( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ),
+						esc_html__( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ),
 						$tag
 					),
 					'severity' => 'error',
@@ -257,7 +269,7 @@ class Checks {
 			$notices[] = array(
 				'message'  => sprintf(
 					/* translators: 1: Subject theme tag, 2: Tags list */
-					__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
+					esc_html__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
 					$subject_tags_count,
 					implode( ',', $subject_tags_names )
 				),

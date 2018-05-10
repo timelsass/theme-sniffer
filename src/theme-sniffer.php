@@ -1,14 +1,14 @@
 <?php
 /**
- * Plugin Name:       Theme Sniffer
- * Plugin URI:        https://github.com/WPTRT/theme-sniffer
- * Description:       Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.
- * Version:           0.2.0
- * Author:            WPTRT
- * Author URI:        https://make.wordpress.org/themes/
- * Text Domain:       theme-sniffer
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Plugin Name: Theme Sniffer
+ * Plugin URI:  https://github.com/WPTRT/theme-sniffer
+ * Description: Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.
+ * Version:     0.2.0
+ * Author:      WPTRT
+ * Author URI:  https://make.wordpress.org/themes/
+ * Text Domain: theme-sniffer
+ * License:     GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  *
  * @since  0.1.0
  * @package Theme_Sniffer
@@ -27,7 +27,7 @@ define( 'THEME_SNIFFER_VERSION', '0.2.0' );
 define( 'THEME_SNIFFER_NAME', 'theme-sniffer' );
 
 // Include the autoloader so we can dynamically include the rest of the classes.
-require_once 'lib/autoloader.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 add_action( 'admin_init', __NAMESPACE__ . '\\check_php' );
 

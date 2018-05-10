@@ -20,7 +20,12 @@
 		"wimg/php-compatibility": "~7.1"
 	},
 	"scripts": {
-		"post-update-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility",
-		"post-install-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility"
+		"post-update-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; mkdir -p src/vendor; cp -rp vendor/composer src/vendor/; cp vendor/autoload.php src/vendor/",
+		"post-install-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; mkdir -p src/vendor; cp -rp vendor/composer src/vendor/; cp vendor/autoload.php src/vendor/"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
 	}
 }
