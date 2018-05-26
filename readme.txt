@@ -1,6 +1,6 @@
 === Theme Sniffer ===
 Contributors: rabmalin, grapplerulrich, dingo_bastard
-Tags: check, checker, template, theme, tool
+Tags: check, checker, coding standards, theme, tool
 Requires at least: 4.4
 Tested up to: 4.9.2
 Requires PHP: 5.3
@@ -8,11 +8,11 @@ Stable tag: 0.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Theme Sniffer will help you analyze your theme code, to ensure compatibility with the latest WordPress coding standards.
+Theme Sniffer will help you analyze your theme code, ensuring the PHP and WordPress coding standards compatibility.
 
 == Description ==
 
-Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) that statically analyzes your theme and ensures that it adheres to WordPress coding conventions.
+Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer) that statically analyzes your theme and ensures that it adheres to WordPress coding conventions, as well as checking your code against PHP version compatibility.
 
 == Installation ==
 
@@ -23,7 +23,7 @@ Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://
 3. Click Install Now
 4. When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 
-Make sure that your server has php version greater or equal to 5.3, otherwise the plugin won't activate.
+Make sure that your server has php version greater or equal to 5.3, otherwise, the plugin won't activate.
 
 = Uploading the .zip file: =
 
@@ -38,14 +38,14 @@ When it’s finished, activate the plugin via the prompt. A message will show co
 = How to use the plugin? =
 
 * Go to `Appearance` -> `Theme Sniffer`
-* Select theme from the dropdown
+* Select theme from the drop-down
 * Click `GO`
 
 = What options are there? =
 
 * `Select Standard` - Select the standard with which you would like to sniff the theme
 * `Hide Warning` - Enable this to hide warnings
-* `Raw Output` - Enable this to display sniff report in plaintext format. Suitable to copy/paste report to trac ticket
+* `Raw Output` - Enable this to display sniff report in plain text format. Suitable to copy/paste report to trac ticket
 * `PHP version` - Select the minimum PHP Version to check if your theme will work with that version
 
 == Upgrade Notice ==
@@ -60,7 +60,7 @@ The latest upgrade mostly with development changes and some minor improvements i
 
 = 0.1.4 =
 * Using REST instead of admin-ajax for checks
-* Code optimisation
+* Code optimization
 
 = 0.1.3 =
 * Update zip link in the readme file
