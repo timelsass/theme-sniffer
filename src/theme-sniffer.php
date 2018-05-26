@@ -23,9 +23,6 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'THEME_SNIFFER_VERSION', '0.2.0' );
-define( 'THEME_SNIFFER_NAME', 'theme-sniffer' );
-
 // Include the autoloader so we can dynamically include the rest of the classes.
 require_once __DIR__ . '/vendor/autoload.php';
 

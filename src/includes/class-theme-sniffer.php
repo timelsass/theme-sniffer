@@ -28,6 +28,15 @@ use Theme_Sniffer\Admin as Admin;
  * @author     Infinum <info@infinum.co>
  */
 class Theme_Sniffer {
+	/**
+	 * Plugin name constant
+	 */
+	const PLUGIN_NAME = 'theme-sniffer';
+
+	/**
+	 * Plugin version constant
+	 */
+	const PLUGIN_VERSION = '0.2.0';
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -40,24 +49,6 @@ class Theme_Sniffer {
 	protected $loader;
 
 	/**
-	 * The unique identifier of this plugin.
-	 *
-	 * @since    0.2.0
-	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
-	 */
-	protected $plugin_name;
-
-	/**
-	 * The current version of the plugin.
-	 *
-	 * @since    0.2.0
-	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
-	 */
-	protected $version;
-
-	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -67,22 +58,11 @@ class Theme_Sniffer {
 	 * @since    0.2.0
 	 */
 	public function __construct() {
-		if ( defined( 'THEME_SNIFFER_VERSION' ) ) {
-			$this->version = THEME_SNIFFER_VERSION;
-		} else {
-			$this->version = '0.2.0';
-		}
-
-		if ( defined( 'THEME_SNIFFER_NAME' ) ) {
-			$this->plugin_name = THEME_SNIFFER_NAME;
-		} else {
-			$this->plugin_name = 'theme-sniffer';
-		}
-
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		$this->register_rest_routes();
+		// $this->register_rest_routes();
+		$this->helpers = $this->get_plugin_helpers();
 	}
 
 	/**
@@ -121,8 +101,8 @@ class Theme_Sniffer {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-		$plugin_admin   = new Admin\Admin( $this->get_plugin_name(), $this->get_version() );
-		$plugin_helpers = $this->get_plugin_helpers();
+		$plugin_admin   = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
+		$plugin_helpers = $this->helpers;
 
 		$this->loader->add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), $plugin_admin, 'plugin_settings_link' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
@@ -137,10 +117,10 @@ class Theme_Sniffer {
 	 * @access   private
 	 */
 	private function register_rest_routes() {
-		$plugin_helpers = $this->get_plugin_helpers();
+		$plugin_helpers = $this->helpers;
 		$plugin_checks  = new Admin\Checks();
 
-		$plugin_rest = new Admin\Routes( $this->get_plugin_name(), $plugin_helpers, $plugin_checks );
+		$plugin_rest = new Admin\Routes( self::PLUGIN_NAME, $plugin_helpers, $plugin_checks );
 
 		$this->loader->add_action( 'rest_api_init', $plugin_rest, 'endpoint_init' );
 	}
@@ -166,17 +146,6 @@ class Theme_Sniffer {
 	}
 
 	/**
-	 * The name of the plugin used to uniquely identify it within the context of
-	 * WordPress and to define internationalization functionality.
-	 *
-	 * @since     0.2.0
-	 * @return    string    The name of the plugin.
-	 */
-	public function get_plugin_name() {
-		return $this->plugin_name;
-	}
-
-	/**
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     0.2.0
@@ -185,15 +154,4 @@ class Theme_Sniffer {
 	public function get_loader() {
 		return $this->loader;
 	}
-
-	/**
-	 * Retrieve the version number of the plugin.
-	 *
-	 * @since     0.2.0
-	 * @return    string    The version number of the plugin.
-	 */
-	public function get_version() {
-		return $this->version;
-	}
-
 }

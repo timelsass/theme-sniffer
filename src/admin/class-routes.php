@@ -65,15 +65,19 @@ class Routes {
 	 * @since 0.1.0
 	 */
 	public function endpoint_init() {
-		register_rest_route( 'theme-sniffer/v1', '/sniff-run', array(
-			'methods'  => 'GET',
-			'callback' => [ $this, 'run_sniffer' ],
-		) );
+		register_rest_route(
+			'theme-sniffer/v1', '/sniff-run', array(
+				'methods'  => 'GET',
+				'callback' => [ $this, 'run_sniffer' ],
+			)
+		);
 
-		register_rest_route( 'theme-sniffer/v1', '/individual-sniff', array(
-			'methods'  => 'GET',
-			'callback' => [ $this, 'individual_sniff' ],
-		) );
+		register_rest_route(
+			'theme-sniffer/v1', '/individual-sniff', array(
+				'methods'  => 'GET',
+				'callback' => [ $this, 'individual_sniff' ],
+			)
+		);
 	}
 
 	/**

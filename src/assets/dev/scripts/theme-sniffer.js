@@ -5,31 +5,31 @@ import {ajax} from './utils/ajax';
 
 export default class ThemeSniffer {
 	constructor( options ) {
-		this.SHOW_CLASS = 'is-shown';
-		this.ERROR_CLASS = 'error';
-		this.WARNING_CLASS = 'warning';
-		this.DISABLED_CLASS = 'is-disabled';
+		this.SHOW_CLASS        = 'is-shown';
+		this.ERROR_CLASS       = 'error';
+		this.WARNING_CLASS     = 'warning';
+		this.DISABLED_CLASS    = 'is-disabled';
 		this.reportItemHeading = options.reportItemHeading;
 		this.reportReportTable = options.reportReportTable;
-		this.reportNoticeType = options.reportNoticeType;
-		this.reportItemLine = options.reportItemLine;
-		this.reportItemType = options.reportItemType;
+		this.reportNoticeType  = options.reportNoticeType;
+		this.reportItemLine    = options.reportItemLine;
+		this.reportItemType    = options.reportItemType;
 		this.reportItemMessage = options.reportItemMessage;
 
-		this.$sniffReport = options.sniffReport;
-		this.$progressBar = options.progressBar;
-		this.$snifferInfo = options.snifferInfo;
-		this.$checkNotice = options.checkNotice;
-		this.$percentageBar = options.percentageBar;
-		this.$percentageText = options.percentageText;
+		this.$sniffReport     = options.sniffReport;
+		this.$progressBar     = options.progressBar;
+		this.$snifferInfo     = options.snifferInfo;
+		this.$checkNotice     = options.checkNotice;
+		this.$percentageBar   = options.percentageBar;
+		this.$percentageText  = options.percentageText;
 		this.$percentageCount = options.percentageCount;
-		this.$errorNotice = options.errorNotice;
-		this.$startNotice = options.startNotice;
-		this.$meterBar = options.meterBar;
-		this.$reportItem = options.reportItem;
-		this.nonce = options.nonce;
+		this.$errorNotice     = options.errorNotice;
+		this.$startNotice     = options.startNotice;
+		this.$meterBar        = options.meterBar;
+		this.$reportItem      = options.reportItem;
+		this.nonce            = options.nonce;
 
-		this.count = 0;
+		this.count     = 0;
 		this.ajaxAllow = true;
 	}
 
@@ -58,37 +58,38 @@ export default class ThemeSniffer {
 			return false;
 		}
 
-		return ajax({
-			type: 'GET',
-			url: `${localizationObject.root}theme-sniffer/v1/sniff-run`,
-			data: snifferRunData,
-			beforeSend: ( xhr ) => {
-				this.$startNotice.addClass( this.SHOW_CLASS );
-				this.$progressBar.removeClass( this.SHOW_CLASS );
-				this.$errorNotice.removeClass( this.SHOW_CLASS );
-				this.$checkNotice.removeClass( this.SHOW_CLASS );
-				this.$percentageBar.removeClass( this.SHOW_CLASS );
-				this.$percentageCount.empty();
-				this.$meterBar.css( 'width', 0 );
-				this.$sniffReport.empty();
-				this.$snifferInfo.empty();
-				$( button ).addClass( this.DISABLED_CLASS );
+		return ajax(
+			{
+				type: 'GET',
+				url: `${localizationObject.callbackDir}run-sniffer.php`,
+				data: snifferRunData,
+				beforeSend: ( xhr ) => {
+					this.$startNotice.addClass( this.SHOW_CLASS );
+					this.$progressBar.removeClass( this.SHOW_CLASS );
+					this.$errorNotice.removeClass( this.SHOW_CLASS );
+					this.$checkNotice.removeClass( this.SHOW_CLASS );
+					this.$percentageBar.removeClass( this.SHOW_CLASS );
+					this.$percentageCount.empty();
+					this.$meterBar.css( 'width', 0 );
+					this.$sniffReport.empty();
+					this.$snifferInfo.empty();
+					$( button ).addClass( this.DISABLED_CLASS );
 
-				xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
+					xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
+				}
 			}
-		}).then( ( response ) => {
+		).then( ( response ) => {
 			this.$progressBar.addClass( this.SHOW_CLASS );
 			this.$percentageBar.addClass( this.SHOW_CLASS );
 			this.$percentageCount.addClass( this.SHOW_CLASS );
 			this.$meterBar.addClass( this.SHOW_CLASS );
 			this.count = 0;
-
 			if ( response.success === true ) {
-				const themeName = response.data[0];
-				const themeArgs = response.data[1];
+				const themeName     = response.data[0];
+				const themeArgs     = response.data[1];
 				const themeFilesRaw = response.data[2];
-				const totalFiles = Object.keys( themeFilesRaw ).length;
-				const themeFiles = Object.values( themeFilesRaw );
+				const totalFiles    = Object.keys( themeFilesRaw ).length;
+				const themeFiles    = Object.values( themeFilesRaw );
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageText.text( localizationObject.percentComplete );
 				this.individualSniff( button, themeName, themeArgs, themeFiles, totalFiles, 0 );
@@ -99,7 +100,8 @@ export default class ThemeSniffer {
 			}
 		}, ( xhr, textStatus, errorThrown ) => {
 			throw new Error( `Error: ${errorThrown}: ${xhr} ${textStatus}` );
-		});
+		}
+		);
 	}
 
 	individualSniff( button, name, args, themeFiles, totalFiles, fileNumber ) {
@@ -113,19 +115,21 @@ export default class ThemeSniffer {
 			return false;
 		}
 
-		return ajax({
-			type: 'GET',
-			url: `${localizationObject.root}theme-sniffer/v1/individual-sniff`,
-			data: individualSniffData,
-			beforeSend: ( xhr ) => {
-				xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
+		return ajax(
+			{
+				type: 'GET',
+				url: `${localizationObject.restRoot}indinvidual-sniff.php`,
+				data: individualSniffData,
+				beforeSend: ( xhr ) => {
+					xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
+				}
 			}
-		}).then( ( response ) => {
+		).then( ( response ) => {
 			if ( response.success === true ) {
 				this.count++;
 				this.bumpProgressBar( this.count, totalFiles );
 				const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
-				const sniffWrapper = this.renderJSON( response, $clonedReportElement, args );
+				const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
 				this.$sniffReport.append( sniffWrapper );
 
 				if ( this.count < totalFiles ) {
@@ -143,9 +147,8 @@ export default class ThemeSniffer {
 			this.count++;
 			let sniffWrapper = '';
 			this.bumpProgressBar( this.count, totalFiles );
-
 			if ( xhr.status === 500 ) {
-				const filesVal = {};
+				const filesVal                   = {};
 				filesVal[themeFiles[fileNumber]] = {
 					errors: 1,
 					warnings: 0,
@@ -158,7 +161,7 @@ export default class ThemeSniffer {
 						type: 'ERROR'
 					} ]
 				};
-				const errorData = {
+				const errorData                  = {
 					success: false,
 					data: {
 						files: filesVal,
@@ -174,12 +177,13 @@ export default class ThemeSniffer {
 				sniffWrapper = this.renderJSON( errorData );
 			}
 			this.$sniffReport.append( sniffWrapper );
-		});
+		}
+		);
 	}
 
 	renderJSON( json, reportElement, args ) {
 		if ( typeof json.data === 'undefined' || json.data === null ) {
-			return `<div>${localizationObject.errorReport}</div>`;
+			return ` < div > ${localizationObject.errorReport} < / div > `;
 		}
 
 		let report;
@@ -199,25 +203,25 @@ export default class ThemeSniffer {
 
 			const $reportItemHeading = report.find( this.reportItemHeading );
 			const $reportReportTable = report.find( this.reportReportTable );
-			const $reportNoticeType = report.find( this.reportNoticeType );
+			const $reportNoticeType  = report.find( this.reportNoticeType );
 
 			const filepath = Object.keys( json.data.files )[0].split( '/themes/' )[1];
-			const notices = Object.values( json.data.files )[0].messages;
+			const notices  = Object.values( json.data.files )[0].messages;
 
 			$reportItemHeading.text( filepath );
 
-			$.each( notices, ( index, val ) => {
-				const line = val.line;
-				const message = val.message;
-				const type = val.type;
-
-				const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
-				$singleItem.find( this.reportItemLine ).text( line );
-				$singleItem.find( this.reportItemType ).text( type );
-				$singleItem.find( this.reportItemMessage ).text( message );
-
-				$singleItem.appendTo( $reportReportTable );
-			});
+			$.each(
+				notices, ( index, val ) => {
+					const line        = val.line;
+					const message     = val.message;
+					const type        = val.type;
+					const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
+					$singleItem.find( this.reportItemLine ).text( line );
+					$singleItem.find( this.reportItemType ).text( type );
+					$singleItem.find( this.reportItemMessage ).text( message );
+					$singleItem.appendTo( $reportReportTable );
+				}
+			);
 
 			$reportNoticeType.remove();
 		}
@@ -227,8 +231,7 @@ export default class ThemeSniffer {
 
 	bumpProgressBar( count, totalFiles ) {
 		const completed = ( ( ( count ) / totalFiles ) * 100 ).toFixed( 2 );
-		this.$percentageCount.text( `${completed}%` );
-		this.$meterBar.css( 'width', `${completed}%` );
+		this.$percentageCount.text( `${completed} % ` );
+		this.$meterBar.css( 'width', `${completed} % ` );
 	}
 }
-

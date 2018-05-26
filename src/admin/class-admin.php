@@ -19,24 +19,6 @@ namespace Theme_Sniffer\Admin;
  */
 class Admin {
 	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    0.2.0
-	 * @access   private
-	 * @var      string    $plugin_name    The ID of this plugin.
-	 */
-	private $plugin_name;
-
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    0.2.0
-	 * @access   private
-	 * @var      string    $version    The current version of this plugin.
-	 */
-	private $version;
-
-	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    0.2.0
@@ -57,8 +39,9 @@ class Admin {
 	 * @return array Modified array of plugin action links.
 	 */
 	public function plugin_settings_link( $links ) {
-		$theme_sniffer_link = '<a href="themes.php?page=theme-sniffer">' . esc_attr__( 'Theme Sniffer Page', 'theme-sniffer' ) . '</a>';
-		array_unshift( $links, $theme_sniffer_link );
+		$settings_page_link = '<a href="themes.php?page=theme-sniffer">' . esc_attr__( 'Theme Sniffer Page', 'theme-sniffer' ) . '</a>';
+		array_unshift( $links, $settings_page_link );
+
 		return $links;
 	}
 
@@ -104,16 +87,19 @@ class Admin {
 		if ( 'appearance_page_theme-sniffer' !== $hook ) {
 			return;
 		}
-		wp_enqueue_style( 'theme-sniffer-admin-css', plugins_url() . '/' . $this->plugin_name . '/assets/build/styles/application.css', array(), $this->version, 'all' );
-		wp_enqueue_script( 'theme-sniffer-admin-js', plugins_url() . '/' . $this->plugin_name . '/assets/build/scripts/application.js', array(), $this->version, false );
+		wp_enqueue_style( $this->plugin_name . '-admin-css', plugins_url() . '/' . $this->plugin_name . '/assets/build/styles/application.css', array(), $this->version, 'all' );
+		wp_enqueue_script( $this->plugin_name . '-admin-js', plugins_url() . '/' . $this->plugin_name . '/assets/build/scripts/application.js', array(), $this->version, false );
 
-		wp_localize_script( 'theme-sniffer-admin-js', 'localizationObject', array(
-			'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
-			'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
-			'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
-			'ajaxStopped'     => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
-			'root'            => esc_url_raw( rest_url() ),
-			'restNonce'       => wp_create_nonce( 'wp_rest' ),
-		));
+		wp_localize_script(
+			$this->plugin_name . '-admin-js', 'localizationObject', array(
+				'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
+				'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
+				'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
+				'ajaxStopped'     => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
+				'restRoot'        => esc_url_raw( rest_url() ),
+				'callbackDir'     => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/',
+				'restNonce'       => wp_create_nonce( 'wp_rest' ),
+			)
+		);
 	}
 }
