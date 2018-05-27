@@ -22,6 +22,9 @@
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4"
 	},
+	"config": {
+		"prepend-autoloader": true
+	},
 	"autoload": {
 		"classmap": [
 			"admin/",
