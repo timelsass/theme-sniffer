@@ -10,7 +10,7 @@ const DEV = process.env.NODE_ENV !== 'production';
 const appPath = __dirname;
 
 // Entry
-const pluginPath = '/src/assets';
+const pluginPath = '/assets';
 const pluginFullPath = `${appPath}${pluginPath}`;
 const pluginEntry = `${pluginFullPath}/dev/application.js`;
 const pluginPublicPath = `${pluginFullPath}/build`;
@@ -46,7 +46,10 @@ const allPlugins = [
 	new MiniCssExtractPlugin({
 		filename: outputCss
 	}),
-	new webpack.optimize.ModuleConcatenationPlugin(),
+	new webpack.ProvidePlugin({
+		$: 'jquery',
+		jQuery: 'jquery'
+	}),
 	new webpack.DefinePlugin({
 		'process.env': {
 			NODE_ENV: JSON.stringify( process.env.NODE_ENV || 'development' )
@@ -54,8 +57,22 @@ const allPlugins = [
 	})
 ];
 
+const allOptimizations = {
+	runtimeChunk: false,
+	splitChunks: {
+		cacheGroups: {
+			commons: {
+				test: /[\\/]node_modules[\\/]/,
+				name: 'vendors',
+				chunks: 'all'
+			}
+		}
+	}
+};
+
+// Use only for production build
 if ( ! DEV ) {
-	allPlugins.push(
+	allOptimizations.minimizer = [
 		new UglifyJsPlugin({
 			cache: true,
 			parallel: true,
@@ -70,14 +87,12 @@ if ( ! DEV ) {
 				}
 			}
 		})
-	);
+	];
 }
 
 module.exports = [
 	{
-		devServer: {
-			outputPath: path.join( __dirname, 'build' )
-		},
+		context: path.join( appPath ),
 		entry: {
 			application: [ pluginEntry ]
 		},
@@ -87,8 +102,18 @@ module.exports = [
 			filename: outputJs
 		},
 
+		externals: {
+			jquery: 'jQuery'
+		},
+
+		optimization: allOptimizations,
+
+		mode: 'development',
+
 		module: allModules,
 
-		plugins: allPlugins
+		plugins: allPlugins,
+
+		devtool: DEV ? '#inline-source-map' : ''
 	}
 ];

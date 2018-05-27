@@ -16,15 +16,18 @@ namespace Theme_Sniffer\Admin;
  */
 class Helpers {
 	/**
-	 * Returns standards.
+	 * Returns standards
 	 *
+	 * Includes a 'theme_sniffer_add_standards' filter, so that user can add their own standard. The standard has to be added
+	 * in the composer before bundling the plugin.
+	 *
+	 * @since 0.2.0 Added filter so that user can add their own standards.
 	 * @since 0.1.3
 	 *
 	 * @return array Standards details.
 	 */
 	public function get_wpcs_standards() {
-
-		$output = array(
+		$standards = array(
 			'wordpress-theme' => array(
 				'label'       => 'WordPress-Theme',
 				'description' => esc_html__( 'Ruleset for WordPress theme review requirements (Required)', 'theme-sniffer' ),
@@ -52,12 +55,36 @@ class Helpers {
 			),
 		);
 
-		return $output;
+		if ( has_filter( 'theme_sniffer_add_standards' ) ) {
+			$standards = apply_filters( 'theme_sniffer_add_standards', $standards );
+		}
+
+		return $standards;
+	}
+
+	/**
+	 * Return all the active themes
+	 *
+	 * @since 0.2.0
+	 * @return array Array of active themes.
+	 */
+	public function get_active_themes() {
+		$all_themes = wp_get_themes();
+		$themes     = array();
+
+		if ( ! empty( $all_themes ) ) {
+			foreach ( $all_themes as $key => $theme ) {
+				$themes[ $key ] = $theme->get( 'Name' );
+			}
+		}
+
+		return $themes;
 	}
 
 	/**
 	 * Returns PHP versions.
 	 *
+	 * @since 0.2.0 Added PHP 7.x versions
 	 * @since 0.1.3
 	 *
 	 * @return array PHP versions.
@@ -71,6 +98,8 @@ class Helpers {
 			'5.5',
 			'5.6',
 			'7.0',
+			'7.1',
+			'7.2',
 		);
 
 		return $output;
@@ -86,15 +115,13 @@ class Helpers {
 	public function get_theme_tags() {
 
 		$tags['allowed_tags'] = array(
-			'grid-layout'           => 'grid-layout',
-			'one-column'            => 'one-column',
 			'two-columns'           => 'two-columns',
 			'three-columns'         => 'three-columns',
 			'four-columns'          => 'four-columns',
 			'left-sidebar'          => 'left-sidebar',
 			'right-sidebar'         => 'right-sidebar',
+			'grid-layout'           => 'grid-layout',
 			'flexible-header'       => 'flexible-header',
-			'footer-widgets'        => 'footer-widgets',
 			'accessibility-ready'   => 'accessibility-ready',
 			'buddypress'            => 'buddypress',
 			'custom-background'     => 'custom-background',
@@ -105,6 +132,7 @@ class Helpers {
 			'editor-style'          => 'editor-style',
 			'featured-image-header' => 'featured-image-header',
 			'featured-images'       => 'featured-images',
+			'footer-widgets'        => 'footer-widgets',
 			'front-page-post-form'  => 'front-page-post-form',
 			'full-width-template'   => 'full-width-template',
 			'microformats'          => 'microformats',
@@ -144,6 +172,7 @@ class Helpers {
 		$extra_headers[] = 'License';
 		$extra_headers[] = 'License URI';
 		$extra_headers[] = 'Template Version';
+
 		return $extra_headers;
 	}
 }

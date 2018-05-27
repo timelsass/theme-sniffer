@@ -68,10 +68,10 @@ class Admin {
 	public function render_admin_page() {
 		?>
 		<div class="wrap theme-sniffer">
-			<?php wp_nonce_field( 'theme_sniffer_nonce', 'theme_sniffer' ); ?>
-			<h1><?php esc_html_e( 'Theme Sniffer', 'theme-sniffer' ); ?></h1>
+			<?php wp_nonce_field( 'theme_sniffer_nonce', 'theme_sniffer_nonce' ); ?>
+			<h1 class="theme-sniffer__title"><?php esc_html_e( 'Theme Sniffer', 'theme-sniffer' ); ?></h1>
 			<hr />
-			<?php require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/sniff-page.php'; ?>
+			<?php require_once dirname( __FILE__ ) . '/pages/sniff-page.php'; ?>
 		</div>
 		<?php
 	}
@@ -87,18 +87,18 @@ class Admin {
 		if ( 'appearance_page_theme-sniffer' !== $hook ) {
 			return;
 		}
+
 		wp_enqueue_style( $this->plugin_name . '-admin-css', plugins_url() . '/' . $this->plugin_name . '/assets/build/styles/application.css', array(), $this->version, 'all' );
 		wp_enqueue_script( $this->plugin_name . '-admin-js', plugins_url() . '/' . $this->plugin_name . '/assets/build/scripts/application.js', array(), $this->version, false );
 
 		wp_localize_script(
 			$this->plugin_name . '-admin-js', 'localizationObject', array(
-				'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
-				'percentComplete' => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
-				'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
-				'ajaxStopped'     => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
-				'restRoot'        => esc_url_raw( rest_url() ),
-				'callbackDir'     => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/',
-				'restNonce'       => wp_create_nonce( 'wp_rest' ),
+				'sniffError'         => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
+				'percentComplete'    => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
+				'errorReport'        => esc_html__( 'Error', 'theme-sniffer' ),
+				'ajaxStopped'        => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
+				'callbackIndividual' => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/individual-sniff.php',
+				'callbackRunSniffer' => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/run-sniffer.php',
 			)
 		);
 	}

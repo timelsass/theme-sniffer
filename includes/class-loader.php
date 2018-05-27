@@ -3,7 +3,6 @@
  * Register all actions and filters for the plugin
  *
  * @since      0.2.0
- *
  * @package    Theme_Sniffer\Includes
  */
 

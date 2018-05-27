@@ -9,7 +9,8 @@
 
 namespace Theme_Sniffer\Admin;
 
-use Theme_Sniffer\Admin\Helpers as Helpers;
+use \PHP_CodeSniffer;
+use Theme_Sniffer\Admin\Helpers;
 
 /**
  * Class that controls the sniff checks
@@ -37,6 +38,7 @@ class Checks {
 	/**
 	 * Perform sniff check.
 	 *
+	 * @since 0.2.0 Added add ignore annotation option.
 	 * @since 0.1.0
 	 *
 	 * @param string $theme_slug Theme slug.
@@ -46,12 +48,10 @@ class Checks {
 	 * @return bool
 	 */
 	public function perform_sniff( $theme_slug, $args = array(), $file ) {
-
-		require_once WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php';
-
 		$defaults = array(
 			'show_warnings'       => true,
 			'raw_output'          => 0,
+			'ignore_annotations'  => 0,
 			'minimum_php_version' => '5.2',
 			'standard'            => array(),
 			'text_domains'        => array( $theme_slug ),
@@ -60,12 +60,15 @@ class Checks {
 		$args = wp_parse_args( $args, $defaults );
 
 		// Set CLI arguments.
-		$values['files']              = $file;
-		$values['reportWidth']        = '110';
-		$values['ignore-annotations'] = true;
+		$values['files']       = $file;
+		$values['reportWidth'] = '110';
 
 		if ( 0 === absint( $args['raw_output'] ) ) {
 			$values['reports']['json'] = null;
+		}
+
+		if ( 1 === absint( $args['ignore_annotations'] ) ) {
+			$values['ignore-annotations'] = true;
 		}
 
 		if ( ! empty( $args['standard'] ) ) {
@@ -74,14 +77,20 @@ class Checks {
 
 		$values['standard'][] = WP_PLUGIN_DIR . '/' . $this->plugin_name . '/phpcs.xml';
 
+		// Check if it has .min in the file name.
+		if ( false !== strpos( $file, '.min.js' ) || false !== strpos( $file, '.min.css' ) ) {
+			// translators: Placeholder is used for inserting file name.
+			return sprintf( esc_html__( 'It seems that the file %s is minified. Theme sniffer cannot process minified files. File skipped.', 'theme-sniffer' ), esc_attr( $file ) );
+		}
+
 		// Set default standard.
-		PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
+		\PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
 
 		// Ignoring warnings when generating the exit code.
-		PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
+		\PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
 
 		// Show only errors?
-		PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
+		\PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
 
 		// Ignore unrelated files from the check.
 		$values['ignored'] = array(
@@ -89,19 +98,20 @@ class Checks {
 			'.*/vendor/.*',
 			'.*/assets/build/.*',
 			'.*/build/.*',
+			'.*/bin/.*',
 		);
 
 		// Set minimum supported PHP version.
-		PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
+		\PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
 
 		// Set text domains.
-		PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
+		\PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
 
 		// Path to WordPress Theme coding standard.
-		PHP_CodeSniffer::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
+		\PHP_CodeSniffer::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
 
 		// Initialize CodeSniffer.
-		$phpcs_cli = new PHP_CodeSniffer_CLI();
+		$phpcs_cli = new \PHP_CodeSniffer_CLI();
 		$phpcs_cli->checkRequirements();
 
 		ob_start();
@@ -116,7 +126,7 @@ class Checks {
 			}
 		} else {
 			$output = json_decode( $raw_output );
-		} // End if().
+		}
 
 		return $output;
 	}
@@ -148,6 +158,7 @@ class Checks {
 			if ( $theme->get( $header ) ) {
 				continue;
 			}
+
 			$notices[] = array(
 				'message'  => sprintf(
 					/* translators: 1: comment header line, 2: style.css */
@@ -160,14 +171,14 @@ class Checks {
 
 		if ( strpos( $theme_slug, 'wordpress' ) || strpos( $theme_slug, 'theme' ) ) { // WPCS: spelling ok.
 			$notices[] = array(
-				'message'  => esc_html__( 'The theme name cannot contain WordPress or Theme.', 'theme-sniffer' ),
+				'message'  => esc_html__( 'The theme name cannot contain WordPress or Theme as a part of its name.', 'theme-sniffer' ),
 				'severity' => 'error',
 			);
 		}
 
 		if ( preg_match( '|[^\d\.]|', $theme->get( 'Version' ) ) ) {
 			$notices[] = array(
-				'message'  => esc_html__( 'Version strings can only contain numeric and period characters (like 1.2).', 'theme-sniffer' ),
+				'message'  => esc_html__( 'Version strings can only contain numeric and period characters (e.g. 1.2).', 'theme-sniffer' ),
 				'severity' => 'error',
 			);
 		}
@@ -175,6 +186,7 @@ class Checks {
 		// Prevent duplicate URLs.
 		$themeuri  = trim( $theme->get( 'ThemeURI' ), '/\\' );
 		$authoruri = trim( $theme->get( 'AuthorURI' ), '/\\' );
+
 		if ( $themeuri === $authoruri ) {
 			$notices[] = array(
 				'message'  => esc_html__( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'theme-sniffer' ),
@@ -184,8 +196,8 @@ class Checks {
 
 		if ( $theme_slug === $theme->get( 'Text Domain' ) ) {
 			$notices[] = array(
-				/* translators: %1$s: Text Domain, %2$s: Theme Slug */
 				'message'  => sprintf(
+					/* translators: %1$s: Text Domain, %2$s: Theme Slug */
 					esc_html__( 'The text domain "%1$s" must match the theme slug "%2$s".', 'theme-sniffer' ),
 					$theme->get( 'TextDomain' ),
 					$theme_slug
@@ -194,9 +206,7 @@ class Checks {
 			);
 		}
 
-		$helpers = new Helpers();
-
-		$registered_tags    = $helpers->get_theme_tags();
+		$registered_tags    = $this->helpers->get_theme_tags();
 		$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );
 		$tags_count         = array_count_values( $tags );
 		$subject_tags_names = array();
@@ -256,9 +266,9 @@ class Checks {
 		}
 
 		?>
-		<div class="report-file-item">
-			<div class="report-file-heading">
-				<span class="heading-field">
+		<div class="theme-sniffer__report-item">
+			<div class="theme-sniffer__report-heading">
+				<span class="theme-sniffer__report-heading-field">
 				<?php
 				printf(
 					/* translators: 1: File name */
@@ -266,107 +276,76 @@ class Checks {
 				);
 				?>
 				</span>
-			</div><!-- .report-file-heading -->
-			<table class="report-table">
+			</div>
+			<table class="theme-sniffer__report-table">
 			<?php foreach ( $notices as $notice ) : ?>
-				<tr class="item-type-<?php echo esc_attr( $notice['severity'] ); ?>">
-				<td class="td-type"><?php echo esc_html( $notice['severity'] ); ?></td>
-				<td class="td-message"><?php echo esc_html( $notice['message'] ); ?></td>
+				<tr class="theme-sniffer__report-table-row item-type-<?php echo esc_attr( $notice['severity'] ); ?>">
+					<td class="theme-sniffer__report-table-line"></td>
+					<td class="theme-sniffer__report-table-type"><?php echo esc_html( $notice['severity'] ); ?></td>
+					<td class="theme-sniffer__report-table-message"><?php echo esc_html( $notice['message'] ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 			</table>
-		</div><!-- .report-file-item -->
+		</div>
 		<?php
 		return $pass;
 	}
 
 	/**
-	 * Callback function for the individual sniff run
-	 *
-	 * @param \WP_REST_Request $request Full data about the request.
-	 * @since 0.1.0
-	 */
-	public static function individual_sniff( \WP_REST_Request $request ) {
-		$headers = $request->get_headers();
-
-		// Bail if empty.
-		if ( empty( $_GET['themeName'] ) || empty( $_GET['themeArgs'] ) || empty( $_GET['file'] ) ) { // Input var okay.
-			$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
-		}
-
-		// Verify nonce.
-		if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
-			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
-		}
-
-		$theme_name = sanitize_text_field( wp_unslash( $_GET['themeName'] ) ); // Input var okay.
-		$theme_args = array_map( 'sanitize_text_field', wp_unslash( $_GET['themeArgs'] ) ); // Input var okay.
-		$theme_file = sanitize_text_field( wp_unslash( $_GET['file'] ) ); // Input var okay.
-
-		$sniff = self::perform_sniff( $theme_name, $theme_args, $theme_file );
-
-		wp_send_json_success( $sniff );
-	}
-
-	/**
 	 * Callback function for the run sniffer endpoint
 	 *
-	 * @param \WP_REST_Request $request Full data about the request.
+	 * @since 0.2.0 Made into a static function.
 	 * @since 0.1.0
 	 */
-	public static function run_sniffer( \WP_REST_Request $request ) {
-		$headers = $request->get_headers();
-		$self = new static;
-
+	public function run_sniffer() {
 		// Bail if empty.
-		if ( empty( $_GET['themeName'] ) ) { // Input var okay.
+		if ( empty( $_POST['themeName'] ) ) { // Input var okay.
 			$message = esc_html__( 'Theme name not selected.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
-		// Verify nonce.
-		if ( ! wp_verify_nonce( $headers['x_wp_nonce'][0], 'wp_rest' ) ) {
+		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
 		// Exit if plugin not bundled properly.
-		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $self->plugin_name . '/vendor/autoload.php' ) ) {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php' ) ) {
 			// translators: Placeholders are used for inserting hardcoded links to the repository.
-			$message = sprintf( esc_html__( 'It seems you are using GitHub provided zip for the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
+			$message = sprintf( esc_html__( 'It seems you just cloned the Github repo and tried to run the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
-		if ( empty( $_GET['wpRulesets'] ) ) { // Input var okay.
+		if ( empty( $_POST['wpRulesets'] ) ) { // Input var okay.
 			$message = esc_html__( 'Please select at least one standard.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
-		$theme_slug = sanitize_text_field( wp_unslash( $_GET['themeName'] ) ); // Input var okay.
+		$theme_slug = sanitize_text_field( wp_unslash( $_POST['themeName'] ) ); // Input var okay.
 
-		if ( isset( $_GET['hideWarning'] ) && 'true' === $_GET['hideWarning'] ) { // Input var okay.
+		if ( isset( $_POST['hideWarning'] ) && 'true' === $_POST['hideWarning'] ) { // Input var okay.
 			$args['show_warnings'] = 'false';
 		}
 
-		if ( isset( $_GET['rawOutput'] ) && 'true' === $_GET['rawOutput'] ) { // Input var okay.
+		if ( isset( $_POST['rawOutput'] ) && 'true' === $_POST['rawOutput'] ) { // Input var okay.
 			$args['raw_output'] = 1;
 		}
 
-		if ( isset( $_GET['minimumPHPVersion'] ) && ! empty( $_GET['minimumPHPVersion'] ) ) { // Input var okay.
-			$args['minimum_php_version'] = sanitize_text_field( wp_unslash( $_GET['minimumPHPVersion'] ) );// Input var okay.
+		if ( isset( $_POST['ignoreAnnotations'] ) && 'true' === $_POST['ignoreAnnotations'] ) { // Input var okay.
+			$args['ignore_annotations'] = 1;
 		}
 
-		$standards = $self->helpers->get_wpcs_standards();
+		if ( isset( $_POST['minimumPHPVersion'] ) && ! empty( $_POST['minimumPHPVersion'] ) ) { // Input var okay.
+			$args['minimum_php_version'] = sanitize_text_field( wp_unslash( $_POST['minimumPHPVersion'] ) );// Input var okay.
+		}
 
-		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_GET['wpRulesets'] ) ); // Input var okay.
+		$standards = $this->helpers->get_wpcs_standards();
+
+		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpRulesets'] ) ); // Input var okay.
 
 		foreach ( $selected_standards as $key => $standard ) {
 			if ( ! empty( $standards[ $standard ] ) ) {
@@ -376,8 +355,10 @@ class Checks {
 
 		$theme     = wp_get_theme( $theme_slug );
 		$php_files = $theme->get_files( 'php', 4, false );
+
 		// Current theme text domain.
 		$args['text_domains'][] = $theme_slug;
+
 		// Frameworks.
 		foreach ( $php_files as $key => $file ) {
 			if ( strrpos( $key, 'hybrid.php' ) ) {
@@ -391,5 +372,35 @@ class Checks {
 		$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
 
 		wp_send_json_success( array( $theme_slug, $args, $all_files ) );
+	}
+
+	/**
+	 * Callback function for the individual sniff run
+	 *
+	 * @since 0.2.0 Made into a static function.
+	 * @since 0.1.0
+	 */
+	public function individual_sniff() {
+		// Bail if empty.
+		if ( empty( $_POST['themeName'] ) || empty( $_POST['themeArgs'] ) || empty( $_POST['file'] ) ) { // Input var okay.
+			$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );
+			$error   = new \WP_Error( '-1', $message );
+			wp_send_json_error( $error );
+		}
+
+		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
+			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
+			$error   = new \WP_Error( '-1', $message );
+			wp_send_json_error( $error );
+		}
+
+		$theme_name = sanitize_text_field( wp_unslash( $_POST['themeName'] ) ); // Input var okay.
+
+		$theme_args = wp_unslash( $_POST['themeArgs'] ); // Input var okay, WPCS: sanitization ok.
+		$theme_file = sanitize_text_field( wp_unslash( $_POST['file'] ) ); // Input var okay.
+
+		$sniff = $this->perform_sniff( $theme_name, $theme_args, $theme_file );
+
+		wp_send_json_success( $sniff );
 	}
 }

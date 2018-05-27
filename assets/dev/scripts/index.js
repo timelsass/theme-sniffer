@@ -1,5 +1,3 @@
-/* global localizationObject */
-
 import $ from 'jquery';
 import ThemeSniffer from './theme-sniffer';
 
@@ -23,18 +21,21 @@ $(
 			reportItemLine: '.js-report-item-line',
 			reportItemType: '.js-report-item-type',
 			reportItemMessage: '.js-report-item-message',
-			nonce: localizationObject.restNonce
+			runAction: 'run_sniffer',
+			runSniff: 'individual_sniff',
+			nonce: $( '#theme_sniffer_nonce' ).val()
 		};
 
 		const themeSniffer = new ThemeSniffer( options );
 
 		$( '.js-start-check' ).on(
 			'click', function( ) {
-				const theme            = $( 'select[name=themename]' ).val();
-				const warningHide      = $( 'input[name=hide_warning]' ).is( ':checked' );
-				const outputRaw        = $( 'input[name=raw_output]' ).is( ':checked' );
-				const minPHPVersion    = $( 'select[name=minimum_php_version]' ).val();
-				const selectedRulesets = [];
+				const theme             = $( 'select[name=themename]' ).val();
+				const warningHide       = $( 'input[name=hide_warning]' ).is( ':checked' );
+				const outputRaw         = $( 'input[name=raw_output]' ).is( ':checked' );
+				const ignoreAnnotations = $( 'input[name=ignore_annotations]' ).is( ':checked' );
+				const minPHPVersion     = $( 'select[name=minimum_php_version]' ).val();
+				const selectedRulesets  = [];
 
 				$( 'input[name="selected_ruleset[]"]:checked' ).each(
 					function( ) {
@@ -43,7 +44,7 @@ $(
 				);
 
 				themeSniffer.enableAjax();
-				themeSniffer.themeCheckRunPHPCS( this, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets );
+				themeSniffer.themeCheckRunPHPCS( this, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets );
 			}
 		);
 

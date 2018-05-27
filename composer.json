@@ -12,20 +12,21 @@
 	"repositories": [
 		{
 			"type": "vcs",
-			"url": "https://github.com/WPTRT/theme-sniffer"
+			"url": "https://github.com/WPTRT/WordPress-Coding-Standards"
 		}
 	],
 	"require": {
 		"wp-coding-standards/wpcs": "dev-feature/theme-review-sniffs",
-		"wimg/php-compatibility": "~7.1"
+		"wimg/php-compatibility": "*"
 	},
-	"scripts": {
-		"post-update-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; mkdir -p src/vendor; cp -rp vendor/composer src/vendor/; cp vendor/autoload.php src/vendor/",
-		"post-install-cmd": "rm -rf vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; cp -rp vendor/wimg/php-compatibility vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/PHPCompatibility; mkdir -p src/vendor; cp -rp vendor/composer src/vendor/; cp vendor/autoload.php src/vendor/"
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4"
 	},
 	"autoload": {
 		"classmap": [
-			"src/"
+			"admin/",
+			"admin/pages/",
+			"includes/"
 		]
 	}
 }

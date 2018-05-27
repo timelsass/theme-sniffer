@@ -27,7 +27,7 @@ use Theme_Sniffer\Admin as Admin;
  * @package    Theme_Sniffer\Includes
  * @author     Infinum <info@infinum.co>
  */
-class Theme_Sniffer {
+class Main {
 	/**
 	 * Plugin name constant
 	 */
@@ -58,24 +58,11 @@ class Theme_Sniffer {
 	 * @since    0.2.0
 	 */
 	public function __construct() {
-		$this->load_dependencies();
+		$this->loader  = new Loader();
+		$this->helpers = new Admin\Helpers();
 		$this->set_locale();
 		$this->define_admin_hooks();
-		// $this->register_rest_routes();
-		$this->helpers = $this->get_plugin_helpers();
-	}
-
-	/**
-	 * Load the required dependencies for this plugin.
-	 *
-	 * Create an instance of the loader which will be used to register the hooks
-	 * with WordPress.
-	 *
-	 * @since    0.2.0
-	 * @access   private
-	 */
-	private function load_dependencies() {
-		$this->loader = new Loader();
+		$this->define_ajax_hooks();
 	}
 
 	/**
@@ -101,39 +88,25 @@ class Theme_Sniffer {
 	 * @access   private
 	 */
 	private function define_admin_hooks() {
-		$plugin_admin   = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
-		$plugin_helpers = $this->helpers;
+		$plugin_admin = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
 
 		$this->loader->add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), $plugin_admin, 'plugin_settings_link' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_filter( 'extra_theme_headers', $plugin_helpers, 'add_headers' );
+		$this->loader->add_filter( 'extra_theme_headers', $this->helpers, 'add_headers' );
 	}
 
 	/**
-	 * Register custom REST routes.
+	 * Define hooks that will run on ajax call
 	 *
 	 * @since    0.2.0
-	 * @access   private
+	 * @access   public
 	 */
-	private function register_rest_routes() {
-		$plugin_helpers = $this->helpers;
-		$plugin_checks  = new Admin\Checks();
+	public function define_ajax_hooks() {
+		$checks = new Admin\Checks( self::PLUGIN_NAME, self::PLUGIN_VERSION, $this->helpers );
 
-		$plugin_rest = new Admin\Routes( self::PLUGIN_NAME, $plugin_helpers, $plugin_checks );
-
-		$this->loader->add_action( 'rest_api_init', $plugin_rest, 'endpoint_init' );
-	}
-
-	/**
-	 * Method that returns instance of Helpers class.
-	 *
-	 * @return Admin\Helpers Instance of Helpers class.
-	 * @since    0.2.0
-	 * @access   private
-	 */
-	private function get_plugin_helpers() {
-		return new Admin\Helpers();
+		$this->loader->add_action( 'wp_ajax_run_sniffer', $checks, 'run_sniffer' );
+		$this->loader->add_action( 'wp_ajax_individual_sniff', $checks, 'individual_sniff' );
 	}
 
 	/**
@@ -143,15 +116,5 @@ class Theme_Sniffer {
 	 */
 	public function run() {
 		$this->loader->run();
-	}
-
-	/**
-	 * The reference to the class that orchestrates the hooks with the plugin.
-	 *
-	 * @since     0.2.0
-	 * @return    Theme_Sniffer_Loader    Orchestrates the hooks of the plugin.
-	 */
-	public function get_loader() {
-		return $this->loader;
 	}
 }

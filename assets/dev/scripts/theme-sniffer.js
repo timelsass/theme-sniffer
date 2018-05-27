@@ -1,4 +1,4 @@
-/* global localizationObject */
+/* global ajaxurl, localizationObject */
 
 import $ from 'jquery';
 import {ajax} from './utils/ajax';
@@ -6,8 +6,8 @@ import {ajax} from './utils/ajax';
 export default class ThemeSniffer {
 	constructor( options ) {
 		this.SHOW_CLASS        = 'is-shown';
-		this.ERROR_CLASS       = 'error';
-		this.WARNING_CLASS     = 'warning';
+		this.ERROR_CLASS       = 'is-error';
+		this.WARNING_CLASS     = 'is-warning';
 		this.DISABLED_CLASS    = 'is-disabled';
 		this.reportItemHeading = options.reportItemHeading;
 		this.reportReportTable = options.reportReportTable;
@@ -28,6 +28,8 @@ export default class ThemeSniffer {
 		this.$meterBar        = options.meterBar;
 		this.$reportItem      = options.reportItem;
 		this.nonce            = options.nonce;
+		this.runAction        = options.runAction;
+		this.runSniff         = options.runSniff;
 
 		this.count     = 0;
 		this.ajaxAllow = true;
@@ -45,13 +47,16 @@ export default class ThemeSniffer {
 		$( enableButton ).removeClass( this.DISABLED_CLASS );
 	}
 
-	themeCheckRunPHPCS( button, theme, warningHide, outputRaw, minPHPVersion, selectedRulesets ) {
+	themeCheckRunPHPCS( button, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets ) {
 		const snifferRunData = {
 			themeName: theme,
 			hideWarning: warningHide,
 			rawOutput: outputRaw,
+			ignoreAnnotations: ignoreAnnotations,
 			minimumPHPVersion: minPHPVersion,
-			wpRulesets: selectedRulesets
+			wpRulesets: selectedRulesets,
+			action: this.runAction,
+			nonce: this.nonce
 		};
 
 		if ( ! this.ajaxAllow ) {
@@ -60,8 +65,8 @@ export default class ThemeSniffer {
 
 		return ajax(
 			{
-				type: 'GET',
-				url: `${localizationObject.callbackDir}run-sniffer.php`,
+				type: 'POST',
+				url: ajaxurl,
 				data: snifferRunData,
 				beforeSend: ( xhr ) => {
 					this.$startNotice.addClass( this.SHOW_CLASS );
@@ -74,8 +79,6 @@ export default class ThemeSniffer {
 					this.$sniffReport.empty();
 					this.$snifferInfo.empty();
 					$( button ).addClass( this.DISABLED_CLASS );
-
-					xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
 				}
 			}
 		).then( ( response ) => {
@@ -108,6 +111,8 @@ export default class ThemeSniffer {
 		const individualSniffData = {
 			themeName: name,
 			themeArgs: args,
+			nonce: this.nonce,
+			action: this.runSniff,
 			file: themeFiles[fileNumber]
 		};
 
@@ -117,12 +122,9 @@ export default class ThemeSniffer {
 
 		return ajax(
 			{
-				type: 'GET',
-				url: `${localizationObject.restRoot}indinvidual-sniff.php`,
+				type: 'POST',
+				url: ajaxurl,
 				data: individualSniffData,
-				beforeSend: ( xhr ) => {
-					xhr.setRequestHeader( 'X-WP-Nonce', this.nonce );
-				}
 			}
 		).then( ( response ) => {
 			if ( response.success === true ) {

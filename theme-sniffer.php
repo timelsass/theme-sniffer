@@ -16,7 +16,7 @@
 
 namespace Theme_Sniffer;
 
-use Theme_Sniffer\Includes as Includes;
+use Theme_Sniffer\Includes\Main;
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -78,7 +78,7 @@ function error_activation_notice() {
  * @since    0.2.0
  */
 function run_plugin() {
-	$plugin = new Includes\Theme_Sniffer();
+	$plugin = new Main();
 	$plugin->run();
 }
 
