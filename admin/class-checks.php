@@ -9,7 +9,11 @@
 
 namespace Theme_Sniffer\Admin;
 
-use \PHP_CodeSniffer;
+use PHP_CodeSniffer\Runner;
+use PHP_CodeSniffer\Config;
+use PHP_CodeSniffer\Reporter;
+use PHP_CodeSniffer\Files\DummyFile;
+use PHP_CodeSniffer\Util\Timing;
 use Theme_Sniffer\Admin\Helpers;
 
 /**
@@ -33,102 +37,6 @@ class Checks {
 		$this->plugin_name = $plugin_name;
 		$this->version     = $version;
 		$this->helpers     = $helpers;
-	}
-
-	/**
-	 * Perform sniff check.
-	 *
-	 * @since 0.2.0 Added add ignore annotation option.
-	 * @since 0.1.0
-	 *
-	 * @param string $theme_slug Theme slug.
-	 * @param array  $args Arguments.
-	 * @param string $file Path of the file to sniff.
-	 *
-	 * @return bool
-	 */
-	public function perform_sniff( $theme_slug, $args = array(), $file ) {
-		$defaults = array(
-			'show_warnings'       => true,
-			'raw_output'          => 0,
-			'ignore_annotations'  => 0,
-			'minimum_php_version' => '5.2',
-			'standard'            => array(),
-			'text_domains'        => array( $theme_slug ),
-		);
-
-		$args = wp_parse_args( $args, $defaults );
-
-		// Set CLI arguments.
-		$values['files']       = $file;
-		$values['reportWidth'] = '110';
-
-		if ( 0 === absint( $args['raw_output'] ) ) {
-			$values['reports']['json'] = null;
-		}
-
-		if ( 1 === absint( $args['ignore_annotations'] ) ) {
-			$values['ignore-annotations'] = true;
-		}
-
-		if ( ! empty( $args['standard'] ) ) {
-			$values['standard'] = $args['standard'];
-		}
-
-		$values['standard'][] = WP_PLUGIN_DIR . '/' . $this->plugin_name . '/phpcs.xml';
-
-		// Check if it has .min in the file name.
-		if ( false !== strpos( $file, '.min.js' ) || false !== strpos( $file, '.min.css' ) ) {
-			// translators: Placeholder is used for inserting file name.
-			return sprintf( esc_html__( 'It seems that the file %s is minified. Theme sniffer cannot process minified files. File skipped.', 'theme-sniffer' ), esc_attr( $file ) );
-		}
-
-		// Set default standard.
-		\PHP_CodeSniffer::setConfigData( 'default_standard', 'WordPress-Theme', true );
-
-		// Ignoring warnings when generating the exit code.
-		\PHP_CodeSniffer::setConfigData( 'ignore_warnings_on_exit', true, true );
-
-		// Show only errors?
-		\PHP_CodeSniffer::setConfigData( 'show_warnings', absint( $args['show_warnings'] ), true );
-
-		// Ignore unrelated files from the check.
-		$values['ignored'] = array(
-			'.*/node_modules/.*',
-			'.*/vendor/.*',
-			'.*/assets/build/.*',
-			'.*/build/.*',
-			'.*/bin/.*',
-		);
-
-		// Set minimum supported PHP version.
-		\PHP_CodeSniffer::setConfigData( 'testVersion', $args['minimum_php_version'] . '-7.0', true );
-
-		// Set text domains.
-		\PHP_CodeSniffer::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
-
-		// Path to WordPress Theme coding standard.
-		\PHP_CodeSniffer::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
-
-		// Initialize CodeSniffer.
-		$phpcs_cli = new \PHP_CodeSniffer_CLI();
-		$phpcs_cli->checkRequirements();
-
-		ob_start();
-		$num_errors = $phpcs_cli->process( $values );
-		$raw_output = ob_get_clean();
-		$output     = '';
-
-		// Sniff theme files.
-		if ( 1 === absint( $args['raw_output'] ) ) {
-			if ( ! empty( $raw_output ) ) {
-				$output = '<pre>' . esc_html( $raw_output ) . '</pre>';
-			}
-		} else {
-			$output = json_decode( $raw_output );
-		}
-
-		return $output;
 	}
 
 	/**
@@ -211,6 +119,9 @@ class Checks {
 		$tags_count         = array_count_values( $tags );
 		$subject_tags_names = array();
 
+		$subject_tags = array_flip( $registered_tags['subject_tags'] );
+		$allowed_tags = array_flip( $registered_tags['allowed_tags'] );
+
 		foreach ( $tags as $tag ) {
 			if ( $tags_count[ $tag ] > 1 ) {
 				$notices[] = array(
@@ -223,12 +134,12 @@ class Checks {
 				);
 			}
 
-			if ( isset( $registered_tags['subject_tags'][ $tag ] ) ) {
+			if ( isset( $subject_tags[ $tag ] ) ) {
 				$subject_tags_names[] = $tag;
 				continue;
 			}
 
-			if ( ! isset( $registered_tags['allowed_tags'][ $tag ] ) ) {
+			if ( ! isset( $allowed_tags[ $tag ] ) ) {
 				$notices[] = array(
 					'message'  => sprintf(
 						/* translators: %s: Theme tag */
@@ -292,9 +203,16 @@ class Checks {
 	}
 
 	/**
-	 * Callback function for the run sniffer endpoint
+	 * Callback function to run the sniffer
 	 *
-	 * @since 0.2.0 Made into a static function.
+	 * Props to Greg Sherwood on helping with the example of the phpcs runner
+	 * https://gist.github.com/gsherwood/aafd2c16631a8a872f0c4a23916962ac.
+	 *
+	 * Once necessary checks are being made (security, arguments, check for minified files), a Runner class
+	 * is called, and a config is set. For full config explanation, see
+	 * https://github.com/squizlabs/PHP_CodeSniffer/blob/master/src/Config.php
+	 *
+	 * @since 0.2.0 Removed extra callback, and use just one callback to check every file.
 	 * @since 0.1.0
 	 */
 	public function run_sniffer() {
@@ -327,29 +245,37 @@ class Checks {
 
 		$theme_slug = sanitize_text_field( wp_unslash( $_POST['themeName'] ) ); // Input var okay.
 
+		$show_warnings = true;
+
 		if ( isset( $_POST['hideWarning'] ) && 'true' === $_POST['hideWarning'] ) { // Input var okay.
-			$args['show_warnings'] = 'false';
+			$show_warnings = false;
 		}
+
+		$raw_output = false;
 
 		if ( isset( $_POST['rawOutput'] ) && 'true' === $_POST['rawOutput'] ) { // Input var okay.
-			$args['raw_output'] = 1;
+			$raw_output = true;
 		}
 
+		$ignore_annotations = false;
+
 		if ( isset( $_POST['ignoreAnnotations'] ) && 'true' === $_POST['ignoreAnnotations'] ) { // Input var okay.
-			$args['ignore_annotations'] = 1;
+			$ignore_annotations = true;
 		}
 
 		if ( isset( $_POST['minimumPHPVersion'] ) && ! empty( $_POST['minimumPHPVersion'] ) ) { // Input var okay.
-			$args['minimum_php_version'] = sanitize_text_field( wp_unslash( $_POST['minimumPHPVersion'] ) );// Input var okay.
+			$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimumPHPVersion'] ) );// Input var okay.
 		}
 
 		$standards = $this->helpers->get_wpcs_standards();
+
+		$standards_array = array();
 
 		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpRulesets'] ) ); // Input var okay.
 
 		foreach ( $selected_standards as $key => $standard ) {
 			if ( ! empty( $standards[ $standard ] ) ) {
-				$args['standard'][] = $standards[ $standard ]['label'];
+				$standards_array[] = $standards[ $standard ]['label'];
 			}
 		}
 
@@ -370,37 +296,80 @@ class Checks {
 		}
 
 		$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
+		$removed_files = [];
 
-		wp_send_json_success( array( $theme_slug, $args, $all_files ) );
-	}
+		// Minified file check.
+		foreach ( $all_files as $file_name => $file_path ) {
+			// Check if files have .min in the file name.
+			if ( false !== strpos( $file_name, '.min.js' ) || false !== strpos( $file_name, '.min.css' ) ) {
+				unset( $all_files[ $file_name ] );
+				$removed_files[] = $file_name;
+				break;
+			}
 
-	/**
-	 * Callback function for the individual sniff run
-	 *
-	 * @since 0.2.0 Made into a static function.
-	 * @since 0.1.0
-	 */
-	public function individual_sniff() {
-		// Bail if empty.
-		if ( empty( $_POST['themeName'] ) || empty( $_POST['themeArgs'] ) || empty( $_POST['file'] ) ) { // Input var okay.
-			$message = esc_html__( 'Theme name or arguments were not set, or file was empty', 'theme-sniffer' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
+			try {
+				$file_contents = file_get_contents( $file_path );
+				$file_lines    = explode( "\n", $file_contents );
+
+                $row = 0;
+                foreach( $file_lines as $line ) {
+	                if( $row <= 10 ) {
+	                	if ( strlen( $line ) > 1000 ) {
+	                		unset( $all_files[ $file_name ] );
+							$removed_files[] = $file_name;
+							break;
+	                	}
+	                }
+                }
+			} catch ( Exception $e ) {
+				throw new \WP_Error( 'errorl_reading_file', sprintf( esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ), $file_name ) );
+			}
 		}
 
-		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
-			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
-		}
+		$ignored = array(
+			'.*/node_modules/.*',
+			'.*/vendor/.*',
+			'.*/assets/build/.*',
+			'.*/build/.*',
+			'.*/bin/.*',
+		);
 
-		$theme_name = sanitize_text_field( wp_unslash( $_POST['themeName'] ) ); // Input var okay.
+		// Set up a PHPCS Runner and Config.
+    	$runner = new Runner();
 
-		$theme_args = wp_unslash( $_POST['themeArgs'] ); // Input var okay, WPCS: sanitization ok.
-		$theme_file = sanitize_text_field( wp_unslash( $_POST['file'] ) ); // Input var okay.
+		// Set default standard.
+		\PHP_CodeSniffer\Config::setConfigData( 'default_standard', 'WordPress-Theme', true );
 
-		$sniff = $this->perform_sniff( $theme_name, $theme_args, $theme_file );
+		// Ignoring warnings when generating the exit code.
+		\PHP_CodeSniffer\Config::setConfigData( 'ignore_warnings_on_exit', true, true );
 
-		wp_send_json_success( $sniff );
+		// Show only errors?
+		\PHP_CodeSniffer\Config::setConfigData( 'show_warnings', $show_warnings, true );
+
+		// Set minimum supported PHP version.
+		\PHP_CodeSniffer\Config::setConfigData( 'testVersion', $minimum_php_version . '-', true );
+
+		// Set text domains.
+		\PHP_CodeSniffer\Config::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
+
+		// Path to WordPress Theme coding standard.
+		\PHP_CodeSniffer\Config::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
+
+		$runner->config = new Config();
+		$runner->init();
+
+		$runner->config->files  	  = implode( ',', $all_files );
+		$runner->config->standards 	  = $standards_array;
+		$runner->config->annotations  = $ignore_annotations;
+		$runner->config->verbosity 	  = 1;
+		$runner->config->parallel  	  = true;
+		$runner->config->colors    	  = false;
+		$runner->config->showProgress = true;
+		$runner->config->reportWidth  = 110;
+		$runner->config->ignored  	  = $ignored;
+
+		$report = $runner->runPHPCS();
+error_log( print_r( $report, true ) );
+		// wp_send_json_success( array( $theme_slug, $args, $all_files, $removed_files ) );
 	}
 }

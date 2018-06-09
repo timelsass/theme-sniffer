@@ -68,7 +68,7 @@ export default class ThemeSniffer {
 				type: 'POST',
 				url: ajaxurl,
 				data: snifferRunData,
-				beforeSend: ( xhr ) => {
+				beforeSend: () => {
 					this.$startNotice.addClass( this.SHOW_CLASS );
 					this.$progressBar.removeClass( this.SHOW_CLASS );
 					this.$errorNotice.removeClass( this.SHOW_CLASS );
@@ -87,15 +87,23 @@ export default class ThemeSniffer {
 			this.$percentageCount.addClass( this.SHOW_CLASS );
 			this.$meterBar.addClass( this.SHOW_CLASS );
 			this.count = 0;
+			console.log(response);
 			if ( response.success === true ) {
-				const themeName     = response.data[0];
-				const themeArgs     = response.data[1];
-				const themeFilesRaw = response.data[2];
-				const totalFiles    = Object.keys( themeFilesRaw ).length;
-				const themeFiles    = Object.values( themeFilesRaw );
+				const themeName     	 = response.data[0];
+				const themeArgs     	 = response.data[1];
+				const themeFilesRaw 	 = response.data[2];
+				const themeFilesExcluded = response.data[3];
+				const totalFiles    	 = Object.keys( themeFilesRaw ).length;
+				const themeFiles    	 = Object.values( themeFilesRaw );
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageText.text( localizationObject.percentComplete );
-				this.individualSniff( button, themeName, themeArgs, themeFiles, totalFiles, 0 );
+				console.log(themeName);
+				console.log(themeArgs);
+				console.log(themeFilesRaw);
+				console.log(themeFilesExcluded);
+				console.log(totalFiles);
+				console.log(themeFiles);
+				// this.individualSniff( button, themeName, themeArgs, themeFiles, totalFiles, 0 );
 			} else {
 				this.$progressBar.addClass( this.ERROR_CLASS );
 				this.$snifferInfo.addClass( this.SHOW_CLASS );
@@ -107,81 +115,81 @@ export default class ThemeSniffer {
 		);
 	}
 
-	individualSniff( button, name, args, themeFiles, totalFiles, fileNumber ) {
-		const individualSniffData = {
-			themeName: name,
-			themeArgs: args,
-			nonce: this.nonce,
-			action: this.runSniff,
-			file: themeFiles[fileNumber]
-		};
+	// individualSniff( button, name, args, themeFiles, totalFiles, fileNumber ) {
+	// 	const individualSniffData = {
+	// 		themeName: name,
+	// 		themeArgs: args,
+	// 		nonce: this.nonce,
+	// 		action: this.runSniff,
+	// 		file: themeFiles[fileNumber]
+	// 	};
 
-		if ( ! this.ajaxAllow ) {
-			return false;
-		}
+	// 	if ( ! this.ajaxAllow ) {
+	// 		return false;
+	// 	}
 
-		return ajax(
-			{
-				type: 'POST',
-				url: ajaxurl,
-				data: individualSniffData,
-			}
-		).then( ( response ) => {
-			if ( response.success === true ) {
-				this.count++;
-				this.bumpProgressBar( this.count, totalFiles );
-				const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
-				const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
-				this.$sniffReport.append( sniffWrapper );
+	// 	return ajax(
+	// 		{
+	// 			type: 'POST',
+	// 			url: ajaxurl,
+	// 			data: individualSniffData
+	// 		}
+	// 	).then( ( response ) => {
+	// 		if ( response.success === true ) {
+	// 			this.count++;
+	// 			this.bumpProgressBar( this.count, totalFiles );
+	// 			const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
+	// 			const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
+	// 			this.$sniffReport.append( sniffWrapper );
 
-				if ( this.count < totalFiles ) {
-					this.individualSniff( button, name, args, themeFiles, totalFiles, this.count );
-				} else {
-					this.$checkNotice.addClass( this.SHOW_CLASS );
-					$( button ).removeClass( this.DISABLED_CLASS );
-				}
-			} else {
-				this.$snifferInfo.addClass( this.SHOW_CLASS );
-				this.$snifferInfo.html( response.data[0].message );
-				this.$progressBar.addClass( this.ERROR_CLASS );
-			}
-		}, ( xhr ) => {
-			this.count++;
-			let sniffWrapper = '';
-			this.bumpProgressBar( this.count, totalFiles );
-			if ( xhr.status === 500 ) {
-				const filesVal                   = {};
-				filesVal[themeFiles[fileNumber]] = {
-					errors: 1,
-					warnings: 0,
-					messages: [ {
-						column: 1,
-						fixable: false,
-						line: 1,
-						message: localizationObject.sniffError,
-						severity: 5,
-						type: 'ERROR'
-					} ]
-				};
-				const errorData                  = {
-					success: false,
-					data: {
-						files: filesVal,
-						totals: {
-							errors: 1,
-							fixable: 0,
-							warnings: 0,
-							fatalError: 1
-						}
-					}
-				};
-				this.$progressBar.addClass( this.ERROR_CLASS );
-				sniffWrapper = this.renderJSON( errorData );
-			}
-			this.$sniffReport.append( sniffWrapper );
-		}
-		);
-	}
+	// 			if ( this.count < totalFiles ) {
+	// 				this.individualSniff( button, name, args, themeFiles, totalFiles, this.count );
+	// 			} else {
+	// 				this.$checkNotice.addClass( this.SHOW_CLASS );
+	// 				$( button ).removeClass( this.DISABLED_CLASS );
+	// 			}
+	// 		} else {
+	// 			this.$snifferInfo.addClass( this.SHOW_CLASS );
+	// 			this.$snifferInfo.html( response.data[0].message );
+	// 			this.$progressBar.addClass( this.ERROR_CLASS );
+	// 		}
+	// 	}, ( xhr ) => {
+	// 		this.count++;
+	// 		let sniffWrapper = '';
+	// 		this.bumpProgressBar( this.count, totalFiles );
+	// 		if ( xhr.status === 500 ) {
+	// 			const filesVal                   = {};
+	// 			filesVal[themeFiles[fileNumber]] = {
+	// 				errors: 1,
+	// 				warnings: 0,
+	// 				messages: [ {
+	// 					column: 1,
+	// 					fixable: false,
+	// 					line: 1,
+	// 					message: localizationObject.sniffError,
+	// 					severity: 5,
+	// 					type: 'ERROR'
+	// 				} ]
+	// 			};
+	// 			const errorData                  = {
+	// 				success: false,
+	// 				data: {
+	// 					files: filesVal,
+	// 					totals: {
+	// 						errors: 1,
+	// 						fixable: 0,
+	// 						warnings: 0,
+	// 						fatalError: 1
+	// 					}
+	// 				}
+	// 			};
+	// 			this.$progressBar.addClass( this.ERROR_CLASS );
+	// 			sniffWrapper = this.renderJSON( errorData );
+	// 		}
+	// 		this.$sniffReport.append( sniffWrapper );
+	// 	}
+	// 	);
+	// }
 
 	renderJSON( json, reportElement, args ) {
 		if ( typeof json.data === 'undefined' || json.data === null ) {

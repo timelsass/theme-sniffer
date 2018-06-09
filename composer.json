@@ -22,14 +22,13 @@
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.4"
 	},
-	"config": {
-		"prepend-autoloader": true
-	},
 	"autoload": {
 		"classmap": [
 			"admin/",
 			"admin/pages/",
-			"includes/"
+			"includes/",
+			"vendor/wp-coding-standards/wpcs/",
+			"vendor/squizlabs/php_codesniffer/"
 		]
 	}
 }
