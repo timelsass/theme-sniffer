@@ -358,15 +358,15 @@ class Checks {
 		$runner->config = new Config();
 		$runner->init();
 
-		$runner->config->files  	  = implode( ',', $all_files );
-		$runner->config->standards 	  = $standards_array;
+		$runner->config->files        = implode( ',', $all_files );
+		$runner->config->standards    = $standards_array;
 		$runner->config->annotations  = $ignore_annotations;
-		$runner->config->verbosity 	  = 1;
-		$runner->config->parallel  	  = true;
-		$runner->config->colors    	  = false;
+		$runner->config->verbosity    = 1;
+		$runner->config->parallel     = true;
+		$runner->config->colors       = false;
 		$runner->config->showProgress = true;
 		$runner->config->reportWidth  = 110;
-		$runner->config->ignored  	  = $ignored;
+		$runner->config->ignored      = $ignored;
 
 		$report = $runner->runPHPCS();
 error_log( print_r( $report, true ) );
