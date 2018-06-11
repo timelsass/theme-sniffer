@@ -67,16 +67,23 @@ if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
 ?>
 <form class="theme-sniffer__form" action="<?php echo esc_url( admin_url( 'themes.php?page=theme-sniffer' ) ); ?>" method="post">
 	<div class="theme-sniffer__form-theme-switcher">
-		<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
-		<label class="theme-sniffer__form-theme-switcher-label" for="themename">
-			<select name="themename">
-				<?php foreach ( $themes as $key => $value ) : ?>
-					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
-				<?php endforeach; ?>
-			</select>
+		<label class="theme-sniffer__form-label" for="themename">
+			<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
 		</label>
+		<select id="themename" name="themename" class="theme-sniffer__form-select theme-sniffer__form-select--spaced">
+			<?php foreach ( $themes as $key => $value ) : ?>
+				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
+			<?php endforeach; ?>
+		</select>
 		<span class="theme-sniffer__form-button theme-sniffer__form-button--primary js-start-check"><?php esc_attr_e( 'Go', 'theme-sniffer' ); ?></span>
 		<span class="theme-sniffer__form-button theme-sniffer__form-button--secondary js-stop-check"><?php esc_attr_e( 'Stop', 'theme-sniffer' ); ?></span>
+	</div>
+	<div class="theme-sniffer__form-theme-prefix">
+		<label for="theme_prefix">
+			<h2><?php esc_html_e( 'Theme prefix', 'theme-sniffer' ); ?></h2>
+		</label>
+		<input id="theme_prefix" class="theme-sniffer__form-input" type="text" name="theme_prefix" value="" />
+		<div class="theme-sniffer__form-description"><?php esc_html_e( 'Add the theme prefix to check if all the globals are properly prefixed.', 'theme-sniffer' ); ?></div>
 	</div>
 	<div class="theme-sniffer__form-standards">
 		<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>

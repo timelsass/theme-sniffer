@@ -222,7 +222,7 @@ class Checks {
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
-
+error_log( print_r( $_POST, true ) );
 		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );

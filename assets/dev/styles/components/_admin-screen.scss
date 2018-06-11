@@ -9,21 +9,33 @@
 
 	&__form {
 
-		&-theme-switcher {
+		&-label {
+			display: block;
+			vertical-align: top;
+			margin-right: 10px;
+		}
 
-			&-label {
-				display: inline-block;
-				vertical-align: top;
-				margin-right: 10px;
-			}
+		&-select {
+			height: 34px!important;
+			padding: 0;
+			margin: 0;
+			display: inline-block;
+			vertical-align: top;
+			border: 1px solid $grayWhite-color;
+			border-radius: 5px;
 
-			select {
-				height: 34px;
-				padding: 0;
-				margin: 0;
-				display: inline-block;
-				vertical-align: top;
+			&--spaced {
+				margin-right: 5px;
 			}
+		}
+
+		&-input {
+			height: 34px;
+			padding: 10px;
+			margin: 0;
+			border: 1px solid $grayWhite-color;
+			border-radius: 5px;
+			min-width: 200px;
 		}
 
 		&-button {
@@ -53,19 +65,21 @@
 				}
 			}
 
+			&:focus,
+			&:active {
+				border-color: $blue-color;
+    			box-shadow: 0 0 2px rgba($darkBlue-color, 0.8);
+    			outline: none;
+			}
+
 			&.is-disabled {
 				pointer-events: none;
 				color: $gray-color;
 			}
-
 		}
 
-		&-standards {
-
-		}
-
-		&-options {
-
+		&-description {
+			margin-top: 10px;
 		}
 	}
 
@@ -153,7 +167,6 @@
 				display: block;
 			}
 		}
-
 	}
 
 	&__report {
@@ -232,7 +245,6 @@
 		&-table-message {
 
 		}
-
 	}
 
 	&__info {
