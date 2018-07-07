@@ -47,13 +47,14 @@ export default class ThemeSniffer {
 		$( enableButton ).removeClass( this.DISABLED_CLASS );
 	}
 
-	themeCheckRunPHPCS( button, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets ) {
+	themeCheckRunPHPCS( button, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes ) {
 		const snifferRunData = {
 			themeName: theme,
 			hideWarning: warningHide,
 			rawOutput: outputRaw,
 			ignoreAnnotations: ignoreAnnotations,
 			minimumPHPVersion: minPHPVersion,
+			themePrefixes: themePrefixes,
 			wpRulesets: selectedRulesets,
 			action: this.runAction,
 			nonce: this.nonce

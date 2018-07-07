@@ -79,11 +79,11 @@ if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
 		<span class="theme-sniffer__form-button theme-sniffer__form-button--secondary js-stop-check"><?php esc_attr_e( 'Stop', 'theme-sniffer' ); ?></span>
 	</div>
 	<div class="theme-sniffer__form-theme-prefix">
-		<label for="theme_prefix">
-			<h2><?php esc_html_e( 'Theme prefix', 'theme-sniffer' ); ?></h2>
+		<label for="theme_prefixes">
+			<h2><?php esc_html_e( 'Theme prefixes', 'theme-sniffer' ); ?></h2>
 		</label>
-		<input id="theme_prefix" class="theme-sniffer__form-input" type="text" name="theme_prefix" value="" />
-		<div class="theme-sniffer__form-description"><?php esc_html_e( 'Add the theme prefix to check if all the globals are properly prefixed.', 'theme-sniffer' ); ?></div>
+		<input id="theme_prefixes" class="theme-sniffer__form-input" type="text" name="theme_prefixes" value="" />
+		<div class="theme-sniffer__form-description"><?php esc_html_e( 'Add the theme prefixes to check if all the globals are properly prefixed. Can be just one, or multiple prefiex, separated by comma - e.g. twentyseventeen,twentysixteen,myprefix', 'theme-sniffer' ); ?></div>
 	</div>
 	<div class="theme-sniffer__form-standards">
 		<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>

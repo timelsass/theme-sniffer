@@ -26,9 +26,7 @@
 		"classmap": [
 			"admin/",
 			"admin/pages/",
-			"includes/",
-			"vendor/wp-coding-standards/wpcs/",
-			"vendor/squizlabs/php_codesniffer/"
+			"includes/"
 		]
 	}
 }

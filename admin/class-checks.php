@@ -9,12 +9,12 @@
 
 namespace Theme_Sniffer\Admin;
 
-use PHP_CodeSniffer\Runner;
-use PHP_CodeSniffer\Config;
-use PHP_CodeSniffer\Reporter;
-use PHP_CodeSniffer\Files\DummyFile;
-use PHP_CodeSniffer\Util\Timing;
+use \PHP_CodeSniffer\Runner;
+use \PHP_CodeSniffer\Config;
 use Theme_Sniffer\Admin\Helpers;
+
+// We need to use the PHP_CS autoloader to access the Runner and Config.
+require_once dirname( dirname( __FILE__ ) ) . '/vendor/squizlabs/php_codesniffer/autoload.php';
 
 /**
  * Class that controls the sniff checks
@@ -222,11 +222,17 @@ class Checks {
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
-error_log( print_r( $_POST, true ) );
+
 		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
+		}
+
+		$theme_prefixes = '';
+
+		if ( isset( $_POST['themePrefixes'] ) && $_POST['themePrefixes'] !== '' ) { // Input var okay.
+			$theme_prefixes = sanitize_text_field( wp_unslash( $_POST['themePrefixes'] ) );
 		}
 
 		// Exit if plugin not bundled properly.
@@ -279,7 +285,7 @@ error_log( print_r( $_POST, true ) );
 			}
 		}
 
-		$theme     = wp_get_theme( $theme_slug );
+		$theme     = \wp_get_theme( $theme_slug );
 		$php_files = $theme->get_files( 'php', 4, false );
 
 		// Current theme text domain.
@@ -295,7 +301,7 @@ error_log( print_r( $_POST, true ) );
 			}
 		}
 
-		$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
+		$all_files     = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
 		$removed_files = [];
 
 		// Minified file check.
@@ -311,65 +317,75 @@ error_log( print_r( $_POST, true ) );
 				$file_contents = file_get_contents( $file_path );
 				$file_lines    = explode( "\n", $file_contents );
 
-                $row = 0;
-                foreach( $file_lines as $line ) {
-	                if( $row <= 10 ) {
-	                	if ( strlen( $line ) > 1000 ) {
-	                		unset( $all_files[ $file_name ] );
+				$row = 0;
+				foreach ( $file_lines as $line ) {
+					if ( $row <= 10 ) {
+						if ( strlen( $line ) > 1000 ) {
+							unset( $all_files[ $file_name ] );
 							$removed_files[] = $file_name;
 							break;
-	                	}
-	                }
-                }
+						}
+					}
+				}
 			} catch ( Exception $e ) {
 				throw new \WP_Error( 'errorl_reading_file', sprintf( esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ), $file_name ) );
 			}
 		}
 
-		$ignored = array(
-			'.*/node_modules/.*',
-			'.*/vendor/.*',
-			'.*/assets/build/.*',
-			'.*/build/.*',
-			'.*/bin/.*',
-		);
+		$ignored = '.*/node_modules/.*,.*/vendor/.*,.*/assets/build/.*,.*/build/.*,.*/bin/.*';
 
+		ob_start();
 		// Set up a PHPCS Runner and Config.
-    	$runner = new Runner();
+		$runner = new Runner();
 
 		// Set default standard.
-		\PHP_CodeSniffer\Config::setConfigData( 'default_standard', 'WordPress-Theme', true );
+		Config::setConfigData( 'default_standard', 'WordPress-Theme', true );
 
 		// Ignoring warnings when generating the exit code.
-		\PHP_CodeSniffer\Config::setConfigData( 'ignore_warnings_on_exit', true, true );
+		Config::setConfigData( 'ignore_warnings_on_exit', true, true );
 
 		// Show only errors?
-		\PHP_CodeSniffer\Config::setConfigData( 'show_warnings', $show_warnings, true );
+		Config::setConfigData( 'show_warnings', $show_warnings, true );
 
 		// Set minimum supported PHP version.
-		\PHP_CodeSniffer\Config::setConfigData( 'testVersion', $minimum_php_version . '-', true );
+		Config::setConfigData( 'testVersion', $minimum_php_version . '-', true );
 
 		// Set text domains.
-		\PHP_CodeSniffer\Config::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
+		Config::setConfigData( 'text_domain', implode( ',', $args['text_domains'] ), true );
+
+		if ( $theme_prefixes !== '' ) {
+			// Set prefix.
+			Config::setConfigData( 'prefixes', $theme_prefixes, true );
+		}
 
 		// Path to WordPress Theme coding standard.
-		\PHP_CodeSniffer\Config::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
+		Config::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
 
-		$runner->config = new Config();
+		$standards_list = implode( ',', $standards_array );
+
+
+		$cliArgs[] = "--standard={$standards_list}"; // List of standards.
+
+		// Ignora annotations.
+		if ( $ignore_annotations ) {
+			$cliArgs[] = '--ignore-annotations';
+		}
+
+		$cliArgs[] = '-vv'; // Verbosity.
+		$cliArgs[] = '--parallel=5'; // Number of files to run in parallel.
+		$cliArgs[] = '--no-colors'; // No colors on the output.
+		$cliArgs[] = '-p'; // Show progress.
+		$cliArgs[] = '--report-width=110'; // Report width.
+		$cliArgs[] = "--ignore={$ignored}"; // List of ignored patterns.
+		$cliArgs[] = implode( ',', $all_files ); // List of files to sniff.
+
+		$runner->config = new Config( $cliArgs );
 		$runner->init();
 
-		$runner->config->files        = implode( ',', $all_files );
-		$runner->config->standards    = $standards_array;
-		$runner->config->annotations  = $ignore_annotations;
-		$runner->config->verbosity    = 1;
-		$runner->config->parallel     = true;
-		$runner->config->colors       = false;
-		$runner->config->showProgress = true;
-		$runner->config->reportWidth  = 110;
-		$runner->config->ignored      = $ignored;
-
 		$report = $runner->runPHPCS();
-error_log( print_r( $report, true ) );
+		$output = ob_get_clean();
+
+		// error_log( print_r( $output, true ) );
 		// wp_send_json_success( array( $theme_slug, $args, $all_files, $removed_files ) );
 	}
 }
