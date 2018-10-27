@@ -1,3 +1,4 @@
+
 {
   "name": "theme-sniffer",
   "version": "0.2.0",
@@ -15,10 +16,10 @@
   "devDependencies": {
     "archiver": "^3.0.0",
     "autoprefixer": "^9.3.1",
-    "babel-core": "^6.26.3",
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
-    "babel-preset-env": "^1.7.0",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^1.0.0",
     "eslint": "^5.8.0",
@@ -38,7 +39,6 @@
   "scripts": {
     "precommit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* .",
     "start": "webpack --progress --watch --display-error-details --display-modules --display-reasons",
-    "postbuild": "./bin/build.js",
     "build": "NODE_ENV=production webpack -p --progress"
   },
   "repository": {

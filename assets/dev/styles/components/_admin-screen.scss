@@ -21,7 +21,7 @@
 			margin: 0;
 			display: inline-block;
 			vertical-align: top;
-			border: 1px solid $grayWhite-color;
+			border: 1px solid $graywhite-color;
 			border-radius: 5px;
 
 			&--spaced {
@@ -33,7 +33,7 @@
 			height: 34px;
 			padding: 10px;
 			margin: 0;
-			border: 1px solid $grayWhite-color;
+			border: 1px solid $graywhite-color;
 			border-radius: 5px;
 			min-width: 200px;
 		}
@@ -68,7 +68,7 @@
 			&:focus,
 			&:active {
 				border-color: $blue-color;
-				box-shadow: 0 0 2px rgba($darkBlue-color, 0.8);
+				box-shadow: 0 0 2px rgba($darkblue-color, 0.8);
 				outline: none;
 			}
 
@@ -100,7 +100,7 @@
 		margin: 20px 0 40px;
 		padding: 11px 10px;
 		color: $white-color;
-		background: $grayWhite-color;
+		background: $graywhite-color;
 		font-weight: 700;
 		border-radius: 5px;
 		display: none;
@@ -180,7 +180,7 @@
 
 		&-heading {
 			font-weight: 700;
-			background-color: $darkGray-color;
+			background-color: $darkgray-color;
 			color: $white-color;
 			padding: 8px 10px;
 			border-top-left-radius: 5px;
@@ -232,7 +232,7 @@
 			width: 75px;
 
 			&.is-error {
-				background-color: $dirtyWhite-color;
+				background-color: $dirtywhite-color;
 
 				td {
 					color: $red-color;
