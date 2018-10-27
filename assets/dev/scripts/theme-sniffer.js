@@ -88,22 +88,18 @@ export default class ThemeSniffer {
 			this.$percentageCount.addClass( this.SHOW_CLASS );
 			this.$meterBar.addClass( this.SHOW_CLASS );
 			this.count = 0;
-			console.log(response);
 			if ( response.success === true ) {
-				const themeName     	 = response.data[0];
-				const themeArgs     	 = response.data[1];
-				const themeFilesRaw 	 = response.data[2];
-				const themeFilesExcluded = response.data[3];
-				const totalFiles    	 = Object.keys( themeFilesRaw ).length;
-				const themeFiles    	 = Object.values( themeFilesRaw );
+
+				// const themeName     	 = response.data[0];
+				// const themeArgs     	 = response.data[1];
+				// const themeFilesRaw 	 = response.data[2];
+				// const themeFilesExcluded = response.data[3];
+				// const totalFiles    	 = Object.keys( themeFilesRaw ).length;
+				// const themeFiles    	 = Object.values( themeFilesRaw );
+
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageText.text( localizationObject.percentComplete );
-				console.log(themeName);
-				console.log(themeArgs);
-				console.log(themeFilesRaw);
-				console.log(themeFilesExcluded);
-				console.log(totalFiles);
-				console.log(themeFiles);
+
 				// this.individualSniff( button, themeName, themeArgs, themeFiles, totalFiles, 0 );
 			} else {
 				this.$progressBar.addClass( this.ERROR_CLASS );
