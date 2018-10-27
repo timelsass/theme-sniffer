@@ -4,9 +4,9 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @since      0.2.0
+ * @package Theme_Sniffer\Admin\Pages;
  *
- * @package    Theme_Sniffer\Admin\Pages;
+ * @since 0.2.0
  */
 
 namespace Theme_Sniffer\Admin\Pages;
@@ -71,9 +71,9 @@ if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
 			<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
 		</label>
 		<select id="themename" name="themename" class="theme-sniffer__form-select theme-sniffer__form-select--spaced">
-			<?php foreach ( $themes as $key => $value ) : ?>
+	<?php foreach ( $themes as $key => $value ) : ?>
 				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
-			<?php endforeach; ?>
+	<?php endforeach; ?>
 		</select>
 		<span class="theme-sniffer__form-button theme-sniffer__form-button--primary js-start-check"><?php esc_attr_e( 'Go', 'theme-sniffer' ); ?></span>
 		<span class="theme-sniffer__form-button theme-sniffer__form-button--secondary js-stop-check"><?php esc_attr_e( 'Stop', 'theme-sniffer' ); ?></span>
@@ -87,12 +87,12 @@ if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
 	</div>
 	<div class="theme-sniffer__form-standards">
 		<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>
-		<?php foreach ( $standards as $key => $standard ) : ?>
+	<?php foreach ( $standards as $key => $standard ) : ?>
 			<label for="<?php echo esc_attr( $key ); ?>" title="<?php echo esc_attr( $standard['description'] ); ?>">
 				<input type="checkbox" name="selected_ruleset[]" id="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $key ); ?>" <?php checked( $standard_status[ $key ], 1 ); ?> />
-				<?php echo '<strong>' , esc_html( $standard['label'] ) , '</strong>: ' , esc_html( $standard['description'] ); ?>
+		<?php echo '<strong>' , esc_html( $standard['label'] ) , '</strong>: ' , esc_html( $standard['description'] ); ?>
 			</label><br>
-		<?php endforeach; ?>
+	<?php endforeach; ?>
 	</div>
 	<div class="theme-sniffer__form-options">
 		<h2><?php esc_html_e( 'Options', 'theme-sniffer' ); ?></h2>
@@ -101,11 +101,11 @@ if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
 		<label for="ignore_annotations"><input type="checkbox" name="ignore_annotations" id="ignore_annotations" value="1" <?php checked( $ignore_annotations, 1 ); ?> /><?php esc_html_e( 'Ignore annotations', 'theme-sniffer' ); ?></label>&nbsp;
 		<label for="minimum_php_version">
 			<select name="minimum_php_version">
-			<?php foreach ( $php_versions as $version ) : ?>
+	<?php foreach ( $php_versions as $version ) : ?>
 				<option value="<?php echo esc_attr( $version ); ?>" <?php selected( $minimum_php_version, $version ); ?>><?php echo esc_html( $version ); ?></option>
-			<?php endforeach; ?>
+	<?php endforeach; ?>
 			</select>
-			<?php esc_html_e( 'Minimum PHP Version', 'theme-sniffer' ); ?>
+	<?php esc_html_e( 'Minimum PHP Version', 'theme-sniffer' ); ?>
 		</label>
 	</div>
 </form>

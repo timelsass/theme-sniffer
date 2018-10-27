@@ -2,19 +2,21 @@
 /**
  * File for sniff checking methods
  *
- * @since      0.2.0
+ * @since 0.2.0
  *
- * @package    Theme_Sniffer\Admin
+ * @package Theme_Sniffer\Admin
  */
 
 namespace Theme_Sniffer\Admin;
 
-use \PHP_CodeSniffer\Runner;
-use \PHP_CodeSniffer\Config;
-use Theme_Sniffer\Admin\Helpers;
-
 // We need to use the PHP_CS autoloader to access the Runner and Config.
 require_once dirname( dirname( __FILE__ ) ) . '/vendor/squizlabs/php_codesniffer/autoload.php';
+
+use \PHP_CodeSniffer\Runner;
+use \PHP_CodeSniffer\Reporter;
+use \PHP_CodeSniffer\Config;
+
+use Theme_Sniffer\Admin\Helpers;
 
 /**
  * Class that controls the sniff checks
@@ -22,16 +24,17 @@ require_once dirname( dirname( __FILE__ ) ) . '/vendor/squizlabs/php_codesniffer
  * Holds the methods necessary for sniff checks and style.css header
  * check.
  *
- * @package    Theme_Sniffer\Admin
+ * @package Theme_Sniffer\Admin
  */
 class Checks {
+
 	/**
 	 * Initialize the class and set its properties.
 	 *
-	 * @since    0.2.0
-	 * @param    string  $plugin_name  The name of this plugin.
-	 * @param    string  $version      The version of this plugin.
-	 * @param    Helpers $helpers      Helpers class instance.
+	 * @since 0.2.0
+	 * @param string  $plugin_name The name of this plugin.
+	 * @param string  $version     The version of this plugin.
+	 * @param Helpers $helpers     Helpers class instance.
 	 */
 	public function __construct( $plugin_name, $version, Helpers $helpers ) {
 		$this->plugin_name = $plugin_name;
@@ -45,7 +48,7 @@ class Checks {
 	 * @since 0.3.0
 	 *
 	 * @param string $theme_slug Theme slug.
-	 * @param array  $theme WP_Theme Theme object.
+	 * @param array  $theme      WP_Theme Theme object.
 	 *
 	 * @return bool
 	 */
@@ -69,7 +72,7 @@ class Checks {
 
 			$notices[] = array(
 				'message'  => sprintf(
-					/* translators: 1: comment header line, 2: style.css */
+					/* translators: 1: comment header line */
 					esc_html__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
 					$header
 				),
@@ -183,7 +186,8 @@ class Checks {
 				<?php
 				printf(
 					/* translators: 1: File name */
-					esc_html__( 'File: %s', 'theme-sniffer' ), esc_html( $theme_slug ) . '/style.css'
+					esc_html__( 'File: %s', 'theme-sniffer' ),
+					esc_html( $theme_slug ) . '/style.css'
 				);
 				?>
 				</span>
@@ -214,33 +218,39 @@ class Checks {
 	 *
 	 * @since 0.2.0 Removed extra callback, and use just one callback to check every file.
 	 * @since 0.1.0
+	 *
+	 * @throws \WP_Error Throws WP_Error if error happens.
 	 */
 	public function run_sniffer() {
-		// Bail if empty.
+		// Exit if plugin is not bundled properly.
+		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php' ) ) {
+			// translators: Placeholders are used for inserting hardcoded links to the repository.
+			$message = sprintf( esc_html__( 'It seems you just cloned the Github repo and tried to run the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
+			$error   = new \WP_Error( '-1', $message );
+			wp_send_json_error( $error );
+		}
+
+		// Bail if theme wasn't selected.
 		if ( empty( $_POST['themeName'] ) ) { // Input var okay.
 			$message = esc_html__( 'Theme name not selected.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
-		if ( isset( $_POST['nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
+		// Nonce check.
+		if ( isset( $_POST['nonce'] ) &&
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' )
+		) { // Input var okay.
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
+		// Additional settings (theme prefixes, standards, preview options).
 		$theme_prefixes = '';
 
 		if ( isset( $_POST['themePrefixes'] ) && $_POST['themePrefixes'] !== '' ) { // Input var okay.
 			$theme_prefixes = sanitize_text_field( wp_unslash( $_POST['themePrefixes'] ) );
-		}
-
-		// Exit if plugin not bundled properly.
-		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php' ) ) {
-			// translators: Placeholders are used for inserting hardcoded links to the repository.
-			$message = sprintf( esc_html__( 'It seems you just cloned the Github repo and tried to run the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
 		}
 
 		if ( empty( $_POST['wpRulesets'] ) ) { // Input var okay.
@@ -278,7 +288,6 @@ class Checks {
 		$standards_array = array();
 
 		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpRulesets'] ) ); // Input var okay.
-
 		foreach ( $selected_standards as $key => $standard ) {
 			if ( ! empty( $standards[ $standard ] ) ) {
 				$standards_array[] = $standards[ $standard ]['label'];
@@ -314,7 +323,7 @@ class Checks {
 			}
 
 			try {
-				$file_contents = file_get_contents( $file_path );
+				$file_contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 				$file_lines    = explode( "\n", $file_contents );
 
 				$row = 0;
@@ -328,18 +337,38 @@ class Checks {
 					}
 				}
 			} catch ( Exception $e ) {
-				throw new \WP_Error( 'errorl_reading_file', sprintf( esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ), $file_name ) );
+				throw new \WP_Error(
+					'error_reading_file',
+					sprintf(
+						/* translators: %s: Name of the file */
+						esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ),
+						$file_name
+					)
+				);
 			}
 		}
 
 		$ignored = '.*/node_modules/.*,.*/vendor/.*,.*/assets/build/.*,.*/build/.*,.*/bin/.*';
 
-		ob_start();
-		// Set up a PHPCS Runner and Config.
 		$runner = new Runner();
 
+		$runner->config            = new Config( [ '-vv' ] );
+		$runner->config->standards = $standards_array;
+
+		$runner->init();
+
+		$runner->config->files        = implode( ',', $all_files );
+		$runner->config->annotations  = $ignore_annotations;
+		$runner->config->parallel     = 1;
+		$runner->config->colors       = false;
+		$runner->config->showProgress = true;
+		$runner->config->reportWidth  = 110;
+		$runner->config->interactive  = false;
+		$runner->config->cache        = false;
+		$runner->config->ignored      = $ignored;
+
 		// Set default standard.
-		Config::setConfigData( 'default_standard', 'WordPress-Theme', true );
+		Config::setConfigData( 'default_standard', 'WPThemeReview', true );
 
 		// Ignoring warnings when generating the exit code.
 		Config::setConfigData( 'ignore_warnings_on_exit', true, true );
@@ -358,34 +387,8 @@ class Checks {
 			Config::setConfigData( 'prefixes', $theme_prefixes, true );
 		}
 
-		// Path to WordPress Theme coding standard.
-		Config::setConfigData( 'installed_paths', WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/wp-coding-standards/wpcs/', true );
+		$runner->reporter = new Reporter( $runner->config );
 
-		$standards_list = implode( ',', $standards_array );
-
-
-		$cliArgs[] = "--standard={$standards_list}"; // List of standards.
-
-		// Ignora annotations.
-		if ( $ignore_annotations ) {
-			$cliArgs[] = '--ignore-annotations';
-		}
-
-		$cliArgs[] = '-vv'; // Verbosity.
-		$cliArgs[] = '--parallel=5'; // Number of files to run in parallel.
-		$cliArgs[] = '--no-colors'; // No colors on the output.
-		$cliArgs[] = '-p'; // Show progress.
-		$cliArgs[] = '--report-width=110'; // Report width.
-		$cliArgs[] = "--ignore={$ignored}"; // List of ignored patterns.
-		$cliArgs[] = implode( ',', $all_files ); // List of files to sniff.
-
-		$runner->config = new Config( $cliArgs );
-		$runner->init();
-
-		$report = $runner->runPHPCS();
-		$output = ob_get_clean();
-
-		// error_log( print_r( $output, true ) );
-		// wp_send_json_success( array( $theme_slug, $args, $all_files, $removed_files ) );
+		\wp_send_json_success( $runner->reporter->printReports() );
 	}
 }

@@ -5,9 +5,9 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @since      0.2.0
+ * @since 0.2.0
  *
- * @package    Theme_Sniffer\Includes
+ * @package Theme_Sniffer\Includes
  */
 
 namespace Theme_Sniffer\Includes;
@@ -23,11 +23,12 @@ use Theme_Sniffer\Admin as Admin;
  * Also maintains the unique identifier of this plugin as well as the current
  * version of the plugin.
  *
- * @since      0.2.0
- * @package    Theme_Sniffer\Includes
- * @author     Infinum <info@infinum.co>
+ * @since   0.2.0
+ * @package Theme_Sniffer\Includes
+ * @author  Infinum <info@infinum.co>
  */
 class Main {
+
 	/**
 	 * Plugin name constant
 	 */
@@ -42,9 +43,9 @@ class Main {
 	 * The loader that's responsible for maintaining and registering all hooks that power
 	 * the plugin.
 	 *
-	 * @since    0.2.0
-	 * @access   protected
-	 * @var      Theme_Sniffer_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @since  0.2.0
+	 * @access protected
+	 * @var    Theme_Sniffer_Loader    $loader    Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -55,7 +56,7 @@ class Main {
 	 * Load the dependencies, define the locale, and set the hooks for the admin area and
 	 * the public-facing side of the site.
 	 *
-	 * @since    0.2.0
+	 * @since 0.2.0
 	 */
 	public function __construct() {
 		$this->loader  = new Loader();
@@ -71,8 +72,8 @@ class Main {
 	 * Uses the i18n class in order to set the domain and to register the hook
 	 * with WordPress.
 	 *
-	 * @since    0.2.0
-	 * @access   private
+	 * @since  0.2.0
+	 * @access private
 	 */
 	private function set_locale() {
 		$plugin_i18n = new Internationalization();
@@ -84,8 +85,8 @@ class Main {
 	 * Register all of the hooks related to the admin area functionality
 	 * of the plugin.
 	 *
-	 * @since    0.2.0
-	 * @access   private
+	 * @since  0.2.0
+	 * @access private
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
@@ -99,8 +100,8 @@ class Main {
 	/**
 	 * Define hooks that will run on ajax call
 	 *
-	 * @since    0.2.0
-	 * @access   public
+	 * @since  0.2.0
+	 * @access public
 	 */
 	public function define_ajax_hooks() {
 		$checks = new Admin\Checks( self::PLUGIN_NAME, self::PLUGIN_VERSION, $this->helpers );
@@ -112,7 +113,7 @@ class Main {
 	/**
 	 * Run the loader to execute all of the hooks with WordPress.
 	 *
-	 * @since    0.2.0
+	 * @since 0.2.0
 	 */
 	public function run() {
 		$this->loader->run();

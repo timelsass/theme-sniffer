@@ -10,7 +10,7 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  *
- * @since  0.1.0
+ * @since   0.1.0
  * @package Theme_Sniffer
  */
 
@@ -24,7 +24,11 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Include the autoloader so we can dynamically include the rest of the classes.
-require_once __DIR__ . '/vendor/autoload.php';
+$autoloader = __DIR__ . '/vendor/autoload.php';
+
+if ( is_readable( $autoloader ) ) {
+	include_once $autoloader;
+}
 
 add_action( 'admin_init', __NAMESPACE__ . '\\check_php' );
 
@@ -59,8 +63,7 @@ function check_php() {
  * @since  0.1.4
  * @return void
  */
-function error_activation_notice() {
-	?>
+function error_activation_notice() { ?>
 	<div class="error">
 		<p><?php esc_html_e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
 	</div>
@@ -74,12 +77,7 @@ function error_activation_notice() {
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    0.1.0
- * @since    0.2.0
+ * @since 0.1.0
+ * @since 0.2.0
  */
-function run_plugin() {
-	$plugin = new Main();
-	$plugin->run();
-}
-
-run_plugin();
+( new Main() )->run();

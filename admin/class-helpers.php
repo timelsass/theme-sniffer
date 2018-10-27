@@ -2,9 +2,9 @@
 /**
  * File that holds helper class
  *
- * @since      0.2.0
+ * @since 0.2.0
  *
- * @package    Theme_Sniffer\Admin
+ * @package Theme_Sniffer\Admin
  */
 
 namespace Theme_Sniffer\Admin;
@@ -12,9 +12,10 @@ namespace Theme_Sniffer\Admin;
 /**
  * Class that holds the helper methods.
  *
- * @package    Theme_Sniffer\Admin
+ * @package Theme_Sniffer\Admin
  */
 class Helpers {
+
 	/**
 	 * Returns standards
 	 *
@@ -29,7 +30,7 @@ class Helpers {
 	public function get_wpcs_standards() {
 		$standards = array(
 			'wordpress-theme' => array(
-				'label'       => 'WordPress-Theme',
+				'label'       => 'WPThemeReview',
 				'description' => esc_html__( 'Ruleset for WordPress theme review requirements (Required)', 'theme-sniffer' ),
 				'default'     => 1,
 			),
@@ -65,7 +66,7 @@ class Helpers {
 	/**
 	 * Return all the active themes
 	 *
-	 * @since 0.2.0
+	 * @since  0.2.0
 	 * @return array Array of active themes.
 	 */
 	public function get_active_themes() {
@@ -100,6 +101,7 @@ class Helpers {
 			'7.0',
 			'7.1',
 			'7.2',
+			'7.3',
 		);
 
 		return $output;
