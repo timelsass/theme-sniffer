@@ -1,9 +1,9 @@
-const path = require( 'path' );
+const path = require('path');
 
-const webpack = require( 'webpack' );
-const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
+const webpack = require('webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -20,100 +20,108 @@ const outputJs = 'scripts/[name].js';
 const outputCss = 'styles/[name].css';
 
 const allModules = {
-	rules: [
-		{
-			test: /\.(js|jsx)$/,
-			exclude: /node_modules/,
-			use: 'babel-loader'
-		},
-		{
-			test: /\.json$/,
-			use: 'json-loader'
-		},
-		{
-			test: /\.scss$/,
-			exclude: /node_modules/,
-			use: [
-				MiniCssExtractPlugin.loader,
-				'css-loader', 'sass-loader'
-			]
-		}
-	]
+    rules: [
+    {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: 'babel-loader'
+    },
+    {
+        test: /\.json$/,
+        use: 'json-loader'
+    },
+    {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+        MiniCssExtractPlugin.loader,
+        'css-loader', 'sass-loader'
+        ]
+    }
+    ]
 };
 
 const allPlugins = [
-	new CleanWebpackPlugin([ pluginPublicPath ]),
-	new MiniCssExtractPlugin({
-		filename: outputCss
-	}),
-	new webpack.ProvidePlugin({
-		$: 'jquery',
-		jQuery: 'jquery'
-	}),
-	new webpack.DefinePlugin({
-		'process.env': {
-			NODE_ENV: JSON.stringify( process.env.NODE_ENV || 'development' )
-		}
-	})
-];
+    new CleanWebpackPlugin([ pluginPublicPath ]),
+    new MiniCssExtractPlugin(
+        {
+            filename: outputCss
+        }
+    ),
+    new webpack.ProvidePlugin(
+        {
+            $: 'jquery',
+            jQuery: 'jquery'
+        }
+    ),
+    new webpack.DefinePlugin(
+        {
+            'process.env': {
+                NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development')
+            }
+        }
+    )
+    ];
 
-const allOptimizations = {
-	runtimeChunk: false,
-	splitChunks: {
-		cacheGroups: {
-			commons: {
-				test: /[\\/]node_modules[\\/]/,
-				name: 'vendors',
-				chunks: 'all'
-			}
-		}
-	}
-};
+    const allOptimizations = {
+        runtimeChunk: false,
+        splitChunks: {
+            cacheGroups: {
+                commons: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
+            }
+        }
+    };
 
-// Use only for production build
-if ( ! DEV ) {
-	allOptimizations.minimizer = [
-		new UglifyJsPlugin({
-			cache: true,
-			parallel: true,
-			sourceMap: true,
-			uglifyOptions: {
-				output: {
-					comments: false
-				},
-				compress: {
-					warnings: false,
-					drop_console: true // eslint-disable-line camelcase
-				}
-			}
-		})
-	];
-}
+    // Use only for production build
+    if (! DEV ) {
+        allOptimizations.minimizer = [
+        new UglifyJsPlugin(
+            {
+                cache: true,
+                parallel: true,
+                sourceMap: true,
+                uglifyOptions: {
+                    output: {
+                        comments: false
+                    },
+                    compress: {
+                        warnings: false,
+                        drop_console: true // eslint-disable-line camelcase
+                    }
+                }
+            }
+        )
+        ];
+    }
 
-module.exports = [
-	{
-		context: path.join( appPath ),
-		entry: {
-			application: [ pluginEntry ]
-		},
-		output: {
-			path: pluginPublicPath,
-			publicPath: '',
-			filename: outputJs
-		},
+    module.exports = [
+    {
+        context: path.join(appPath),
+        entry: {
+            application: [ pluginEntry ]
+        },
+        output: {
+            path: pluginPublicPath,
+            publicPath: '',
+            filename: outputJs
+        },
 
-		externals: {
-			jquery: 'jQuery'
-		},
+        externals: {
+            jquery: 'jQuery'
+        },
 
-		optimization: allOptimizations,
+        optimization: allOptimizations,
 
-		mode: 'development',
+        mode: 'development',
 
-		module: allModules,
+        module: allModules,
 
-		plugins: allPlugins,
+        plugins: allPlugins,
 
-		devtool: DEV ? '#inline-source-map' : ''
-	}
-];
+        devtool: DEV ? '#inline-source-map' : ''
+    }
+    ];
