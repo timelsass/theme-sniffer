@@ -27,7 +27,6 @@
 	"autoload": {
 		"classmap": [
 			"admin/",
-			"admin/pages/",
 			"includes/"
 		]
 	},
@@ -35,6 +34,10 @@
 		"phpcs-i": "@php ./vendor/bin/phpcs -i",
 		"check-cs": "@php ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/*",
 		"fix-cs": "@php ./vendor/bin/phpcbf --ignore=*/vendor/*,*/node_modules/*"
+	},
+	"config": {
+    	"sort-packages": true,
+    	"optimize-autoloader": true
 	},
 	"support": {
 		"issues": "https://github.com/WPTRT/theme-sniffer/issues",

@@ -13,8 +13,8 @@ namespace Theme_Sniffer\Admin;
 require_once dirname( dirname( __FILE__ ) ) . '/vendor/squizlabs/php_codesniffer/autoload.php';
 
 use \PHP_CodeSniffer\Runner;
-use \PHP_CodeSniffer\Reporter;
 use \PHP_CodeSniffer\Config;
+use \PHP_CodeSniffer\Reporter;
 
 use Theme_Sniffer\Admin\Helpers;
 
@@ -352,20 +352,8 @@ class Checks {
 
 		$runner = new Runner();
 
-		$runner->config            = new Config( [ '-vv' ] );
+		$runner->config            = new Config( [ '-s' ] );
 		$runner->config->standards = $standards_array;
-
-		$runner->init();
-
-		$runner->config->files        = implode( ',', $all_files );
-		$runner->config->annotations  = $ignore_annotations;
-		$runner->config->parallel     = 1;
-		$runner->config->colors       = false;
-		$runner->config->showProgress = true;
-		$runner->config->reportWidth  = 110;
-		$runner->config->interactive  = false;
-		$runner->config->cache        = false;
-		$runner->config->ignored      = $ignored;
 
 		// Set default standard.
 		Config::setConfigData( 'default_standard', 'WPThemeReview', true );
@@ -386,6 +374,18 @@ class Checks {
 			// Set prefix.
 			Config::setConfigData( 'prefixes', $theme_prefixes, true );
 		}
+
+		$runner->config->files       = array_values( $all_files );
+		$runner->config->annotations = $ignore_annotations;
+		$runner->config->parallel    = 32;
+		$runner->config->colors      = false;
+		$runner->config->tabWidth    = 0;
+		$runner->config->reportWidth = 110;
+		$runner->config->interactive = false;
+		$runner->config->cache       = false;
+		$runner->config->ignored     = $ignored;
+
+		$runner->init();
 
 		$runner->reporter = new Reporter( $runner->config );
 
