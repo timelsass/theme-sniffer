@@ -1,5 +1,5 @@
 {
-	"name": "WPTRT/theme-sniffer",
+	"name": "wptrt/theme-sniffer",
 	"type": "wordpress-plugin",
 	"keywords": ["plugin", "phpcs", "standards", "WordPress"],
 	"description": "Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.",
@@ -14,10 +14,8 @@
 	}],
 	"require": {
 		"php": ">=5.6",
-		"phpcompatibility/phpcompatibility-wp": "^2.0",
 		"squizlabs/php_codesniffer": "^3.3.0",
-		"wp-coding-standards/wpcs": "^1.0.0",
-		"wptrt/wpthemereview": "dev-develop"
+		"wptrt/wpthemereview": "^0.1.0"
 	},
 	"require-dev": {
 		"phpcompatibility/php-compatibility": "^9.0",
