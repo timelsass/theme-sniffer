@@ -15,6 +15,7 @@ require_once dirname( dirname( __FILE__ ) ) . '/vendor/squizlabs/php_codesniffer
 use \PHP_CodeSniffer\Runner;
 use \PHP_CodeSniffer\Config;
 use \PHP_CodeSniffer\Reporter;
+use \PHP_CodeSniffer\Files\DummyFile;
 
 use Theme_Sniffer\Admin\Helpers;
 
@@ -352,7 +353,7 @@ class Checks {
 
 		$runner = new Runner();
 
-		$runner->config            = new Config( [ '-s' ] );
+		$runner->config            = new Config( [ '-s', '-p' ] );
 		$runner->config->standards = $standards_array;
 
 		// Set default standard.
@@ -375,9 +376,11 @@ class Checks {
 			Config::setConfigData( 'prefixes', $theme_prefixes, true );
 		}
 
-		$runner->config->files       = array_values( $all_files );
+		$all_files = array_values( $all_files );
+
+		$runner->config->files       = $all_files;
 		$runner->config->annotations = $ignore_annotations;
-		$runner->config->parallel    = 32;
+		$runner->config->parallel    = false;
 		$runner->config->colors      = false;
 		$runner->config->tabWidth    = 0;
 		$runner->config->reportWidth = 110;
@@ -385,10 +388,25 @@ class Checks {
 		$runner->config->cache       = false;
 		$runner->config->ignored     = $ignored;
 
+		if ( ! $raw_output ) {
+			$runner->config->reports = [ 'json' => null ];
+		}
+
 		$runner->init();
 
 		$runner->reporter = new Reporter( $runner->config );
 
-		\wp_send_json_success( $runner->reporter->printReports() );
+		foreach ( $all_files as $file_path ) {
+			$file       = new DummyFile( file_get_contents( $file_path ), $runner->ruleset, $runner->config );
+			$file->path = $file_path;
+
+			$runner->processFile( $file );
+		}
+
+		ob_start();
+		$runner->reporter->printReports();
+		$results = ob_get_clean();
+
+		\wp_send_json( json_decode( $results, true ) );
 	}
 }

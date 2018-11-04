@@ -88,6 +88,9 @@ export default class ThemeSniffer {
 			this.$percentageCount.addClass( this.SHOW_CLASS );
 			this.$meterBar.addClass( this.SHOW_CLASS );
 			this.count = 0;
+
+			let args;
+
 			if ( response.success === true ) {
 
 				// const themeName     	 = response.data[0];
@@ -100,7 +103,15 @@ export default class ThemeSniffer {
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageText.text( localizationObject.percentComplete );
 
-				// this.individualSniff( button, themeName, themeArgs, themeFiles, totalFiles, 0 );
+
+				if ( outputRaw ) {
+					args.rawOutput = true;
+				}
+
+				const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
+				const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
+				this.$sniffReport.append( sniffWrapper );
+
 			} else {
 				this.$progressBar.addClass( this.ERROR_CLASS );
 				this.$snifferInfo.addClass( this.SHOW_CLASS );
@@ -112,126 +123,51 @@ export default class ThemeSniffer {
 		);
 	}
 
-	// individualSniff( button, name, args, themeFiles, totalFiles, fileNumber ) {
-	// 	const individualSniffData = {
-	// 		themeName: name,
-	// 		themeArgs: args,
-	// 		nonce: this.nonce,
-	// 		action: this.runSniff,
-	// 		file: themeFiles[fileNumber]
-	// 	};
-
-	// 	if ( ! this.ajaxAllow ) {
-	// 		return false;
-	// 	}
-
-	// 	return ajax(
-	// 		{
-	// 			type: 'POST',
-	// 			url: ajaxurl,
-	// 			data: individualSniffData
-	// 		}
-	// 	).then( ( response ) => {
-	// 		if ( response.success === true ) {
-	// 			this.count++;
-	// 			this.bumpProgressBar( this.count, totalFiles );
-	// 			const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
-	// 			const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
-	// 			this.$sniffReport.append( sniffWrapper );
-
-	// 			if ( this.count < totalFiles ) {
-	// 				this.individualSniff( button, name, args, themeFiles, totalFiles, this.count );
-	// 			} else {
-	// 				this.$checkNotice.addClass( this.SHOW_CLASS );
-	// 				$( button ).removeClass( this.DISABLED_CLASS );
-	// 			}
-	// 		} else {
-	// 			this.$snifferInfo.addClass( this.SHOW_CLASS );
-	// 			this.$snifferInfo.html( response.data[0].message );
-	// 			this.$progressBar.addClass( this.ERROR_CLASS );
-	// 		}
-	// 	}, ( xhr ) => {
-	// 		this.count++;
-	// 		let sniffWrapper = '';
-	// 		this.bumpProgressBar( this.count, totalFiles );
-	// 		if ( xhr.status === 500 ) {
-	// 			const filesVal                   = {};
-	// 			filesVal[themeFiles[fileNumber]] = {
-	// 				errors: 1,
-	// 				warnings: 0,
-	// 				messages: [ {
-	// 					column: 1,
-	// 					fixable: false,
-	// 					line: 1,
-	// 					message: localizationObject.sniffError,
-	// 					severity: 5,
-	// 					type: 'ERROR'
-	// 				} ]
-	// 			};
-	// 			const errorData                  = {
-	// 				success: false,
-	// 				data: {
-	// 					files: filesVal,
-	// 					totals: {
-	// 						errors: 1,
-	// 						fixable: 0,
-	// 						warnings: 0,
-	// 						fatalError: 1
-	// 					}
-	// 				}
-	// 			};
-	// 			this.$progressBar.addClass( this.ERROR_CLASS );
-	// 			sniffWrapper = this.renderJSON( errorData );
-	// 		}
-	// 		this.$sniffReport.append( sniffWrapper );
-	// 	}
-	// 	);
-	// }
-
 	renderJSON( json, reportElement, args ) {
 		if ( typeof json.data === 'undefined' || json.data === null ) {
-			return ` < div > ${localizationObject.errorReport} < / div > `;
+			return `<div>${localizationObject.errorReport}</div>`;
 		}
 
 		let report;
-
-		if ( args.raw_output ) {
-			report = json.data;
-		} else {
-			if ( typeof json.data.totals === 'undefined' || json.data.totals === null ) {
-				return false;
+		if ( typeof args !== 'undefined' ) {
+			if ( args.rawOutput ) {
+				return json.data;
 			}
-
-			if ( json.data.totals.errors === 0 && json.data.totals.warnings === 0 ) {
-				return false;
-			}
-
-			report = reportElement;
-
-			const $reportItemHeading = report.find( this.reportItemHeading );
-			const $reportReportTable = report.find( this.reportReportTable );
-			const $reportNoticeType  = report.find( this.reportNoticeType );
-
-			const filepath = Object.keys( json.data.files )[0].split( '/themes/' )[1];
-			const notices  = Object.values( json.data.files )[0].messages;
-
-			$reportItemHeading.text( filepath );
-
-			$.each(
-				notices, ( index, val ) => {
-					const line        = val.line;
-					const message     = val.message;
-					const type        = val.type;
-					const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
-					$singleItem.find( this.reportItemLine ).text( line );
-					$singleItem.find( this.reportItemType ).text( type );
-					$singleItem.find( this.reportItemMessage ).text( message );
-					$singleItem.appendTo( $reportReportTable );
-				}
-			);
-
-			$reportNoticeType.remove();
 		}
+
+		// if ( typeof json.data.totals === 'undefined' || json.data.totals === null ) {
+		// 	return false;
+		// }
+
+		// if ( json.data.totals.errors === 0 && json.data.totals.warnings === 0 ) {
+		// 	return false;
+		// }
+
+		report = reportElement;
+
+		const $reportItemHeading = report.find( this.reportItemHeading );
+		const $reportReportTable = report.find( this.reportReportTable );
+		const $reportNoticeType  = report.find( this.reportNoticeType );
+
+		const filepath = Object.keys( json.data.files )[0].split( '/themes/' )[1];
+		const notices  = Object.values( json.data.files )[0].messages;
+
+		$reportItemHeading.text( filepath );
+
+		$.each(
+			notices, ( index, val ) => {
+				const line        = val.line;
+				const message     = val.message;
+				const type        = val.type;
+				const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
+				$singleItem.find( this.reportItemLine ).text( line );
+				$singleItem.find( this.reportItemType ).text( type );
+				$singleItem.find( this.reportItemMessage ).text( message );
+				$singleItem.appendTo( $reportReportTable );
+			}
+		);
+
+		$reportNoticeType.remove();
 
 		return report;
 	}

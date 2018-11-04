@@ -90,8 +90,9 @@ class Main {
 	 */
 	private function define_admin_hooks() {
 		$plugin_admin = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
+		$basename     = self::PLUGIN_NAME . '/' . self::PLUGIN_NAME . '.php';
 
-		$this->loader->add_action( 'plugin_action_links_' . plugin_basename( __FILE__ ), $plugin_admin, 'plugin_settings_link' );
+		$this->loader->add_action( 'plugin_action_links_' . $basename, $plugin_admin, 'plugin_settings_link' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_filter( 'extra_theme_headers', $this->helpers, 'add_headers' );
