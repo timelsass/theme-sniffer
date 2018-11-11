@@ -184,7 +184,7 @@ class Checks extends Plugin_Config {
 				'message'  => $notice['message'],
 				'severity' => $severity,
 				'fixable'  => false,
-				'type'     => false,
+				'type'     => strtoupper( $severity ),
 			);
 		}
 
@@ -332,7 +332,7 @@ class Checks extends Plugin_Config {
 					}
 				}
 			} catch ( Exception $e ) {
-				throw new \WP_Error(
+				new \WP_Error(
 					'error_reading_file',
 					sprintf(
 						/* translators: %s: Name of the file */
@@ -401,6 +401,15 @@ class Checks extends Plugin_Config {
 		$runner->reporter->printReports();
 		$sniff_results = ob_get_clean();
 
+		if ( $raw_output ) {
+			$results_raw = array(
+				'success' => true,
+				'data'    => $sniff_results,
+			);
+
+			\wp_send_json( $results_raw, 200 );
+		}
+
 		$theme_header_checks;
 
 		$sniffer_results = json_decode( $sniff_results, true );
@@ -411,14 +420,15 @@ class Checks extends Plugin_Config {
 		$total_files   = $theme_header_checks['files'] + $sniffer_results['files'];
 
 		$results = array(
-			'totals' => array(
+			'success' => true,
+			'totals'  => array(
 				'errors'   => $total_errors,
 				'warnings' => $total_warning,
 				'fixable'  => $total_fixable,
 			),
-			'files'  => $total_files,
+			'files'   => $total_files,
 		);
 
-		\wp_send_json( $results );
+		\wp_send_json( $results, 200 );
 	}
 }

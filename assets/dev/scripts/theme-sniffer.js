@@ -9,6 +9,7 @@ export default class ThemeSniffer {
 		this.ERROR_CLASS       = 'is-error';
 		this.WARNING_CLASS     = 'is-warning';
 		this.DISABLED_CLASS    = 'is-disabled';
+		this.IS_RAW_CLASS      = 'is-raw';
 		this.reportItemHeading = options.reportItemHeading;
 		this.reportReportTable = options.reportReportTable;
 		this.reportNoticeType  = options.reportNoticeType;
@@ -33,6 +34,8 @@ export default class ThemeSniffer {
 
 		this.count     = 0;
 		this.ajaxAllow = true;
+
+		this.renderJSON = this.renderJSON.bind( this );
 	}
 
 	enableAjax() {
@@ -89,16 +92,8 @@ export default class ThemeSniffer {
 			this.$meterBar.addClass( this.SHOW_CLASS );
 			this.count = 0;
 
-			let args;
-
 			if ( response.success === true ) {
-
-				// const themeName     	 = response.data[0];
-				// const themeArgs     	 = response.data[1];
-				// const themeFilesRaw 	 = response.data[2];
-				// const themeFilesExcluded = response.data[3];
-				// const totalFiles    	 = Object.keys( themeFilesRaw ).length;
-				// const themeFiles    	 = Object.values( themeFilesRaw );
+				let args = new Object();
 
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 				this.$percentageText.text( localizationObject.percentComplete );
@@ -111,11 +106,9 @@ export default class ThemeSniffer {
 				const $clonedReportElement = this.$reportItem.clone().addClass( this.SHOW_CLASS );
 				const sniffWrapper         = this.renderJSON( response, $clonedReportElement, args );
 				this.$sniffReport.append( sniffWrapper );
-
 			} else {
 				this.$progressBar.addClass( this.ERROR_CLASS );
 				this.$snifferInfo.addClass( this.SHOW_CLASS );
-				this.$snifferInfo.html( response.data[0].message );
 			}
 		}, ( xhr, textStatus, errorThrown ) => {
 			throw new Error( `Error: ${errorThrown}: ${xhr} ${textStatus}` );
@@ -124,24 +117,14 @@ export default class ThemeSniffer {
 	}
 
 	renderJSON( json, reportElement, args ) {
-		if ( typeof json.data === 'undefined' || json.data === null ) {
-			return `<div>${localizationObject.errorReport}</div>`;
-		}
-
 		let report;
+
 		if ( typeof args !== 'undefined' ) {
 			if ( args.rawOutput ) {
+				this.$sniffReport.addClass( this.IS_RAW_CLASS );
 				return json.data;
 			}
 		}
-
-		// if ( typeof json.data.totals === 'undefined' || json.data.totals === null ) {
-		// 	return false;
-		// }
-
-		// if ( json.data.totals.errors === 0 && json.data.totals.warnings === 0 ) {
-		// 	return false;
-		// }
 
 		report = reportElement;
 
@@ -149,32 +132,34 @@ export default class ThemeSniffer {
 		const $reportReportTable = report.find( this.reportReportTable );
 		const $reportNoticeType  = report.find( this.reportNoticeType );
 
-		const filepath = Object.keys( json.data.files )[0].split( '/themes/' )[1];
-		const notices  = Object.values( json.data.files )[0].messages;
-
-		$reportItemHeading.text( filepath );
+		const files = Object.entries( json.files );
 
 		$.each(
-			notices, ( index, val ) => {
-				const line        = val.line;
-				const message     = val.message;
-				const type        = val.type;
-				const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
-				$singleItem.find( this.reportItemLine ).text( line );
-				$singleItem.find( this.reportItemType ).text( type );
-				$singleItem.find( this.reportItemMessage ).text( message );
-				$singleItem.appendTo( $reportReportTable );
+			files, ( ind, val ) => {
+				const filepath = val[0];
+				const details  = val[1];
+
+				$reportItemHeading.text( filepath.split( '/themes/' )[1]);
+				const messages 	  = details.messages;
+
+				$.each(
+					messages, ( index, value ) => {
+						const line        = value.line || 0;
+						const message     = value.message;
+						const type        = value.type;
+						const $singleItem = $reportNoticeType.clone().addClass( type.toLowerCase() );
+
+						$singleItem.find( this.reportItemLine ).text( line );
+						$singleItem.find( this.reportItemType ).text( type );
+						$singleItem.find( this.reportItemMessage ).text( message );
+						$singleItem.appendTo( $reportReportTable );
+					}
+				);
 			}
 		);
 
 		$reportNoticeType.remove();
 
 		return report;
-	}
-
-	bumpProgressBar( count, totalFiles ) {
-		const completed = ( ( ( count ) / totalFiles ) * 100 ).toFixed( 2 );
-		this.$percentageCount.text( `${completed} % ` );
-		this.$meterBar.css( 'width', `${completed} % ` );
 	}
 }

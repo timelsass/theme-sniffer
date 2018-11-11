@@ -239,6 +239,10 @@
 				}
 			}
 		}
+
+		&.is-raw {
+			white-space: pre-wrap;
+		}
 	}
 
 	&__info {
