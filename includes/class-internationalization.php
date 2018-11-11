@@ -22,8 +22,6 @@ namespace Theme_Sniffer\Includes;
  * @package Theme_Sniffer\Includes
  */
 class Internationalization {
-
-
 	/**
 	 * Load the plugin text domain for translation.
 	 *

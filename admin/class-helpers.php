@@ -1,6 +1,6 @@
 <?php
 /**
- * File that holds helper class
+ * File that holds helper class with static helper methods
  *
  * @since 0.2.0
  *
@@ -27,7 +27,7 @@ class Helpers {
 	 *
 	 * @return array Standards details.
 	 */
-	public function get_wpcs_standards() {
+	public static function get_wpcs_standards() {
 		$standards = array(
 			'wordpress-theme' => array(
 				'label'       => 'WPThemeReview',
@@ -69,7 +69,7 @@ class Helpers {
 	 * @since  0.2.0
 	 * @return array Array of active themes.
 	 */
-	public function get_active_themes() {
+	public static function get_active_themes() {
 		$all_themes = wp_get_themes();
 		$themes     = array();
 
@@ -90,7 +90,7 @@ class Helpers {
 	 *
 	 * @return array PHP versions.
 	 */
-	public function get_php_versions() {
+	public static function get_php_versions() {
 
 		$output = array(
 			'5.2',
@@ -114,7 +114,7 @@ class Helpers {
 	 *
 	 * @return array PHP versions.
 	 */
-	public function get_theme_tags() {
+	public static function get_theme_tags() {
 
 		$tags['allowed_tags'] = array(
 			'two-columns',
@@ -159,22 +159,5 @@ class Helpers {
 		);
 
 		return $tags;
-	}
-
-	/**
-	 * Allow fetching custom headers.
-	 *
-	 * @since 0.1.3
-	 *
-	 * @param array $extra_headers List of extra headers.
-	 *
-	 * @return array List of extra headers.
-	 */
-	public function add_headers( $extra_headers ) {
-		$extra_headers[] = 'License';
-		$extra_headers[] = 'License URI';
-		$extra_headers[] = 'Template Version';
-
-		return $extra_headers;
 	}
 }

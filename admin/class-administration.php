@@ -9,6 +9,7 @@
 
 namespace Theme_Sniffer\Admin;
 
+use Theme_Sniffer\Includes\Config;
 /**
  * The admin-specific functionality of the plugin.
  *
@@ -17,20 +18,7 @@ namespace Theme_Sniffer\Admin;
  *
  * @package Theme_Sniffer\Admin
  */
-class Admin {
-
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since 0.2.0
-	 * @param string $plugin_name The name of this plugin.
-	 * @param string $version     The version of this plugin.
-	 */
-	public function __construct( $plugin_name, $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
-	}
-
+class Administration extends Config {
 	/**
 	 * Add go to theme check page link on plugin page.
 	 *
@@ -89,20 +77,37 @@ class Admin {
 			return;
 		}
 
-		wp_enqueue_style( $this->plugin_name . '-admin-css', plugins_url() . '/' . $this->plugin_name . '/assets/build/styles/application.css', array(), $this->version, 'all' );
-		wp_enqueue_script( $this->plugin_name . '-admin-js', plugins_url() . '/' . $this->plugin_name . '/assets/build/scripts/application.js', array(), $this->version, false );
+		wp_enqueue_style( static::PLUGIN_NAME . '-admin-css', plugins_url() . '/' . static::PLUGIN_NAME . '/assets/build/styles/application.css', array(), static::PLUGIN_VERSION, 'all' );
+		wp_enqueue_script( static::PLUGIN_NAME . '-admin-js', plugins_url() . '/' . static::PLUGIN_NAME . '/assets/build/scripts/application.js', array(), static::PLUGIN_VERSION, false );
 
 		wp_localize_script(
-			$this->plugin_name . '-admin-js',
+			static::PLUGIN_NAME . '-admin-js',
 			'localizationObject',
 			array(
 				'sniffError'         => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 				'percentComplete'    => esc_html__( 'Percent completed: ', 'theme-sniffer' ),
 				'errorReport'        => esc_html__( 'Error', 'theme-sniffer' ),
 				'ajaxStopped'        => esc_html__( 'Sniff stopped', 'theme-sniffer' ),
-				'callbackIndividual' => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/individual-sniff.php',
-				'callbackRunSniffer' => plugins_url() . '/' . $this->plugin_name . '/admin/callbacks/run-sniffer.php',
+				'callbackIndividual' => plugins_url() . '/' . static::PLUGIN_NAME . '/admin/callbacks/individual-sniff.php',
+				'callbackRunSniffer' => plugins_url() . '/' . static::PLUGIN_NAME . '/admin/callbacks/run-sniffer.php',
 			)
 		);
+	}
+
+	/**
+	 * Allow fetching custom headers.
+	 *
+	 * @since 0.1.3
+	 *
+	 * @param array $extra_headers List of extra headers.
+	 *
+	 * @return array List of extra headers.
+	 */
+	public static function add_headers( $extra_headers ) {
+		$extra_headers[] = 'License';
+		$extra_headers[] = 'License URI';
+		$extra_headers[] = 'Template Version';
+
+		return $extra_headers;
 	}
 }

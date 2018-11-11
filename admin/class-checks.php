@@ -18,44 +18,29 @@ use \PHP_CodeSniffer\Reporter;
 use \PHP_CodeSniffer\Files\DummyFile;
 
 use Theme_Sniffer\Admin\Helpers;
+use Theme_Sniffer\Includes\Config as Plugin_Config;
 
 /**
  * Class that controls the sniff checks
  *
- * Holds the methods necessary for sniff checks and style.css header
- * check.
+ * Holds the methods necessary for sniff checks
  *
  * @package Theme_Sniffer\Admin
  */
-class Checks {
-
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @since 0.2.0
-	 * @param string  $plugin_name The name of this plugin.
-	 * @param string  $version     The version of this plugin.
-	 * @param Helpers $helpers     Helpers class instance.
-	 */
-	public function __construct( $plugin_name, $version, Helpers $helpers ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
-		$this->helpers     = $helpers;
-	}
-
+class Checks extends Plugin_Config {
 	/**
 	 * Perform style.css header check.
 	 *
 	 * @since 0.3.0
 	 *
-	 * @param string $theme_slug Theme slug.
-	 * @param array  $theme      WP_Theme Theme object.
+	 * @param string    $theme_slug    Theme slug.
+	 * @param \WP_Theme $theme         WP_Theme Theme object.
+	 * @param bool      $show_warnings Show warnings.
 	 *
 	 * @return bool
 	 */
-	public function style_headers_check( $theme_slug, $theme ) {
+	private function style_headers_check( $theme_slug, \WP_Theme $theme, $show_warnings ) {
 
-		$pass             = true;
 		$required_headers = array(
 			'Name',
 			'Description',
@@ -118,7 +103,7 @@ class Checks {
 			);
 		}
 
-		$registered_tags    = $this->helpers->get_theme_tags();
+		$registered_tags    = Helpers::get_theme_tags();
 		$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );
 		$tags_count         = array_count_values( $tags );
 		$subject_tags_names = array();
@@ -155,7 +140,7 @@ class Checks {
 				continue;
 			}
 
-			if ( 'accessibility-ready' === $tag ) {
+			if ( 'accessibility-ready' === $tag && $show_warnings ) {
 				$notices[] = array(
 					'message'  => esc_html__( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ),
 					'severity' => 'warning',
@@ -164,6 +149,7 @@ class Checks {
 		}
 
 		$subject_tags_count = count( $subject_tags_names );
+
 		if ( $subject_tags_count > 3 ) {
 			$notices[] = array(
 				'message'  => sprintf(
@@ -176,35 +162,48 @@ class Checks {
 			);
 		}
 
+		$theme_root = get_theme_root( $theme_slug );
+
 		if ( empty( $notices ) ) {
-			return true;
+			return array();
 		}
 
-		?>
-		<div class="theme-sniffer__report-item">
-			<div class="theme-sniffer__report-heading">
-				<span class="theme-sniffer__report-heading-field">
-				<?php
-				printf(
-					/* translators: 1: File name */
-					esc_html__( 'File: %s', 'theme-sniffer' ),
-					esc_html( $theme_slug ) . '/style.css'
-				);
-				?>
-				</span>
-			</div>
-			<table class="theme-sniffer__report-table">
-			<?php foreach ( $notices as $notice ) : ?>
-				<tr class="theme-sniffer__report-table-row item-type-<?php echo esc_attr( $notice['severity'] ); ?>">
-					<td class="theme-sniffer__report-table-line"></td>
-					<td class="theme-sniffer__report-table-type"><?php echo esc_html( $notice['severity'] ); ?></td>
-					<td class="theme-sniffer__report-table-message"><?php echo esc_html( $notice['message'] ); ?></td>
-				</tr>
-			<?php endforeach; ?>
-			</table>
-		</div>
-		<?php
-		return $pass;
+		$error_count   = 0;
+		$warning_count = 0;
+		$messages      = array();
+
+		foreach ( $notices as $notice ) {
+			$severity = $notice['severity'];
+			if ( $severity === 'error' ) {
+				$error_count++;
+			} else {
+				$warning_count++;
+			}
+
+			$messages[] = array(
+				'message'  => $notice['message'],
+				'severity' => $severity,
+				'fixable'  => false,
+				'type'     => false,
+			);
+		}
+
+		$header_results = array(
+			'totals' => array(
+				'errors'   => $error_count,
+				'warnings' => $warning_count,
+				'fixable'  => $error_count + $warning_count,
+			),
+			'files' => array(
+				"{$theme_root}/{$theme_slug}/style.css" => array(
+					'errors'   => $error_count,
+					'warnings' => $warning_count,
+					'messages' => $messages,
+				),
+			),
+		);
+
+		return $header_results;
 	}
 
 	/**
@@ -223,16 +222,8 @@ class Checks {
 	 * @throws \WP_Error Throws WP_Error if error happens.
 	 */
 	public function run_sniffer() {
-		// Exit if plugin is not bundled properly.
-		if ( ! file_exists( WP_PLUGIN_DIR . '/' . $this->plugin_name . '/vendor/autoload.php' ) ) {
-			// translators: Placeholders are used for inserting hardcoded links to the repository.
-			$message = sprintf( esc_html__( 'It seems you just cloned the Github repo and tried to run the plugin. Visit %1$sInstalling%2$s to find the correct bundled plugin zip.', 'theme-sniffer' ), '<a href="https://github.com/WPTRT/theme-sniffer#installing" target="_blank">', '</a>' );
-			$error   = new \WP_Error( '-1', $message );
-			wp_send_json_error( $error );
-		}
-
 		// Bail if theme wasn't selected.
-		if ( empty( $_POST['themeName'] ) ) { // Input var okay.
+		if ( empty( $_POST['themeName'] ) ) {
 			$message = esc_html__( 'Theme name not selected.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
@@ -241,7 +232,7 @@ class Checks {
 		// Nonce check.
 		if ( isset( $_POST['nonce'] ) &&
 			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'theme_sniffer_nonce' )
-		) { // Input var okay.
+		) {
 			$message = esc_html__( 'Nonce error.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
@@ -250,45 +241,48 @@ class Checks {
 		// Additional settings (theme prefixes, standards, preview options).
 		$theme_prefixes = '';
 
-		if ( isset( $_POST['themePrefixes'] ) && $_POST['themePrefixes'] !== '' ) { // Input var okay.
+		if ( isset( $_POST['themePrefixes'] ) && $_POST['themePrefixes'] !== '' ) {
 			$theme_prefixes = sanitize_text_field( wp_unslash( $_POST['themePrefixes'] ) );
 		}
 
-		if ( empty( $_POST['wpRulesets'] ) ) { // Input var okay.
+		if ( empty( $_POST['wpRulesets'] ) ) {
 			$message = esc_html__( 'Please select at least one standard.', 'theme-sniffer' );
 			$error   = new \WP_Error( '-1', $message );
 			wp_send_json_error( $error );
 		}
 
-		$theme_slug = sanitize_text_field( wp_unslash( $_POST['themeName'] ) ); // Input var okay.
+		$theme_slug = sanitize_text_field( wp_unslash( $_POST['themeName'] ) );
 
 		$show_warnings = true;
 
-		if ( isset( $_POST['hideWarning'] ) && 'true' === $_POST['hideWarning'] ) { // Input var okay.
+		if ( isset( $_POST['hideWarning'] ) && $_POST['hideWarning'] === 'true' ) {
 			$show_warnings = false;
 		}
 
 		$raw_output = false;
 
-		if ( isset( $_POST['rawOutput'] ) && 'true' === $_POST['rawOutput'] ) { // Input var okay.
+		if ( isset( $_POST['rawOutput'] ) && $_POST['rawOutput'] === 'true' ) {
 			$raw_output = true;
 		}
 
 		$ignore_annotations = false;
 
-		if ( isset( $_POST['ignoreAnnotations'] ) && 'true' === $_POST['ignoreAnnotations'] ) { // Input var okay.
+		if ( isset( $_POST['ignoreAnnotations'] ) && $_POST['ignoreAnnotations'] === 'true' ) {
 			$ignore_annotations = true;
 		}
 
-		if ( isset( $_POST['minimumPHPVersion'] ) && ! empty( $_POST['minimumPHPVersion'] ) ) { // Input var okay.
-			$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimumPHPVersion'] ) );// Input var okay.
+		if ( isset( $_POST['minimumPHPVersion'] ) && ! empty( $_POST['minimumPHPVersion'] ) ) {
+			$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimumPHPVersion'] ) );
 		}
 
-		$standards = $this->helpers->get_wpcs_standards();
+		// Check theme headers.
+		$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
+
+		$standards = Helpers::get_wpcs_standards();
 
 		$standards_array = array();
 
-		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpRulesets'] ) ); // Input var okay.
+		$selected_standards = array_map( 'sanitize_text_field', wp_unslash( $_POST['wpRulesets'] ) );
 		foreach ( $selected_standards as $key => $standard ) {
 			if ( ! empty( $standards[ $standard ] ) ) {
 				$standards_array[] = $standards[ $standard ]['label'];
@@ -405,8 +399,26 @@ class Checks {
 
 		ob_start();
 		$runner->reporter->printReports();
-		$results = ob_get_clean();
+		$sniff_results = ob_get_clean();
 
-		\wp_send_json( json_decode( $results, true ) );
+		$theme_header_checks;
+
+		$sniffer_results = json_decode( $sniff_results, true );
+
+		$total_errors  = $theme_header_checks['totals']['errors'] + $sniffer_results['totals']['errors'];
+		$total_warning = $theme_header_checks['totals']['warnings'] + $sniffer_results['totals']['warnings'];
+		$total_fixable = $theme_header_checks['totals']['fixable'] + $sniffer_results['totals']['fixable'];
+		$total_files   = $theme_header_checks['files'] + $sniffer_results['files'];
+
+		$results = array(
+			'totals' => array(
+				'errors'   => $total_errors,
+				'warnings' => $total_warning,
+				'fixable'  => $total_fixable,
+			),
+			'files'  => $total_files,
+		);
+
+		\wp_send_json( $results );
 	}
 }

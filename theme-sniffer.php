@@ -17,11 +17,15 @@
 namespace Theme_Sniffer;
 
 use Theme_Sniffer\Includes\Main;
+use Theme_Sniffer\Includes\Activator;
+use Theme_Sniffer\Includes\Config;
+use Theme_Sniffer\Includes\Loader;
+use Theme_Sniffer\Includes\Internationalization;
+use Theme_Sniffer\Admin\Administration;
+use Theme_Sniffer\Admin\Checks;
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
-}
+defined( 'ABSPATH' ) || die();
 
 // Include the autoloader so we can dynamically include the rest of the classes.
 $autoloader = __DIR__ . '/vendor/autoload.php';
@@ -30,45 +34,8 @@ if ( is_readable( $autoloader ) ) {
 	include_once $autoloader;
 }
 
-add_action( 'admin_init', __NAMESPACE__ . '\\check_php' );
-
-/**
- * Check php function hook
- *
- * Hooks to the init hook, checks for the php version - if lower than 5.3
- * will disable the plugin and add a notice.
- *
- * @since  0.1.4
- * @return void
- */
-function check_php() {
-	// If php version is lower than 5.3, abort.
-	if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
-		$plugin = plugin_basename( __FILE__ );
-
-		if ( is_plugin_active( $plugin ) ) {
-			deactivate_plugins( $plugin );
-			add_action( 'admin_notices', __NAMESPACE__ . '\\error_activation_notice' );
-			remove_filter( 'plugin_action_links_' . $plugin, 'theme_sniffer_plugin_settings_link' );
-			unset( $_GET['activate'] ); // Input var okay.
-		}
-	}
-}
-
-/**
- * Activation error message hook.
- *
- * Hooks to admin_notices hook and outputs the message on activation error.
- *
- * @since  0.1.4
- * @return void
- */
-function error_activation_notice() { ?>
-	<div class="error">
-		<p><?php esc_html_e( 'Theme Sniffer requires PHP 5.3 or greater to function.', 'theme-sniffer' ); ?></p>
-	</div>
-	<?php
-}
+// Check permissions and PHP version.
+\register_activation_hook( __FILE__, [ Activator::class, 'activate' ] );
 
 /**
  * Begins execution of the plugin.
@@ -80,4 +47,9 @@ function error_activation_notice() { ?>
  * @since 0.1.0
  * @since 0.2.0
  */
-( new Main() )->run();
+( new Main(
+	new Loader(),
+	new Internationalization(),
+	new Administration(),
+	new Checks()
+) )->run();

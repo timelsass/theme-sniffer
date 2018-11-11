@@ -13,13 +13,11 @@ namespace Theme_Sniffer\Admin\Pages;
 
 use Theme_Sniffer\Admin\Helpers;
 
-$helpers = new Helpers();
+$standards    = Helpers::get_wpcs_standards();
+$themes       = Helpers::get_active_themes();
+$php_versions = Helpers::get_php_versions();
 
-$standards    = $helpers->get_wpcs_standards();
-$themes       = $helpers->get_active_themes();
-$php_versions = $helpers->get_php_versions();
-
-if ( isset( $_POST['theme_sniffer'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['theme_sniffer'] ) ), 'theme_sniffer_nonce' ) ) { // Input var okay.
+if ( isset( $_POST['theme_sniffer'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['theme_sniffer'] ) ), 'theme_sniffer_nonce' ) ) {
 	wp_die( esc_html__( 'Nonce bust!', 'theme-sniffer' ) );
 }
 
@@ -35,29 +33,29 @@ $raw_output          = 0;
 $ignore_annotations  = 0;
 $standard_status     = wp_list_pluck( $standards, 'default' );
 
-if ( ! empty( $_POST['themename'] ) ) { // Input var okay.
-	$current_theme = sanitize_text_field( wp_unslash( $_POST['themename'] ) ); // Input var okay.
+if ( ! empty( $_POST['themename'] ) ) {
+	$current_theme = sanitize_text_field( wp_unslash( $_POST['themename'] ) );
 }
 
-if ( ! empty( $_POST['minimum_php_version'] ) ) { // Input var okay.
-	$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimum_php_version'] ) ); // Input var okay.
+if ( ! empty( $_POST['minimum_php_version'] ) ) {
+	$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimum_php_version'] ) );
 }
 
-if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) { // Input var okay.
+if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
 	$hide_warning = 1;
 }
 
-if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) { // Input var okay.
+if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
 	$raw_output = 1;
 }
 
-if ( isset( $_POST['ignore_annotations'] ) && 'true' === $_POST['ignore_annotations'] ) { // Input var okay.
+if ( isset( $_POST['ignore_annotations'] ) && 'true' === $_POST['ignore_annotations'] ) {
 	$ignore_annotations = 1;
 }
 
-if ( isset( $_POST['_wp_http_referer'] ) ) { // Input var okay.
+if ( isset( $_POST['_wp_http_referer'] ) ) {
 	foreach ( $standards as $key => $standard ) {
-		if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) { // Input var okay.
+		if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) {
 			$standard_status[ $key ] = 1;
 		} else {
 			$standard_status[ $key ] = 0;

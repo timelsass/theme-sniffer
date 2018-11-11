@@ -12,7 +12,8 @@
 
 namespace Theme_Sniffer\Includes;
 
-use Theme_Sniffer\Admin as Admin;
+use Theme_Sniffer\Admin\Administration;
+use Theme_Sniffer\Admin\Checks;
 
 /**
  * The core plugin class.
@@ -25,19 +26,8 @@ use Theme_Sniffer\Admin as Admin;
  *
  * @since   0.2.0
  * @package Theme_Sniffer\Includes
- * @author  Infinum <info@infinum.co>
  */
-class Main {
-
-	/**
-	 * Plugin name constant
-	 */
-	const PLUGIN_NAME = 'theme-sniffer';
-
-	/**
-	 * Plugin version constant
-	 */
-	const PLUGIN_VERSION = '0.2.0';
+class Main extends Config {
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -56,11 +46,23 @@ class Main {
 	 * Load the dependencies, define the locale, and set the hooks for the admin area and
 	 * the public-facing side of the site.
 	 *
+	 * @param Loader               $loader Loader dependency.
+	 * @param Internationalization $plugin_i18n Internationalization dependency.
+	 * @param Administration       $admin Admin dependency.
+	 * @param Checks               $checks Checks dependency.
 	 * @since 0.2.0
 	 */
-	public function __construct() {
-		$this->loader  = new Loader();
-		$this->helpers = new Admin\Helpers();
+	public function __construct(
+		Loader $loader,
+		Internationalization $plugin_i18n,
+		Administration $admin,
+		Checks $checks
+	) {
+		$this->loader      = $loader;
+		$this->plugin_i18n = $plugin_i18n;
+		$this->admin       = $admin;
+		$this->checks      = $checks;
+
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_ajax_hooks();
@@ -76,9 +78,7 @@ class Main {
 	 * @access private
 	 */
 	private function set_locale() {
-		$plugin_i18n = new Internationalization();
-
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
+		$this->loader->add_action( 'plugins_loaded', $this->plugin_i18n, 'load_plugin_textdomain' );
 	}
 
 	/**
@@ -89,13 +89,12 @@ class Main {
 	 * @access private
 	 */
 	private function define_admin_hooks() {
-		$plugin_admin = new Admin\Admin( self::PLUGIN_NAME, self::PLUGIN_VERSION );
-		$basename     = self::PLUGIN_NAME . '/' . self::PLUGIN_NAME . '.php';
+		$basename = static::PLUGIN_NAME . '/' . static::PLUGIN_NAME . '.php';
 
-		$this->loader->add_action( 'plugin_action_links_' . $basename, $plugin_admin, 'plugin_settings_link' );
-		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-		$this->loader->add_filter( 'extra_theme_headers', $this->helpers, 'add_headers' );
+		$this->loader->add_action( 'plugin_action_links_' . $basename, $this->admin, 'plugin_settings_link' );
+		$this->loader->add_action( 'admin_menu', $this->admin, 'admin_menu' );
+		$this->loader->add_action( 'admin_enqueue_scripts', $this->admin, 'enqueue_scripts' );
+		$this->loader->add_filter( 'extra_theme_headers', $this->admin, 'add_headers' );
 	}
 
 	/**
@@ -104,11 +103,8 @@ class Main {
 	 * @since  0.2.0
 	 * @access public
 	 */
-	public function define_ajax_hooks() {
-		$checks = new Admin\Checks( self::PLUGIN_NAME, self::PLUGIN_VERSION, $this->helpers );
-
-		$this->loader->add_action( 'wp_ajax_run_sniffer', $checks, 'run_sniffer' );
-		$this->loader->add_action( 'wp_ajax_individual_sniff', $checks, 'individual_sniff' );
+	private function define_ajax_hooks() {
+		$this->loader->add_action( 'wp_ajax_run_sniffer', $this->checks, 'run_sniffer' );
 	}
 
 	/**
