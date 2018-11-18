@@ -132,7 +132,7 @@ class Checks extends Plugin_Config {
 				$notices[] = array(
 					'message'  => sprintf(
 						/* translators: %s: Theme tag */
-						esc_html__( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ),
+						wp_kses_post( __( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ) ),
 						$tag
 					),
 					'severity' => 'error',
@@ -142,7 +142,7 @@ class Checks extends Plugin_Config {
 
 			if ( 'accessibility-ready' === $tag && $show_warnings ) {
 				$notices[] = array(
-					'message'  => esc_html__( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ),
+					'message'  => wp_kses_post( __( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ) ),
 					'severity' => 'warning',
 				);
 			}
@@ -419,6 +419,20 @@ class Checks extends Plugin_Config {
 		$total_fixable = $theme_header_checks['totals']['fixable'] + $sniffer_results['totals']['fixable'];
 		$total_files   = $theme_header_checks['files'] + $sniffer_results['files'];
 
+		// Filtering the files for easier JS handling.
+		$file_i = 0;
+		foreach ( $total_files as $file_path => $file_sniff_results ) {
+			if ( $file_sniff_results['errors'] === 0 && $file_sniff_results['warnings'] === 0 ) {
+				continue;
+			}
+
+			$files[ $file_i ]['filePath'] = $file_path;
+			$files[ $file_i ]['errors']   = $file_sniff_results['errors'];
+			$files[ $file_i ]['warnings'] = $file_sniff_results['warnings'];
+			$files[ $file_i ]['messages'] = $file_sniff_results['messages'];
+			$file_i++;
+		}
+
 		$results = array(
 			'success' => true,
 			'totals'  => array(
@@ -426,7 +440,7 @@ class Checks extends Plugin_Config {
 				'warnings' => $total_warning,
 				'fixable'  => $total_fixable,
 			),
-			'files'   => $total_files,
+			'files'   => $files,
 		);
 
 		\wp_send_json( $results, 200 );
