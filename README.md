@@ -1,18 +1,31 @@
 # Theme Sniffer
 
-Theme Sniffer plugin using sniffs. `WordPress-Theme` standard is used from [WPTRT/WordPress-Coding-Standards](https://github.com/WPTRT/WordPress-Coding-Standards).
+* [Description](#description)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Contributing](#contributing)
+* [License](#license)
 
-![Screenshot](screenshot.png?raw=true)
+## Description
 
-## Installing
+Theme Sniffer will help you analyze your theme code, ensuring the PHP and WordPress Coding Standards compatibility.
 
-### Option 1: Easy
+## Requirements
 
-* Download [zip file](https://github.com/WPTRT/theme-sniffer/releases/download/0.1.5/theme-sniffer.0.1.5.zip). [Note: Please use this distribution plugin zip. GitHub provided zip will not work.]
+The Theme Sniffer requires:
+
+* PHP 5.6 or higher.
+* WordPress 4.7 or higher.
+
+## Installation
+
+### For themes development
+
+* Download [zip file](https://github.com/WPTRT/theme-sniffer/releases/download/0.2.0/theme-sniffer.0.2.0.zip). [Note: Please use this distribution plugin zip. GitHub provided zip will not work.]
 * Install this as you normally install a WordPress plugin
 * Activate plugin
 
-### Option 2: Nerdy
+### For Theme Sniffer development
 
 * Clone this repo under `wp-content/plugins/`
 * Run `composer install`
@@ -22,7 +35,9 @@ Theme Sniffer plugin using sniffs. `WordPress-Theme` standard is used from [WPTR
 
 __Note__: If you build the plugin this way you'll have extra `node_modules/` and `vendor/` folders which are not required for the plugin to run, and just take up space. They are to be used for the development purposes mainly.
 
-## Using
+![Screenshot](screenshot.png?raw=true)
+
+## Usage
 
 * Go to `Appearance` -> `Theme Sniffer`
 * Select theme from the dropdown

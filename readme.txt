@@ -23,7 +23,7 @@ Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://
 3. Click Install Now
 4. When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 
-Make sure that your server has php version greater or equal to 5.3, otherwise, the plugin won't activate.
+Make sure that your server has php version greater or equal to 5.6, otherwise, the plugin won't activate.
 
 = Uploading the .zip file: =
 

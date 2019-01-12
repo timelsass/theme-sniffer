@@ -4,22 +4,20 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @package Theme_Sniffer\Admin\Pages;
+ * @package Theme_Sniffer\Views;
  *
- * @since 0.2.0
+ * @since 0.2.0 Moved to a separate file
  */
 
-namespace Theme_Sniffer\Admin\Pages;
+namespace Theme_Sniffer\Views;
 
 use Theme_Sniffer\Admin\Helpers;
 
-$standards    = Helpers::get_wpcs_standards();
-$themes       = Helpers::get_active_themes();
-$php_versions = Helpers::get_php_versions();
-
-if ( isset( $_POST['theme_sniffer'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['theme_sniffer'] ) ), 'theme_sniffer_nonce' ) ) {
-	wp_die( esc_html__( 'Nonce bust!', 'theme-sniffer' ) );
-}
+// Use attributes passed from the page creation class.
+$standards    = $this->standards;
+$themes       = $this->themes;
+$php_versions = $this->php_versions;
+$nonce        = $this->nonce_field;
 
 if ( empty( $themes ) ) {
 	return;
@@ -32,36 +30,6 @@ $hide_warning        = 0;
 $raw_output          = 0;
 $ignore_annotations  = 0;
 $standard_status     = wp_list_pluck( $standards, 'default' );
-
-if ( ! empty( $_POST['themename'] ) ) {
-	$current_theme = sanitize_text_field( wp_unslash( $_POST['themename'] ) );
-}
-
-if ( ! empty( $_POST['minimum_php_version'] ) ) {
-	$minimum_php_version = sanitize_text_field( wp_unslash( $_POST['minimum_php_version'] ) );
-}
-
-if ( isset( $_POST['hide_warning'] ) && 'true' === $_POST['hide_warning'] ) {
-	$hide_warning = 1;
-}
-
-if ( isset( $_POST['raw_output'] ) && 'true' === $_POST['raw_output'] ) {
-	$raw_output = 1;
-}
-
-if ( isset( $_POST['ignore_annotations'] ) && 'true' === $_POST['ignore_annotations'] ) {
-	$ignore_annotations = 1;
-}
-
-if ( isset( $_POST['_wp_http_referer'] ) ) {
-	foreach ( $standards as $key => $standard ) {
-		if ( isset( $_POST[ $key ] ) && 'true' === $_POST[ $key ] ) {
-			$standard_status[ $key ] = 1;
-		} else {
-			$standard_status[ $key ] = 0;
-		}
-	}
-}
 ?>
 <form class="theme-sniffer__form" action="<?php echo esc_url( admin_url( 'themes.php?page=theme-sniffer' ) ); ?>" method="post">
 	<div class="theme-sniffer__form-theme-switcher">
@@ -122,3 +90,4 @@ if ( isset( $_POST['_wp_http_referer'] ) ) {
 </div>
 <div class="theme-sniffer__info js-sniffer-info"></div>
 <div class="theme-sniffer__check-done-notice js-check-done"><?php esc_html_e( 'All done!', 'theme-sniffer' ); ?></div>
+<?php echo $nonce; // phpcs:ignore

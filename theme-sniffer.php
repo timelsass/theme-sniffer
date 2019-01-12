@@ -10,19 +10,14 @@
  * License:     GPL-2.0+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  *
+ * @since   0.2.0 Added plugin factory
  * @since   0.1.0
  * @package Theme_Sniffer
  */
 
 namespace Theme_Sniffer;
 
-use Theme_Sniffer\Includes\Main;
-use Theme_Sniffer\Includes\Activator;
-use Theme_Sniffer\Includes\Config;
-use Theme_Sniffer\Includes\Loader;
-use Theme_Sniffer\Includes\Internationalization;
-use Theme_Sniffer\Admin\Administration;
-use Theme_Sniffer\Admin\Checks;
+use Theme_Sniffer\Core\Plugin_Factory;
 
 // If this file is called directly, abort.
 defined( 'ABSPATH' ) || die();
@@ -34,22 +29,30 @@ if ( is_readable( $autoloader ) ) {
 	include_once $autoloader;
 }
 
-// Check permissions and PHP version.
-\register_activation_hook( __FILE__, [ Activator::class, 'activate' ] );
+/**
+* Plugin URL const
+*/
+define( 'PLUGIN_BASE_URL', plugin_dir_url( __FILE__ ) );
+define( 'PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+
+register_activation_hook(
+	__FILE__,
+	function() {
+		Plugin_Factory::create()->activate();
+	}
+);
 
 /**
- * Begins execution of the plugin.
+ * The code that runs during plugin deactivation.
  *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since 0.1.0
  * @since 0.2.0
- */
-( new Main(
-	new Loader(),
-	new Internationalization(),
-	new Administration(),
-	new Checks()
-) )->run();
+*/
+register_deactivation_hook(
+	__FILE__,
+	function() {
+		Plugin_Factory::create()->deactivate();
+	}
+);
+
+
+Plugin_Factory::create()->register();

@@ -5,11 +5,15 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
+ * @since   2.0.0 Moved to new namespace and modified the class
  * @since   0.2.0
- * @package Theme_Sniffer\Includes
+ * @package Theme_Sniffer\i18n
  */
 
-namespace Theme_Sniffer\Includes;
+namespace Theme_Sniffer\i18n;
+
+use Theme_Sniffer\Core\Service;
+
 
 /**
  * Define the internationalization functionality.
@@ -17,11 +21,24 @@ namespace Theme_Sniffer\Includes;
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
+ * @since   2.0.0 Added register method
  * @since   0.1.0
  * @since   0.2.0 Updated name.
- * @package Theme_Sniffer\Includes
+ * @package Theme_Sniffer\i18n
  */
-class Internationalization {
+class Internationalization implements Service {
+	/**
+	 * Plugin text domain
+	 */
+	const TEXT_DOMAIN = 'theme-sniffer';
+
+	/**
+	 * Register the textdomain.
+	 */
+	public function register() {
+		add_action( 'plugins_loaded', [ $this, 'load_plugin_textdomain' ] );
+	}
+
 	/**
 	 * Load the plugin text domain for translation.
 	 *
@@ -29,9 +46,9 @@ class Internationalization {
 	 */
 	public function load_plugin_textdomain() {
 		load_plugin_textdomain(
-			'theme-sniffer',
+			self::TEXT_DOMAIN,
 			false,
-			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
+			dirname( plugin_basename( __FILE__ ), 3 ) . '/languages/'
 		);
 	}
 }
