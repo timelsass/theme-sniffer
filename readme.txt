@@ -1,12 +1,12 @@
 === Theme Sniffer ===
 Contributors: rabmalin, grapplerulrich, dingo_bastard
 Tags: check, checker, coding standards, theme, tool
-Requires at least: 4.4
-Tested up to: 4.9.2
-Requires PHP: 5.3
-Stable tag: 0.1.5
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Requires at least: 4.7
+Tested up to: 4.9.8
+Requires PHP: 5.6
+Stable tag: 0.2.0
+License: MIT
+License URI: https://opensource.org/licenses/MIT
 
 Theme Sniffer will help you analyze your theme code, ensuring the PHP and WordPress coding standards compatibility.
 
@@ -23,7 +23,7 @@ Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://
 3. Click Install Now
 4. When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 
-Make sure that your server has php version greater or equal to 5.3, otherwise, the plugin won't activate.
+Make sure that your server has php version greater or equal to 5.6, otherwise, the plugin won't activate.
 
 = Uploading the .zip file: =
 
