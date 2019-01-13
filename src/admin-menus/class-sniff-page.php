@@ -10,12 +10,14 @@ declare( strict_types=1 );
 
 namespace Theme_Sniffer\Admin_Menus;
 
+use Theme_Sniffer\Assets\Script_Asset;
+use Theme_Sniffer\Assets\Style_Asset;
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
 
 /**
-* Apigee credentials menu class
+* Theme sniffer page menu class
 *
-* Class that renders the Apigee credentials menu page
+* Class that renders the Theme sniffer menu page
 */
 final class Sniff_Page extends Base_Admin_Menu {
 
@@ -26,6 +28,51 @@ final class Sniff_Page extends Base_Admin_Menu {
 	const MENU_ICON  = 'dashicons-list-view';
 
 	const VIEW_URI = 'views/theme-sniffer-page';
+
+	const JS_HANDLE = 'theme-sniffer-js';
+	const JS_URI    = 'themeSniffer.js';
+
+	const CSS_HANDLE = 'theme-sniffer-css';
+	const CSS_URI    = 'themeSniffer.css';
+
+	const LOCALIZATION_HANDLE = 'themeSnifferLocalization';
+
+	/**
+	 * Get the array of known assets.
+	 *
+	 * @return array<Asset>
+	 */
+	protected function get_assets() : array {
+
+		$sniffer_page_script = new Script_Asset(
+			self::JS_HANDLE,
+			self::JS_URI,
+			[ 'jquery' ],
+			false,
+			Script_Asset::ENQUEUE_FOOTER
+		);
+
+		$sniffer_page_script->add_localization(
+			self::LOCALIZATION_HANDLE,
+			array(
+				'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
+				'checkCompleted'  => esc_html__( 'Check is completed. The results are below.', 'theme-sniffer' ),
+				'checkInProgress' => esc_html__( 'Check in progress', 'theme-sniffer' ),
+				'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
+				'ajaxAborted'     => esc_html__( 'Checking stopped', 'theme-sniffer' ),
+			)
+		);
+
+		$sniffer_page_style = new Style_Asset(
+			self::CSS_HANDLE,
+			self::CSS_URI
+		);
+
+		return [
+			$sniffer_page_script,
+			$sniffer_page_style,
+		];
+	}
 
 	/**
 	 * Get the title to use for the admin page.

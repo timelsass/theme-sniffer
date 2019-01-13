@@ -1,15 +1,15 @@
-/* global ajaxurl */
+/* global ajaxurl, themeSnifferLocalization */
 
 import $ from 'jquery';
 import {ajax} from './utils/ajax';
 
 export default class ThemeSniffer {
 	constructor( options ) {
-		this.SHOW_CLASS        = 'is-shown';
-		this.ERROR_CLASS       = 'is-error';
-		this.WARNING_CLASS     = 'is-warning';
-		this.DISABLED_CLASS    = 'is-disabled';
-		this.IS_RAW_CLASS      = 'is-raw';
+		this.SHOW_CLASS     = 'is-shown';
+		this.ERROR_CLASS    = 'is-error';
+		this.WARNING_CLASS  = 'is-warning';
+		this.DISABLED_CLASS = 'is-disabled';
+		this.IS_RAW_CLASS   = 'is-raw';
 
 		this.reportItemHeading = options.reportItemHeading;
 		this.reportReportTable = options.reportReportTable;
@@ -18,18 +18,25 @@ export default class ThemeSniffer {
 		this.reportItemType    = options.reportItemType;
 		this.reportItemMessage = options.reportItemMessage;
 
-		this.$sniffReport     = options.sniffReport;
-		this.$snifferInfo     = options.snifferInfo;
-		this.$checkNotice     = options.checkNotice;
-		this.$startNotice     = options.startNotice;
-		this.$reportItem      = options.reportItem;
+		this.$sniffReport = options.sniffReport;
+		this.$snifferInfo = options.snifferInfo;
+		this.$checkNotice = options.checkNotice;
+		this.$startNotice = options.startNotice;
+		this.$reportItem  = options.reportItem;
+		this.$loader  = options.loader;
 
-		this.nonce            = options.nonce;
-		this.runAction        = options.runAction;
+		this.$startButton  = $( options.startButton );
+		this.$stopButton  = $( options.stopButton );
 
+		this.nonce     = options.nonce;
+		this.runAction = options.runAction;
+
+		this.ajaxRequest = [];
 		this.ajaxAllow = true;
 
 		this.renderJSON = this.renderJSON.bind( this );
+		this.showNotices = this.showNotices.bind( this );
+		this.hideNotices = this.hideNotices.bind( this );
 	}
 
 	enableAjax() {
@@ -37,9 +44,21 @@ export default class ThemeSniffer {
 		this.$snifferInfo.removeClass( this.SHOW_CLASS );
 	}
 
-	preventAjax( enableButton ) {
+	preventAjax() {
 		this.ajaxAllow = false;
-		$( enableButton ).removeClass( this.DISABLED_CLASS );
+
+		this.$startButton.removeClass( this.DISABLED_CLASS );
+		this.$stopButton.addClass( this.DISABLED_CLASS );
+		this.$loader.removeClass( this.SHOW_CLASS );
+
+		this.$startNotice.html( themeSnifferLocalization.ajaxAborted ).addClass( this.SHOW_CLASS );
+
+		// This will trigger error in console, but it's not an error per se.
+		// It's expected behavior.
+		$.each( this.ajaxRequest, ( idx, jqXHR ) => {
+			jqXHR.abort([ themeSnifferLocalization.ajaxAborted ]);
+		});
+
 	}
 
 	renderRaw( data, element ) {
@@ -77,7 +96,23 @@ export default class ThemeSniffer {
 		return report;
 	}
 
-	themeCheckRunPHPCS( button, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes ) {
+	showNotices() {
+		this.$startNotice.html( themeSnifferLocalization.checkInProgress ).addClass( this.SHOW_CLASS );
+		this.$checkNotice.removeClass( this.SHOW_CLASS );
+		this.$loader.addClass( this.SHOW_CLASS );
+		this.$startButton.addClass( this.DISABLED_CLASS );
+		this.$stopButton.removeClass( this.DISABLED_CLASS );
+	}
+
+	hideNotices() {
+		this.$startNotice.html( themeSnifferLocalization.checkCompleted ).addClass( this.SHOW_CLASS );
+		this.$checkNotice.addClass( this.SHOW_CLASS );
+		this.$loader.removeClass( this.SHOW_CLASS );
+		this.$stopButton.addClass( this.DISABLED_CLASS );
+		this.$startButton.removeClass( this.DISABLED_CLASS );
+	}
+
+	themeCheckRunPHPCS( theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes ) {
 
 		const snifferRunData = {
 			themeName: theme,
@@ -85,8 +120,8 @@ export default class ThemeSniffer {
 			rawOutput: outputRaw,
 			ignoreAnnotations: ignoreAnnotations,
 			minimumPHPVersion: minPHPVersion,
-			themePrefixes: themePrefixes,
 			wpRulesets: selectedRulesets,
+			themePrefixes: themePrefixes,
 			action: this.runAction,
 			nonce: this.nonce
 		};
@@ -100,12 +135,14 @@ export default class ThemeSniffer {
 				type: 'POST',
 				url: ajaxurl,
 				data: snifferRunData,
-				beforeSend: () => {
-					this.$startNotice.addClass( this.SHOW_CLASS );
-					this.$checkNotice.removeClass( this.SHOW_CLASS );
+				beforeSend: ( jqXHR ) => {
+					this.showNotices();
+					if ( ! outputRaw ) {
+						this.$sniffReport.removeClass( this.IS_RAW_CLASS );
+					}
 					this.$sniffReport.empty();
 					this.$snifferInfo.empty();
-					$( button ).addClass( this.DISABLED_CLASS );
+					this.ajaxRequest.push( jqXHR );
 				}
 			}
 		).then( ( response ) => {
@@ -113,6 +150,7 @@ export default class ThemeSniffer {
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 
 				if ( outputRaw ) {
+					this.hideNotices();
 					const report = this.$sniffReport.addClass( this.IS_RAW_CLASS );
 					this.renderRaw( response.data, report );
 					return;
@@ -123,6 +161,8 @@ export default class ThemeSniffer {
 						this.$sniffReport.append( this.renderJSON( val ) );
 					}
 				);
+				this.hideNotices();
+
 			} else {
 				this.$snifferInfo.addClass( this.SHOW_CLASS ).text( response.data[0].message );
 			}

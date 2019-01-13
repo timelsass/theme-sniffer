@@ -125,77 +125,10 @@
 
 .check-done {
 	display: none;
-	position: absolute;
 	z-index: 3;
 
 	&.is-shown {
 		display: block;
-	}
-}
-
-.progress-bar {
-	position: relative;
-	height: 18px;
-	margin: 20px 0 40px;
-	padding: 11px 10px;
-	color: $white-color;
-	background: $grayWhite-color;
-	font-weight: 700;
-	border-radius: 5px;
-	display: none;
-
-	&.is-shown {
-		display: block;
-	}
-
-	.meter {
-		background: $green-color;
-		height: 40px;
-		display: block;
-		position: absolute;
-		top: 0;
-		left: 0;
-		z-index: 1;
-		border-radius: 5px;
-	}
-
-	.percentage,
-	.meter {
-		display: none;
-		position: absolute;
-		z-index: 3;
-
-		&.is-shown {
-			display: block;
-		}
-	}
-
-	.starting {
-
-		&.is-shown {
-			display: inline-block;
-		}
-	}
-
-	.error-notice {
-		display: none;
-	}
-
-	&.error {
-		background-color: $red-color;
-
-		.meter {
-			background-color: $red-color;
-		}
-
-		.error-notice {
-			display: inline-block;
-		}
-
-		.check-done,
-		.starting {
-			display: none;
-		}
 	}
 }
 
@@ -206,13 +139,5 @@
 
 	&.is-shown {
 		display: block;
-	}
-}
-
-.percentage-count {
-	display: none;
-
-	&.is-shown {
-		display: inline-block;
 	}
 }

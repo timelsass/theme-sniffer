@@ -11,12 +11,14 @@ declare( strict_types=1 );
 namespace Theme_Sniffer\Callback;
 
 // We need to use the PHP_CS autoloader to access the Runner and Config.
-require_once dirname( __FILE__, 2 ) . '/vendor/squizlabs/php_codesniffer/autoload.php';
+require_once dirname( __FILE__, 3 ) . '/vendor/squizlabs/php_codesniffer/autoload.php';
+require_once dirname( __FILE__, 3 ) . '/vendor/wp-coding-standards/wpcs/WordPress/PHPCSHelper.php';
 
 use \PHP_CodeSniffer\Runner;
 use \PHP_CodeSniffer\Config;
 use \PHP_CodeSniffer\Reporter;
 use \PHP_CodeSniffer\Files\DummyFile;
+use \WordPress\PHPCSHelper;
 
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
 
@@ -41,7 +43,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 *
 	 * @var string
 	 */
-	const NONCE_ACTION = 'run-sniffer_action';
+	const NONCE_ACTION = 'theme-sniffer_action';
 
 	/**
 	 * Nonce $_POST key
@@ -291,7 +293,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$show_warnings = true;
 
 		if ( isset( $_POST[ self::HIDE_WARNING ] ) && $_POST[ self::HIDE_WARNING ] === 'true' ) {
-			$show_warnings = false;
+			$show_warnings = '0';
 		}
 
 		$raw_output = false;
@@ -393,34 +395,34 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		// Create a custom runner.
 		$runner = new Runner();
 
-		$runner->config            = new Config( [ '-s', '-p' ] );
-		$runner->config->standards = $standards_array;
+		$runner->config = new Config( [ '-s', '-p' ] );
 
 		// Set default standard.
-		Config::setConfigData( self::DEFAULT_STANDARD, $this->get_default_standard(), true );
+		PHPCSHelper::set_config_data( self::DEFAULT_STANDARD, $this->get_default_standard(), true );
 
 		// Ignoring warnings when generating the exit code.
-		Config::setConfigData( self::IGNORE_WARNINGS_ON_EXIT, true, true );
+		PHPCSHelper::set_config_data( self::IGNORE_WARNINGS_ON_EXIT, true, true );
 
 		// Show only errors?
-		Config::setConfigData( self::SHOW_WARNINGS, $show_warnings, true );
+		PHPCSHelper::set_config_data( self::SHOW_WARNINGS, $show_warnings, true );
 
 		// Set minimum supported PHP version.
-		Config::setConfigData( self::TEST_VERSION, $minimum_php_version . '-', true );
+		PHPCSHelper::set_config_data( self::TEST_VERSION, $minimum_php_version . '-', true );
 
 		// Set text domains.
-		Config::setConfigData( self::TEXT_DOMAIN, implode( ',', $args[ self::TEXT_DOMAINS ] ), true );
+		PHPCSHelper::set_config_data( self::TEXT_DOMAIN, implode( ',', $args[ self::TEXT_DOMAINS ] ), true );
 
 		if ( $theme_prefixes !== '' ) {
 			// Set prefix.
-			Config::setConfigData( self::PREFIXES, $theme_prefixes, true );
+			PHPCSHelper::set_config_data( self::PREFIXES, $theme_prefixes, true );
 		}
 
 		$all_files = array_values( $all_files );
 
+		$runner->config->standards   = $standards_array;
 		$runner->config->files       = $all_files;
 		$runner->config->annotations = $ignore_annotations;
-		$runner->config->parallel    = false;
+		$runner->config->parallel    = 8;
 		$runner->config->colors      = false;
 		$runner->config->tabWidth    = 0;
 		$runner->config->reportWidth = 110;

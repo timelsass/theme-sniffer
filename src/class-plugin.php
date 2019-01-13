@@ -7,9 +7,12 @@
 
 namespace Theme_Sniffer\Core;
 
+use Theme_Sniffer\Assets\Assets_Aware;
+use Theme_Sniffer\Assets\Assets_Handler;
+
 use Theme_Sniffer\Admin_Menus;
-use Theme_Sniffer\Assets;
 use Theme_Sniffer\i18n;
+use Theme_Sniffer\Callback;
 
 use Theme_Sniffer\Exception;
 
@@ -20,6 +23,12 @@ use Theme_Sniffer\Exception;
  * into the WordPress request lifecycle.
  */
 final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
+	/**
+	 * Assets handler instance.
+	 *
+	 * @var Assets_Handler
+	 */
+	private $assets_handler;
 
 	/**
 	 * Array of instantiated services.
@@ -28,6 +37,15 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 */
 	private $services = [];
 
+	/**
+	 * Instantiate a Plugin object.
+	 *
+	 * @param Assets_Handler|null $assets_handler Optional. Instance of the
+	 *                                           assets handler to use.
+	 */
+	public function __construct( Assets_Handler $assets_handler = null ) {
+		$this->assets_handler = $assets_handler ?: new Assets_Handler();
+	}
 	/**
 	 * Activate the plugin.
 	 *
@@ -89,6 +107,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 		$this->register_assets_manifest_data();
 
 		add_action( 'plugins_loaded', [ $this, 'register_services' ] );
+		add_action( 'init', [ $this, 'register_assets_handler' ] );
 		add_action( 'plugin_action_links_' . PLUGIN_BASENAME, [ $this, 'plugin_settings_link' ] );
 		add_filter( 'extra_theme_headers', [ $this, 'add_headers' ] );
 	}
@@ -119,6 +138,21 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 		);
 	}
 
+	/**
+	 * Register the assets handler.
+	 */
+	public function register_assets_handler() {
+		$this->assets_handler->register();
+	}
+
+	/**
+	 * Return the instance of the assets handler in use.
+	 *
+	 * @return Assets_Handler
+	 */
+	public function get_assets_handler() : Assets_Handler {
+		return $this->assets_handler;
+	}
 	/**
 	 * Add go to theme check page link on plugin page.
 	 *
@@ -164,6 +198,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 		$response = file_get_contents(
 			rtrim( plugin_dir_path( __DIR__ ), '/' ) . '/assets/build/manifest.json'
 		);
+
 		// phpcs:enable
 
 		if ( ! $response ) {
@@ -193,6 +228,10 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 			throw Exception\Invalid_Service::from_service( $service );
 		}
 
+		if ( $service instanceof Assets_Aware ) {
+			$service->with_assets_handler( $this->assets_handler );
+		}
+
 		return $service;
 	}
 
@@ -204,9 +243,8 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	private function get_service_classes() {
 		return [
 			i18n\Internationalization::class,
-			Assets\Core_Enqueue::class,
 			Admin_Menus\Sniff_Page::class,
-
+			Callback\Run_Sniffer_Callback::class,
 		];
 	}
 }

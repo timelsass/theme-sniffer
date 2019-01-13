@@ -9,6 +9,9 @@ $(
 			checkNotice: $( '.js-check-done' ),
 			startNotice: $( '.js-start-notice' ),
 			reportItem: $( '.js-report-item' ),
+			loader: $( '.js-loader' ),
+			startButton: '.js-start-check',
+			stopButton: '.js-stop-check',
 			reportItemHeading: '.js-report-item-heading',
 			reportReportTable: '.js-report-table',
 			reportNoticeType: '.js-report-notice-type',
@@ -16,12 +19,12 @@ $(
 			reportItemType: '.js-report-item-type',
 			reportItemMessage: '.js-report-item-message',
 			runAction: 'run_sniffer',
-			nonce: $( '#theme_sniffer_nonce' ).val()
+			nonce: $( '#theme-sniffer_nonce' ).val()
 		};
 
 		const themeSniffer = new ThemeSniffer( options );
 
-		$( '.js-start-check' ).on(
+		$( options.startButton ).on(
 			'click', () => {
 				const theme             = $( 'select[name=themename]' ).val();
 				const warningHide       = $( 'input[name=hide_warning]' ).is( ':checked' );
@@ -33,17 +36,17 @@ $(
 				const selectedRulesets = $( 'input[name="selected_ruleset[]"]:checked' ).map( ( ind, el ) => el.value ).toArray();
 
 				themeSniffer.enableAjax();
-				themeSniffer.themeCheckRunPHPCS( this, theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes );
+				themeSniffer.themeCheckRunPHPCS( theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes );
 			}
 		);
 
-		$( '.js-stop-check' ).on(
-			'click', () => themeSniffer.preventAjax( '.js-start-check' )
+		$( options.stopButton ).on(
+			'click', () => themeSniffer.preventAjax()
 		);
 
 		$( 'select[name="themename"]' ).on(
 			'change', () => {
-				themeSniffer.preventAjax( '.js-start-check' );
+				themeSniffer.preventAjax();
 
 				if ( options.sniffReport.length ) {
 					options.sniffReport.empty();
