@@ -150,7 +150,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return Assets_Handler
 	 */
-	public function get_assets_handler() : Assets_Handler {
+	public function get_assets_handler() {
 		return $this->assets_handler;
 	}
 	/**
@@ -162,7 +162,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 * @param  array $links Array of plugin action links.
 	 * @return array Modified array of plugin action links.
 	 */
-	public function plugin_settings_link( $links ) {
+	public function plugin_settings_link( array $links ) : array {
 		$settings_page_link = '<a href="' . admin_url( 'admin.php?page=theme-sniffer' ) . '">' . esc_attr__( 'Theme Sniffer Page', 'theme-sniffer' ) . '</a>';
 		array_unshift( $links, $settings_page_link );
 
@@ -178,7 +178,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return array List of extra headers.
 	 */
-	public static function add_headers( $extra_headers ) {
+	public static function add_headers( array $extra_headers ) : array {
 		$extra_headers[] = 'License';
 		$extra_headers[] = 'License URI';
 		$extra_headers[] = 'Template Version';
@@ -240,7 +240,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return array<string> Array of fully qualified class names.
 	 */
-	private function get_service_classes() {
+	private function get_service_classes() : array {
 		return [
 			i18n\Internationalization::class,
 			Admin_Menus\Sniff_Page::class,
