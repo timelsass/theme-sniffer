@@ -524,7 +524,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 * @return bool
 	 */
 	private function style_headers_check( $theme_slug, \WP_Theme $theme, $show_warnings ) {
-
 		$required_headers = array(
 			'Name',
 			'Description',

@@ -41,9 +41,9 @@ $standard_status     = wp_list_pluck( $standards, 'default' );
 				<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
 			</label>
 			<select id="themename" name="themename" class="theme-sniffer__form-select theme-sniffer__form-select--spaced" tabindex="1">
-		<?php foreach ( $themes as $key => $value ) : ?>
-					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
-		<?php endforeach; ?>
+			<?php foreach ( $themes as $key => $value ) : ?>
+				<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $current_theme, $key ); ?>><?php echo esc_html( $value ); ?></option>
+			<?php endforeach; ?>
 			</select>
 			<span class="theme-sniffer__form-button theme-sniffer__form-button--primary js-start-check" tabindex="8"><?php esc_attr_e( 'Go', 'theme-sniffer' ); ?></span>
 			<span class="theme-sniffer__form-button theme-sniffer__form-button--secondary js-stop-check" tabindex="9"><?php esc_attr_e( 'Stop', 'theme-sniffer' ); ?></span>
