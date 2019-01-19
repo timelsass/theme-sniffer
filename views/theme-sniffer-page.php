@@ -35,7 +35,7 @@ $standard_status     = wp_list_pluck( $standards, 'default' );
 <div class="wrap theme-sniffer">
 	<h1 class="theme-sniffer__title"><?php esc_html_e( 'Theme Sniffer', 'theme-sniffer' ); ?></h1>
 	<hr />
-	<form class="theme-sniffer__form" action="<?php echo esc_url( admin_url( 'themes.php?page=theme-sniffer' ) ); ?>" method="post">
+	<div class="theme-sniffer__form">
 		<div class="theme-sniffer__form-theme-switcher">
 			<label class="theme-sniffer__form-label" for="themename">
 				<h2><?php esc_html_e( 'Select Theme', 'theme-sniffer' ); ?></h2>
@@ -78,7 +78,7 @@ $standard_status     = wp_list_pluck( $standards, 'default' );
 				<?php esc_html_e( 'Minimum PHP Version', 'theme-sniffer' ); ?>
 			</label>
 		</div>
-	</form>
+	</div>
 	<div class="theme-sniffer__start-notice js-start-notice"></div>
 	<div class="theme-sniffer__report js-sniff-report">
 		<div class="theme-sniffer__report-item js-report-item">
