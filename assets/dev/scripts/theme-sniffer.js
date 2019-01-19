@@ -96,20 +96,22 @@ export default class ThemeSniffer {
 		return report;
 	}
 
-	showNotices() {
-		this.$startNotice.html( themeSnifferLocalization.checkInProgress ).addClass( this.SHOW_CLASS );
+	showNotices( message ) {
+		this.$startNotice.html( message ).addClass( this.SHOW_CLASS );
 		this.$checkNotice.removeClass( this.SHOW_CLASS );
 		this.$loader.addClass( this.SHOW_CLASS );
 		this.$startButton.addClass( this.DISABLED_CLASS );
 		this.$stopButton.removeClass( this.DISABLED_CLASS );
 	}
 
-	hideNotices() {
-		this.$startNotice.html( themeSnifferLocalization.checkCompleted ).addClass( this.SHOW_CLASS );
-		this.$checkNotice.addClass( this.SHOW_CLASS );
+	hideNotices( message, showNotice ) {
+		this.$startNotice.html( message ).addClass( this.SHOW_CLASS );
 		this.$loader.removeClass( this.SHOW_CLASS );
 		this.$stopButton.addClass( this.DISABLED_CLASS );
 		this.$startButton.removeClass( this.DISABLED_CLASS );
+		if ( showNotice ) {
+			this.$checkNotice.addClass( this.SHOW_CLASS );
+		}
 	}
 
 	themeCheckRunPHPCS( theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes ) {
@@ -136,7 +138,7 @@ export default class ThemeSniffer {
 				url: ajaxurl,
 				data: snifferRunData,
 				beforeSend: ( jqXHR ) => {
-					this.showNotices();
+					this.showNotices( themeSnifferLocalization.checkInProgress );
 					if ( ! outputRaw ) {
 						this.$sniffReport.removeClass( this.IS_RAW_CLASS );
 					}
@@ -150,7 +152,7 @@ export default class ThemeSniffer {
 				this.$startNotice.removeClass( this.SHOW_CLASS );
 
 				if ( outputRaw ) {
-					this.hideNotices();
+					this.hideNotices( themeSnifferLocalization.checkCompleted, true );
 					const report = this.$sniffReport.addClass( this.IS_RAW_CLASS );
 					this.renderRaw( response.data, report );
 					return;
@@ -161,10 +163,11 @@ export default class ThemeSniffer {
 						this.$sniffReport.append( this.renderJSON( val ) );
 					}
 				);
-				this.hideNotices();
+				this.hideNotices( themeSnifferLocalization.checkCompleted, true );
 
 			} else {
-				this.$snifferInfo.addClass( this.SHOW_CLASS ).text( response.data[0].message );
+				this.hideNotices( themeSnifferLocalization.errorReport, false );
+				this.$snifferInfo.addClass( this.SHOW_CLASS ).addClass( this.ERROR_CLASS ).text( response.data[0].message );
 			}
 		}, ( xhr, textStatus, errorThrown ) => {
 			throw new Error( `Error: ${errorThrown}: ${xhr} ${textStatus}` );

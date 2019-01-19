@@ -190,6 +190,10 @@
 		&.is-shown {
 			display: block;
 		}
+
+		&.is-error {
+			color: $red-color;
+		}
 	}
 
 	&__check-done-notice {
