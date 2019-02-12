@@ -2,8 +2,8 @@
 Contributors: rabmalin, grapplerulrich, dingo_bastard
 Tags: check, checker, coding standards, theme, tool
 Requires at least: 4.7
-Tested up to: 4.9.8
-Requires PHP: 5.6
+Tested up to: 5.0.3
+Requires PHP: 7.0
 Stable tag: 0.2.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT

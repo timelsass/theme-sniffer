@@ -1,3 +1,13 @@
+[![Latest Version](https://poser.pugx.org/wptrt/theme-sniffer/v/stable)](https://packagist.org/packages/wptrt/theme-sniffer)
+[![Travis Build Status](https://travis-ci.org/WPTRT/theme-sniffer.svg?branch=master)](https://travis-ci.org/WPTRT/theme-sniffer)
+[![Last Commit to Unstable](https://img.shields.io/github/last-commit/WPTRT/theme-sniffer/develop.svg)](https://github.com/WPTRT/theme-sniffer/commits/develop)
+
+[![Minimum PHP Version](https://img.shields.io/packagist/php-v/wptrt/theme-sniffer.svg?maxAge=3600)](https://packagist.org/packages/wptrt/theme-sniffer)
+[![Tested on PHP 5.3 to nightly](https://img.shields.io/badge/tested%20on-PHP%205.3%20|%205.4%20|%205.5%20|%205.6%20|%207.0%20|%207.1%20|%207.2%20|%20nightly-green.svg?maxAge=2419200)](https://travis-ci.org/WPTRT/theme-sniffer)
+[![License: MIT](https://poser.pugx.org/wptrt/theme-sniffer/license)](https://github.com/WPTRT/theme-sniffer/blob/develop/LICENSE)
+[![Number of Contributors](https://img.shields.io/github/contributors/WPTRT/theme-sniffer.svg?maxAge=3600)](https://github.com/WPTRT/theme-sniffer/graphs/contributors)
+
+
 # Theme Sniffer
 
 * [Description](#description)
@@ -14,7 +24,7 @@ Theme Sniffer will help you analyze your theme code, ensuring the PHP and WordPr
 
 The Theme Sniffer requires:
 
-* PHP 5.6 or higher.
+* PHP 7.0 or higher.
 * WordPress 4.7 or higher.
 
 ## Installation
@@ -39,8 +49,9 @@ __Note__: If you build the plugin this way you'll have extra `node_modules/` and
 
 ## Usage
 
-* Go to `Appearance` -> `Theme Sniffer`
+* Go to `Theme Sniffer`
 * Select theme from the dropdown
+* Select options
 * Click `GO`
 
 ### Options
