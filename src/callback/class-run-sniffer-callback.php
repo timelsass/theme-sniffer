@@ -95,6 +95,13 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	const IGNORE_ANNOTATIONS = 'ignoreAnnotations';
 
 	/**
+	 * The checkPhpOnly $_POST key
+	 *
+	 * @var string
+	 */
+	const CHECK_PHP_ONLY = 'checkPhpOnly';
+
+	/**
 	 * The minimumPHPVersion $_POST key
 	 *
 	 * @var string
@@ -308,12 +315,20 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$ignore_annotations = true;
 		}
 
+		$check_php_only = false;
+
+		if ( isset( $_POST[ self::CHECK_PHP_ONLY ] ) && $_POST[ self::CHECK_PHP_ONLY ] === 'true' ) {
+			$check_php_only = true;
+		}
+
 		if ( isset( $_POST[ self::MINIMUM_PHP_VERSION ] ) && ! empty( $_POST[ self::MINIMUM_PHP_VERSION ] ) ) {
 			$minimum_php_version = sanitize_text_field( wp_unslash( $_POST[ self::MINIMUM_PHP_VERSION ] ) );
 		}
 
 		// Check theme headers.
-		$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
+		if ( ! $check_php_only ) {
+			$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
+		}
 
 		// Take standards from the trait.
 		$standards = $this->get_wpcs_standards();
@@ -348,7 +363,12 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			}
 		}
 
-		$all_files     = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
+		if ( $check_php_only ) {
+			$all_files = $theme->get_files( array( 'php' ), -1, false );
+		} else {
+			$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
+		}
+
 		$removed_files = [];
 
 		/**
@@ -462,10 +482,17 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$sniffer_results = json_decode( $sniff_results, true );
 
-		$total_errors  = $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $sniffer_results[ self::TOTALS ][ self::ERRORS ];
-		$total_warning = $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
-		$total_fixable = $theme_header_checks[ self::TOTALS ][ self::FIXABLE ] + $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
-		$total_files   = $theme_header_checks[ self::FILES ] + $sniffer_results[ self::FILES ];
+		if ( $check_php_only ) {
+			$total_errors  = $sniffer_results[ self::TOTALS ][ self::ERRORS ];
+			$total_warning = $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
+			$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
+			$total_files   = $sniffer_results[ self::FILES ];
+		} else {
+			$total_errors  = $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $sniffer_results[ self::TOTALS ][ self::ERRORS ];
+			$total_warning = $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
+			$total_fixable = $theme_header_checks[ self::TOTALS ][ self::FIXABLE ] + $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
+			$total_files   = $theme_header_checks[ self::FILES ] + $sniffer_results[ self::FILES ];
+		}
 
 		// Filtering the files for easier JS handling.
 		$file_i = 0;
@@ -524,15 +551,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 * @return bool
 	 */
 	private function style_headers_check( $theme_slug, \WP_Theme $theme, $show_warnings ) {
-		$required_headers = array(
-			'Name',
-			'Description',
-			'Author',
-			'Version',
-			'License',
-			'License URI',
-			'TextDomain',
-		);
+		$required_headers = $this->get_required_headers();
 
 		foreach ( $required_headers as $header ) {
 			if ( $theme->get( $header ) ) {

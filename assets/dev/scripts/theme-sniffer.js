@@ -114,13 +114,14 @@ export default class ThemeSniffer {
 		}
 	}
 
-	themeCheckRunPHPCS( theme, warningHide, outputRaw, ignoreAnnotations, minPHPVersion, selectedRulesets, themePrefixes ) {
+	themeCheckRunPHPCS( theme, warningHide, outputRaw, ignoreAnnotations, checkPhpOnly, minPHPVersion, selectedRulesets, themePrefixes ) {
 
 		const snifferRunData = {
 			themeName: theme,
 			hideWarning: warningHide,
 			rawOutput: outputRaw,
 			ignoreAnnotations: ignoreAnnotations,
+			checkPhpOnly: checkPhpOnly,
 			minimumPHPVersion: minPHPVersion,
 			wpRulesets: selectedRulesets,
 			themePrefixes: themePrefixes,
@@ -164,7 +165,6 @@ export default class ThemeSniffer {
 					}
 				);
 				this.hideNotices( themeSnifferLocalization.checkCompleted, true );
-
 			} else {
 				this.hideNotices( themeSnifferLocalization.errorReport, false );
 				this.$snifferInfo.addClass( this.SHOW_CLASS ).addClass( this.ERROR_CLASS ).text( response.data[0].message );

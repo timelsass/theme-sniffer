@@ -29,6 +29,7 @@ $minimum_php_version = '5.2';
 $hide_warning        = 0;
 $raw_output          = 0;
 $ignore_annotations  = 0;
+$check_php_only      = 0;
 $standard_status     = wp_list_pluck( $standards, 'default' );
 ?>
 
@@ -66,9 +67,10 @@ $standard_status     = wp_list_pluck( $standards, 'default' );
 		</div>
 		<div class="theme-sniffer__form-options">
 			<h2><?php esc_html_e( 'Options', 'theme-sniffer' ); ?></h2>
-			<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> tabindex="4"/><?php esc_html_e( 'Hide Warnings', 'theme-sniffer' ); ?></label>&nbsp;
-			<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> tabindex="5"/><?php esc_html_e( 'Raw Output', 'theme-sniffer' ); ?></label>&nbsp;
-			<label for="ignore_annotations"><input type="checkbox" name="ignore_annotations" id="ignore_annotations" value="1" <?php checked( $ignore_annotations, 1 ); ?> tabindex="6"/><?php esc_html_e( 'Ignore annotations', 'theme-sniffer' ); ?></label>&nbsp;
+			<label for="hide_warning"><input type="checkbox" name="hide_warning" id="hide_warning" value="1" <?php checked( $hide_warning, 1 ); ?> tabindex="4"/><?php esc_html_e( 'Hide Warnings', 'theme-sniffer' ); ?></label>&nbsp;&nbsp;
+			<label for="raw_output"><input type="checkbox" name="raw_output" id="raw_output" value="1" <?php checked( $raw_output, 1 ); ?> tabindex="5"/><?php esc_html_e( 'Raw Output', 'theme-sniffer' ); ?></label>&nbsp;&nbsp;
+			<label for="ignore_annotations"><input type="checkbox" name="ignore_annotations" id="ignore_annotations" value="1" <?php checked( $ignore_annotations, 1 ); ?> tabindex="6"/><?php esc_html_e( 'Ignore annotations', 'theme-sniffer' ); ?></label>&nbsp;&nbsp;
+			<label for="check_php_only"><input type="checkbox" name="check_php_only" id="check_php_only" value="1" <?php checked( $check_php_only, 1 ); ?> tabindex="6"/><?php esc_html_e( 'Check only PHP files', 'theme-sniffer' ); ?></label>&nbsp;&nbsp;
 			<label for="minimum_php_version">
 				<select name="minimum_php_version" id="minimum_php_version" tabindex="7">
 					<?php foreach ( $php_versions as $version ) : ?>
