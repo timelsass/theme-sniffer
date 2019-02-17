@@ -123,9 +123,27 @@ trait Sniffer_Helpers {
 	 * Helper method that returns the default stnadard
 	 *
 	 * @since 1.0.0
-	 * @return string Name of the default standard
+	 * @return string Name of the default standard.
 	 */
 	public function get_default_standard() : string {
 		return 'WPThemeReview';
+	}
+
+	/**
+	 * Helper method to get a list of required headers
+	 *
+	 * @since 1.0.0
+	 * @return array List of required headers.
+	 */
+	public function get_required_headers() {
+		return array(
+			'Name',
+			'Description',
+			'Author',
+			'Version',
+			'License',
+			'License URI',
+			'TextDomain',
+		);
 	}
 }
