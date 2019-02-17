@@ -10,6 +10,7 @@ namespace Theme_Sniffer\Core;
 use Theme_Sniffer\Assets\Assets_Aware;
 use Theme_Sniffer\Assets\Assets_Handler;
 
+use Theme_Sniffer\Api;
 use Theme_Sniffer\Admin_Menus;
 use Theme_Sniffer\i18n;
 use Theme_Sniffer\Callback;
@@ -242,6 +243,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 */
 	private function get_service_classes() : array {
 		return [
+			Api\Template_Tags_Request::class,
 			i18n\Internationalization::class,
 			Admin_Menus\Sniff_Page::class,
 			Callback\Run_Sniffer_Callback::class,

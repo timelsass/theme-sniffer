@@ -10,6 +10,8 @@ declare( strict_types=1 );
 
 namespace Theme_Sniffer\Helpers;
 
+use Theme_Sniffer\Api\Template_Tags_Request;
+
 /**
  * Sniffer helpers trait
  *
@@ -107,56 +109,14 @@ trait Sniffer_Helpers {
 	/**
 	 * Returns theme tags.
 	 *
-	 * @since 1.0.0 Moved to a trait.
+	 * @since 1.0.0 Moved to a trait and refactored to use tags from API.
 	 * @since 0.1.3
 	 *
 	 * @return array Theme tags array.
 	 */
 	public function get_theme_tags() : array {
 
-		$tags['allowed_tags'] = [
-			'two-columns',
-			'three-columns',
-			'four-columns',
-			'left-sidebar',
-			'right-sidebar',
-			'grid-layout',
-			'flexible-header',
-			'accessibility-ready',
-			'buddypress',
-			'custom-background',
-			'custom-colors',
-			'custom-header',
-			'custom-menu',
-			'custom-logo',
-			'editor-style',
-			'featured-image-header',
-			'featured-images',
-			'footer-widgets',
-			'front-page-post-form',
-			'full-width-template',
-			'microformats',
-			'post-formats',
-			'rtl-language-support',
-			'sticky-post',
-			'theme-options',
-			'threaded-comments',
-			'translation-ready',
-		];
-
-		$tags['subject_tags'] = [
-			'blog',
-			'e-commerce',
-			'education',
-			'entertainment',
-			'food-and-drink',
-			'holiday',
-			'news',
-			'photography',
-			'portfolio',
-		];
-
-		return $tags;
+		return get_transient( Template_Tags_Request::TEMPLATE_TRANSIENT );
 	}
 
 	/**
