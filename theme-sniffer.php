@@ -45,7 +45,7 @@ register_activation_hook(
 /**
  * The code that runs during plugin deactivation.
  *
- * @since 0.2.0
+ * @since 1.0.0
 */
 register_deactivation_hook(
 	__FILE__,

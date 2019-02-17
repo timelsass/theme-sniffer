@@ -2,7 +2,7 @@
 /**
  * * File that holds Has_Deactivation interface
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Core
  */
 
@@ -15,7 +15,7 @@ namespace Theme_Sniffer\Core;
  *
  * An object that can be deactivated.
  *
- * @since 0.2.0
+ * @since 1.0.0
  */
 interface Has_Deactivation {
 	/**

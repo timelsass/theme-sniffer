@@ -2,7 +2,7 @@
 /**
  * File containing general exception interface
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Exception
  */
 

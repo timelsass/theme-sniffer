@@ -22,7 +22,7 @@ trait Sniffer_Helpers {
 	 * Includes a 'theme_sniffer_add_standards' filter, so that user can add their own standard. The standard has to be added
 	 * in the composer before bundling the plugin.
 	 *
-	 * @since 0.2.0 Added filter so that user can add their own standards. Moved to a trait.
+	 * @since 1.0.0 Added filter so that user can add their own standards. Moved to a trait.
 	 * @since 0.1.3
 	 *
 	 * @return array Standards details.
@@ -85,7 +85,7 @@ trait Sniffer_Helpers {
 	/**
 	 * Returns PHP versions.
 	 *
-	 * @since 0.2.0 Added PHP 7.x versions. Moved to a trait.
+	 * @since 1.0.0 Added PHP 7.x versions. Moved to a trait.
 	 * @since 0.1.3
 	 *
 	 * @return array PHP versions.
@@ -107,7 +107,7 @@ trait Sniffer_Helpers {
 	/**
 	 * Returns theme tags.
 	 *
-	 * @since 0.2.0 Moved to a trait.
+	 * @since 1.0.0 Moved to a trait.
 	 * @since 0.1.3
 	 *
 	 * @return array Theme tags array.
@@ -162,7 +162,7 @@ trait Sniffer_Helpers {
 	/**
 	 * Helper method that returns the default stnadard
 	 *
-	 * @since 0.2.0
+	 * @since 1.0.0
 	 * @return string Name of the default standard
 	 */
 	public function get_default_standard() : string {

@@ -156,7 +156,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	/**
 	 * Add go to theme check page link on plugin page.
 	 *
-	 * @since 0.2.0 Moved to main plugin class file.
+	 * @since 1.0.0 Moved to main plugin class file.
 	 * @since 0.1.3
 	 *
 	 * @param  array $links Array of plugin action links.

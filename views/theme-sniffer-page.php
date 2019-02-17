@@ -6,7 +6,7 @@
  *
  * @package Theme_Sniffer\Views;
  *
- * @since 0.2.0 Moved to a separate file
+ * @since 1.0.0 Moved to a separate file
  */
 
 namespace Theme_Sniffer\Views;

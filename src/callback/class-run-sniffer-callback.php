@@ -2,7 +2,7 @@
 /**
  * File that holds class for documentation order ajax callback
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Callback
  */
 
@@ -25,7 +25,7 @@ use Theme_Sniffer\Helpers\Sniffer_Helpers;
 /**
 * Class Run_Sniffer_Callback.
 *
-* @since 0.2.0
+* @since 1.0.0
 */
 final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
