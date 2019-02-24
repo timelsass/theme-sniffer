@@ -2,7 +2,7 @@
 /**
  * The helpers trait file
  *
- * @since   2.0.0
+ * @since   1.0.0
  * @package Theme_Sniffer\Helpers
  */
 
@@ -68,7 +68,7 @@ trait Sniffer_Helpers {
 	/**
 	 * Return all the active themes
 	 *
-	 * @since  0.2.0 Moved to a trait.
+	 * @since  1.0.0 Moved to a trait.
 	 * @return array Array of active themes.
 	 */
 	public function get_active_themes() : array {

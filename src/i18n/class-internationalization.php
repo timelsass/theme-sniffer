@@ -5,8 +5,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @since   2.0.0 Moved to new namespace and modified the class
- * @since   0.2.0
+ * @since   1.0.0 Moved to new namespace and modified the class
  * @package Theme_Sniffer\i18n
  */
 
@@ -23,7 +22,7 @@ use Theme_Sniffer\Core\Service;
  *
  * @since   2.0.0 Added register method
  * @since   0.1.0
- * @since   0.2.0 Updated name.
+ * @since   1.0.0 Updated name.
  * @package Theme_Sniffer\i18n
  */
 class Internationalization implements Service {
