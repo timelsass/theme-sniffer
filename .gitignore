@@ -10,6 +10,9 @@ vendor/
 *.DS_Store
 ._*
 
+# Exclude final build zip file
+.theme-sniffer.zip
+
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
