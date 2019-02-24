@@ -10,7 +10,8 @@ vendor/
 *.DS_Store
 ._*
 
-# Exclude final build zip file
+# Exclude final build zip file and temp folder
+/theme-sniffer
 .theme-sniffer.zip
 
 # Windows thumbnail cache files
