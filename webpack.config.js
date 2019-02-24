@@ -4,7 +4,8 @@ const webpack = require( 'webpack' );
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
-const ManifestPlugin = require('webpack-manifest-plugin');
+const ManifestPlugin = require( 'webpack-manifest-plugin' );
+const FileManagerPlugin = require( 'filemanager-webpack-plugin' );
 
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -62,7 +63,50 @@ const allPlugins = [
 			}
 		}
 	),
-	new ManifestPlugin()
+	new ManifestPlugin(),
+	new FileManagerPlugin({
+		onEnd: [
+			{
+				copy: [
+					{
+						source: './',
+						destination: './theme-sniffer'
+					}
+				]
+			},
+			{
+				delete: [
+					'./theme-sniffer/assets/dev',
+					'./theme-sniffer/node_modules',
+					'./theme-sniffer/composer.json',
+					'./theme-sniffer/composer.lock',
+					'./theme-sniffer/package.json',
+					'./theme-sniffer/package-lock.json',
+					'./theme-sniffer/phpcs.xml.dist',
+					'./theme-sniffer/webpack.config.js'
+				]
+			},
+			{
+				archive: [
+					{
+						source: './theme-sniffer',
+						destination: './theme-sniffer.zip',
+						options: {
+							gzip: true,
+							gzipOptions: { level: 1 },
+							globOptions: { nomount: true }
+						}
+					}
+				]
+			},
+			{
+				delete: [
+					'./theme-sniffer'
+				]
+			}
+
+		]
+	})
 ];
 
 const allOptimizations = {
