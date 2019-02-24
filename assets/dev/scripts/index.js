@@ -47,11 +47,14 @@ $(
 
 		$( 'select[name="themename"]' ).on(
 			'change', () => {
-				themeSniffer.preventAjax();
+				if ( options.startNotice.html().length ) {
+					themeSniffer.preventAjax();
 
-				if ( options.sniffReport.length ) {
-					options.sniffReport.empty();
+					if ( options.sniffReport.length ) {
+						options.sniffReport.empty();
+					}
 				}
+
 			}
 		);
 	}
