@@ -63,50 +63,7 @@ const allPlugins = [
 			}
 		}
 	),
-	new ManifestPlugin(),
-	new FileManagerPlugin({
-		onEnd: [
-			{
-				copy: [
-					{
-						source: './',
-						destination: './theme-sniffer'
-					}
-				]
-			},
-			{
-				delete: [
-					'./theme-sniffer/assets/dev',
-					'./theme-sniffer/node_modules',
-					'./theme-sniffer/composer.json',
-					'./theme-sniffer/composer.lock',
-					'./theme-sniffer/package.json',
-					'./theme-sniffer/package-lock.json',
-					'./theme-sniffer/phpcs.xml.dist',
-					'./theme-sniffer/webpack.config.js'
-				]
-			},
-			{
-				archive: [
-					{
-						source: './theme-sniffer',
-						destination: './theme-sniffer.zip',
-						options: {
-							gzip: true,
-							gzipOptions: { level: 1 },
-							globOptions: { nomount: true }
-						}
-					}
-				]
-			},
-			{
-				delete: [
-					'./theme-sniffer'
-				]
-			}
-
-		]
-	})
+	new ManifestPlugin()
 ];
 
 const allOptimizations = {
@@ -142,6 +99,53 @@ if ( ! DEV ) {
 			}
 		)
 	];
+
+	allPlugins.push(
+		new FileManagerPlugin({
+			onEnd: [
+				{
+					copy: [
+						{
+							source: './',
+							destination: './theme-sniffer'
+						}
+					]
+				},
+				{
+					delete: [
+						'./theme-sniffer/assets/dev',
+						'./theme-sniffer/node_modules',
+						'./theme-sniffer/composer.json',
+						'./theme-sniffer/composer.lock',
+						'./theme-sniffer/package.json',
+						'./theme-sniffer/package-lock.json',
+						'./theme-sniffer/phpcs.xml.dist',
+						'./theme-sniffer/webpack.config.js'
+					]
+				},
+				{
+					archive: [
+						{
+							source: './theme-sniffer',
+							destination: './theme-sniffer.zip',
+							options: {
+								gzip: true,
+								gzipOptions: { level: 1 },
+								globOptions: { nomount: true }
+							}
+						}
+					]
+				},
+				{
+					delete: [
+						'./theme-sniffer'
+					]
+				}
+
+			]
+		})
+	);
+
 }
 
 module.exports = [
