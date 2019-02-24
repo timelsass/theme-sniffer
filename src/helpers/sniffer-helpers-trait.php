@@ -136,7 +136,7 @@ trait Sniffer_Helpers {
 	 * @return array List of required headers.
 	 */
 	public function get_required_headers() {
-		return array(
+		return [
 			'Name',
 			'Description',
 			'Author',
@@ -144,6 +144,6 @@ trait Sniffer_Helpers {
 			'License',
 			'License URI',
 			'TextDomain',
-		);
+		];
 	}
 }

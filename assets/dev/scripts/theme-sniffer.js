@@ -164,6 +164,7 @@ export default class ThemeSniffer {
 						this.$sniffReport.append( this.renderJSON( val ) );
 					}
 				);
+
 				this.hideNotices( themeSnifferLocalization.checkCompleted, true );
 			} else {
 				this.hideNotices( themeSnifferLocalization.errorReport, false );

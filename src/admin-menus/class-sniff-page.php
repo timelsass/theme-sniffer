@@ -54,13 +54,13 @@ final class Sniff_Page extends Base_Admin_Menu {
 
 		$sniffer_page_script->add_localization(
 			self::LOCALIZATION_HANDLE,
-			array(
+			[
 				'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 				'checkCompleted'  => esc_html__( 'Check is completed. The results are below.', 'theme-sniffer' ),
 				'checkInProgress' => esc_html__( 'Check in progress', 'theme-sniffer' ),
 				'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
 				'ajaxAborted'     => esc_html__( 'Checking stopped', 'theme-sniffer' ),
-			)
+			]
 		);
 
 		$sniffer_page_style = new Style_Asset(

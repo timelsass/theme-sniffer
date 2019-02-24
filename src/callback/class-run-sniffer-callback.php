@@ -242,6 +242,13 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	const ERROR = 'error';
 
 	/**
+	 * The warning key value
+	 *
+	 * @var string
+	 */
+	const WARNING = 'warning';
+
+	/**
 	 * The type key value
 	 *
 	 * @var string
@@ -325,11 +332,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$minimum_php_version = sanitize_text_field( wp_unslash( $_POST[ self::MINIMUM_PHP_VERSION ] ) );
 		}
 
-		// Check theme headers.
-		if ( ! $check_php_only ) {
-			$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
-		}
-
 		// Take standards from the trait.
 		$standards = $this->get_wpcs_standards();
 
@@ -364,9 +366,9 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		}
 
 		if ( $check_php_only ) {
-			$all_files = $theme->get_files( array( 'php' ), -1, false );
+			$all_files = $theme->get_files( [ 'php' ], -1, false );
 		} else {
-			$all_files = $theme->get_files( array( 'php', 'css,', 'js' ), -1, false );
+			$all_files = $theme->get_files( [ 'php', 'css,', 'js' ], -1, false );
 		}
 
 		$removed_files = [];
@@ -412,19 +414,110 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$ignored = '.*/node_modules/.*,.*/vendor/.*,.*/assets/build/.*,.*/build/.*,.*/bin/.*';
 
+		$results_arguments = [
+			'show_warnings'       => $show_warnings,
+			'minimum_php_version' => $minimum_php_version,
+			'args'                => $args,
+			'theme_prefixes'      => $theme_prefixes,
+			'all_files'           => $all_files,
+			'standards_array'     => $standards_array,
+			'ignore_annotations'  => $ignore_annotations,
+			'ignored'             => $ignored,
+			'raw_output'          => $raw_output,
+		];
+
+		$sniff_results = $this->get_sniff_results( $results_arguments );
+		if ( $raw_output ) {
+			$results_raw = [
+				self::SUCCESS => true,
+				self::DATA    => $sniff_results,
+			];
+
+			\wp_send_json( $results_raw, 200 );
+		}
+
+		$sniffer_results = json_decode( $sniff_results, true );
+
+		if ( $check_php_only ) {
+			$total_errors  = $sniffer_results[ self::TOTALS ][ self::ERRORS ];
+			$total_warning = $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
+			$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
+			$total_files   = $sniffer_results[ self::FILES ];
+		} else {
+			// Check theme headers.
+			$theme_header_checks;
+
+			$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
+
+			$total_errors  = $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $sniffer_results[ self::TOTALS ][ self::ERRORS ];
+			$total_warning = $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
+			$total_fixable = $theme_header_checks[ self::TOTALS ][ self::FIXABLE ] + $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
+			$total_files   = $theme_header_checks[ self::FILES ] + $sniffer_results[ self::FILES ];
+		}
+
+		// Filtering the files for easier JS handling.
+		$file_i = 0;
+		$files  = [];
+
+		foreach ( $total_files as $file_path => $file_sniff_results ) {
+			if ( $file_sniff_results[ self::ERRORS ] === 0 && $file_sniff_results[ self::WARNINGS ] === 0 ) {
+				continue;
+			}
+
+			$files[ $file_i ][ self::FILE_PATH ] = $file_path;
+			$files[ $file_i ][ self::ERRORS ]    = $file_sniff_results[ self::ERRORS ];
+			$files[ $file_i ][ self::WARNINGS ]  = $file_sniff_results[ self::WARNINGS ];
+			$files[ $file_i ][ self::MESSAGES ]  = $file_sniff_results[ self::MESSAGES ];
+			$file_i++;
+		}
+
+		$results = [
+			self::SUCCESS => true,
+			self::TOTALS  => [
+				self::ERRORS   => $total_errors,
+				self::WARNINGS => $total_warning,
+				self::FIXABLE  => $total_fixable,
+			],
+			self::FILES   => $files,
+		];
+
+		\wp_send_json( $results, 200 );
+	}
+
+	/**
+	 * Method that retunrs the reuslts based on a custom PHPCS Runner
+	 *
+	 * @param  array ...$arguments Array of passed arguments.
+	 * @return string              Sniff results string.
+	 */
+	protected function get_sniff_results( ...$arguments ) {
+		// Unpack the arguments.
+		$show_warnings       = $arguments[0]['show_warnings'];
+		$minimum_php_version = $arguments[0]['minimum_php_version'];
+		$args                = $arguments[0]['args'];
+		$theme_prefixes      = $arguments[0]['theme_prefixes'];
+		$all_files           = $arguments[0]['all_files'];
+		$standards_array     = $arguments[0]['standards_array'];
+		$ignore_annotations  = $arguments[0]['ignore_annotations'];
+		$ignored             = $arguments[0]['ignored'];
+		$raw_output          = $arguments[0]['raw_output'];
+
 		// Create a custom runner.
 		$runner = new Runner();
 
-		$runner->config = new Config( [ '-s', '-p' ] );
+		$config_args = [ '-s', '-p' ];
+
+		if ( $show_warnings === '0' ) {
+			$config_args = [ '-s', '-p', '-n' ];
+		}
+
+		$runner->config = new Config( $config_args );
 
 		// Set default standard.
 		PHPCSHelper::set_config_data( self::DEFAULT_STANDARD, $this->get_default_standard(), true );
 
 		// Ignoring warnings when generating the exit code.
 		PHPCSHelper::set_config_data( self::IGNORE_WARNINGS_ON_EXIT, true, true );
-
-		// Show only errors?
-		PHPCSHelper::set_config_data( self::SHOW_WARNINGS, $show_warnings, true );
 
 		// Set minimum supported PHP version.
 		PHPCSHelper::set_config_data( self::TEST_VERSION, $minimum_php_version . '-', true );
@@ -457,7 +550,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$runner->init();
 
 		$runner->reporter = new Reporter( $runner->config );
-
 		foreach ( $all_files as $file_path ) {
 			$file       = new DummyFile( file_get_contents( $file_path ), $runner->ruleset, $runner->config );
 			$file->path = $file_path;
@@ -467,58 +559,177 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		ob_start();
 		$runner->reporter->printReports();
-		$sniff_results = ob_get_clean();
+		$report = ob_get_clean();
 
-		if ( $raw_output ) {
-			$results_raw = array(
-				self::SUCCESS => true,
-				self::DATA    => $sniff_results,
-			);
+		return $report;
+	}
 
-			\wp_send_json( $results_raw, 200 );
-		}
+	/**
+	 * Perform style.css header check.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param string    $theme_slug    Theme slug.
+	 * @param \WP_Theme $theme         WP_Theme Theme object.
+	 * @param bool      $show_warnings Show warnings.
+	 *
+	 * @return bool
+	 */
+	protected function style_headers_check( $theme_slug, \WP_Theme $theme, $show_warnings ) {
+		$required_headers = $this->get_required_headers();
 
-		$theme_header_checks;
+		$notices = [];
 
-		$sniffer_results = json_decode( $sniff_results, true );
-
-		if ( $check_php_only ) {
-			$total_errors  = $sniffer_results[ self::TOTALS ][ self::ERRORS ];
-			$total_warning = $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
-			$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   = $sniffer_results[ self::FILES ];
-		} else {
-			$total_errors  = $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $sniffer_results[ self::TOTALS ][ self::ERRORS ];
-			$total_warning = $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
-			$total_fixable = $theme_header_checks[ self::TOTALS ][ self::FIXABLE ] + $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   = $theme_header_checks[ self::FILES ] + $sniffer_results[ self::FILES ];
-		}
-
-		// Filtering the files for easier JS handling.
-		$file_i = 0;
-		foreach ( $total_files as $file_path => $file_sniff_results ) {
-			if ( $file_sniff_results[ self::ERRORS ] === 0 && $file_sniff_results[ self::WARNINGS ] === 0 ) {
+		foreach ( $required_headers as $header ) {
+			if ( $theme->get( $header ) ) {
 				continue;
 			}
 
-			$files[ $file_i ][ self::FILE_PATH ] = $file_path;
-			$files[ $file_i ][ self::ERRORS ]    = $file_sniff_results[ self::ERRORS ];
-			$files[ $file_i ][ self::WARNINGS ]  = $file_sniff_results[ self::WARNINGS ];
-			$files[ $file_i ][ self::MESSAGES ]  = $file_sniff_results[ self::MESSAGES ];
-			$file_i++;
+			$notices[] = [
+				self::MESSAGE  => sprintf(
+					/* translators: 1: comment header line */
+					esc_html__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
+					$header
+				),
+				self::SEVERITY => self::ERROR,
+			];
 		}
 
-		$results = array(
-			self::SUCCESS => true,
-			self::TOTALS  => array(
-				self::ERRORS   => $total_errors,
-				self::WARNINGS => $total_warning,
-				self::FIXABLE  => $total_fixable,
-			),
-			self::FILES   => $files,
-		);
+		if ( strpos( $theme_slug, 'wordpress' ) || strpos( $theme_slug, 'theme' ) ) { // WPCS: spelling ok.
+			$notices[] = [
+				self::MESSAGE  => esc_html__( 'The theme name cannot contain WordPress or Theme as a part of its name.', 'theme-sniffer' ),
+				self::SEVERITY => self::ERROR,
+			];
+		}
 
-		\wp_send_json( $results, 200 );
+		if ( preg_match( '|[^\d\.]|', $theme->get( 'Version' ) ) ) {
+			$notices[] = [
+				self::MESSAGE  => esc_html__( 'Version strings can only contain numeric and period characters (e.g. 1.2).', 'theme-sniffer' ),
+				self::SEVERITY => self::ERROR,
+			];
+		}
+
+		// Prevent duplicate URLs.
+		$themeuri  = trim( $theme->get( 'ThemeURI' ), '/\\' );
+		$authoruri = trim( $theme->get( 'AuthorURI' ), '/\\' );
+
+		if ( $themeuri === $authoruri ) {
+			$notices[] = [
+				self::MESSAGE  => esc_html__( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'theme-sniffer' ),
+				self::SEVERITY => self::ERROR,
+			];
+		}
+
+		if ( $theme_slug === $theme->get( 'Text Domain' ) ) {
+			$notices[] = [
+				self::MESSAGE  => sprintf(
+					/* translators: %1$s: Text Domain, %2$s: Theme Slug */
+					esc_html__( 'The text domain "%1$s" must match the theme slug "%2$s".', 'theme-sniffer' ),
+					$theme->get( 'TextDomain' ),
+					$theme_slug
+				),
+				self::SEVERITY => self::ERROR,
+			];
+		}
+
+		$registered_tags    = $this->get_theme_tags();
+		$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );
+		$tags_count         = array_count_values( $tags );
+		$subject_tags_names = [];
+
+		$subject_tags = array_flip( $registered_tags['subject_tags'] );
+		$allowed_tags = array_flip( $registered_tags['allowed_tags'] );
+
+		foreach ( $tags as $tag ) {
+			if ( $tags_count[ $tag ] > 1 ) {
+				$notices[] = [
+					self::MESSAGE  => sprintf(
+						/* translators: %s: Theme tag */
+						esc_html__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
+						$tag
+					),
+					self::SEVERITY => self::ERROR,
+				];
+			}
+
+			if ( isset( $subject_tags[ $tag ] ) ) {
+				$subject_tags_names[] = $tag;
+				continue;
+			}
+
+			if ( ! isset( $allowed_tags[ $tag ] ) ) {
+				$notices[] = [
+					self::MESSAGE  => sprintf(
+						/* translators: %s: Theme tag */
+						wp_kses_post( __( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ) ),
+						$tag
+					),
+					self::SEVERITY => self::ERROR,
+				];
+				continue;
+			}
+
+			if ( 'accessibility-ready' === $tag && $show_warnings !== '0' ) {
+				$notices[] = [
+					self::MESSAGE  => wp_kses_post( __( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ) ),
+					self::SEVERITY => self::WARNING,
+				];
+			}
+		}
+
+		$subject_tags_count = count( $subject_tags_names );
+
+		if ( $subject_tags_count > 3 ) {
+			$notices[] = [
+				self::MESSAGE  => sprintf(
+					/* translators: 1: Subject theme tag, 2: Tags list */
+					esc_html__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
+					$subject_tags_count,
+					implode( ',', $subject_tags_names )
+				),
+				self::SEVERITY => self::ERROR,
+			];
+		}
+
+		$theme_root = get_theme_root( $theme_slug );
+
+		$error_count   = 0;
+		$warning_count = 0;
+		$messages      = [];
+
+		foreach ( $notices as $notice ) {
+			$severity = $notice[ self::SEVERITY ];
+
+			if ( $severity === self::ERROR ) {
+				$error_count++;
+			} else {
+				$warning_count++;
+			}
+
+			$messages[] = [
+				self::MESSAGE  => $notice[ self::MESSAGE ],
+				self::SEVERITY => $severity,
+				self::FIXABLE  => false,
+				self::TYPE     => strtoupper( $severity ),
+			];
+		}
+
+		$header_results = [
+			self::TOTALS => [
+				self::ERRORS   => $error_count,
+				self::WARNINGS => $warning_count,
+				self::FIXABLE  => $error_count + $warning_count,
+			],
+			self::FILES => [
+				"{$theme_root}/{$theme_slug}/style.css" => [
+					self::ERRORS   => $error_count,
+					self::WARNINGS => $warning_count,
+					self::MESSAGES => $messages,
+				],
+			],
+		];
+
+		return $header_results;
 	}
 
 	/**
@@ -537,174 +748,5 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 */
 	protected function get_action_name() : string {
 		return self::CALLBACK_ACTION;
-	}
-
-	/**
-	 * Perform style.css header check.
-	 *
-	 * @since 0.3.0
-	 *
-	 * @param string    $theme_slug    Theme slug.
-	 * @param \WP_Theme $theme         WP_Theme Theme object.
-	 * @param bool      $show_warnings Show warnings.
-	 *
-	 * @return bool
-	 */
-	private function style_headers_check( $theme_slug, \WP_Theme $theme, $show_warnings ) {
-		$required_headers = $this->get_required_headers();
-
-		foreach ( $required_headers as $header ) {
-			if ( $theme->get( $header ) ) {
-				continue;
-			}
-
-			$notices[] = array(
-				self::MESSAGE  => sprintf(
-					/* translators: 1: comment header line */
-					esc_html__( 'The %1$s is not defined in the style.css header.', 'theme-sniffer' ),
-					$header
-				),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		if ( strpos( $theme_slug, 'wordpress' ) || strpos( $theme_slug, 'theme' ) ) { // WPCS: spelling ok.
-			$notices[] = array(
-				self::MESSAGE  => esc_html__( 'The theme name cannot contain WordPress or Theme as a part of its name.', 'theme-sniffer' ),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		if ( preg_match( '|[^\d\.]|', $theme->get( 'Version' ) ) ) {
-			$notices[] = array(
-				self::MESSAGE  => esc_html__( 'Version strings can only contain numeric and period characters (e.g. 1.2).', 'theme-sniffer' ),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		// Prevent duplicate URLs.
-		$themeuri  = trim( $theme->get( 'ThemeURI' ), '/\\' );
-		$authoruri = trim( $theme->get( 'AuthorURI' ), '/\\' );
-
-		if ( $themeuri === $authoruri ) {
-			$notices[] = array(
-				self::MESSAGE  => esc_html__( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'theme-sniffer' ),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		if ( $theme_slug === $theme->get( 'Text Domain' ) ) {
-			$notices[] = array(
-				self::MESSAGE  => sprintf(
-					/* translators: %1$s: Text Domain, %2$s: Theme Slug */
-					esc_html__( 'The text domain "%1$s" must match the theme slug "%2$s".', 'theme-sniffer' ),
-					$theme->get( 'TextDomain' ),
-					$theme_slug
-				),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		$registered_tags    = $this->get_theme_tags();
-		$tags               = array_map( 'strtolower', $theme->get( 'Tags' ) );
-		$tags_count         = array_count_values( $tags );
-		$subject_tags_names = array();
-
-		$subject_tags = array_flip( $registered_tags['subject_tags'] );
-		$allowed_tags = array_flip( $registered_tags['allowed_tags'] );
-
-		foreach ( $tags as $tag ) {
-			if ( $tags_count[ $tag ] > 1 ) {
-				$notices[] = array(
-					self::MESSAGE  => sprintf(
-						/* translators: %s: Theme tag */
-						esc_html__( 'The tag "%s" is being used more than once, please remove the duplicate.', 'theme-sniffer' ),
-						$tag
-					),
-					self::SEVERITY => self::ERROR,
-				);
-			}
-
-			if ( isset( $subject_tags[ $tag ] ) ) {
-				$subject_tags_names[] = $tag;
-				continue;
-			}
-
-			if ( ! isset( $allowed_tags[ $tag ] ) ) {
-				$notices[] = array(
-					self::MESSAGE  => sprintf(
-						/* translators: %s: Theme tag */
-						wp_kses_post( __( 'Please remove "%s" as it is not a standard tag.', 'theme-sniffer' ) ),
-						$tag
-					),
-					self::SEVERITY => self::ERROR,
-				);
-				continue;
-			}
-
-			if ( 'accessibility-ready' === $tag && $show_warnings ) {
-				$notices[] = array(
-					self::MESSAGE  => wp_kses_post( __( 'Themes that use the "accessibility-ready" tag will need to undergo an accessibility review.', 'theme-sniffer' ) ),
-					self::SEVERITY => 'warning',
-				);
-			}
-		}
-
-		$subject_tags_count = count( $subject_tags_names );
-
-		if ( $subject_tags_count > 3 ) {
-			$notices[] = array(
-				self::MESSAGE  => sprintf(
-					/* translators: 1: Subject theme tag, 2: Tags list */
-					esc_html__( 'A maximum of 3 subject tags are allowed. The theme has %1$d subjects tags [%2$s]. Please remove the subject tags, which do not directly apply to the theme.', 'theme-sniffer' ),
-					$subject_tags_count,
-					implode( ',', $subject_tags_names )
-				),
-				self::SEVERITY => self::ERROR,
-			);
-		}
-
-		$theme_root = get_theme_root( $theme_slug );
-
-		if ( empty( $notices ) ) {
-			return array();
-		}
-
-		$error_count   = 0;
-		$warning_count = 0;
-		$messages      = array();
-
-		foreach ( $notices as $notice ) {
-			$severity = $notice[ self::SEVERITY ];
-			if ( $severity === self::ERROR ) {
-				$error_count++;
-			} else {
-				$warning_count++;
-			}
-
-			$messages[] = array(
-				self::MESSAGE  => $notice[ self::MESSAGE ],
-				self::SEVERITY => $severity,
-				self::FIXABLE  => false,
-				self::TYPE     => strtoupper( $severity ),
-			);
-		}
-
-		$header_results = array(
-			self::TOTALS => array(
-				self::ERRORS   => $error_count,
-				self::WARNINGS => $warning_count,
-				self::FIXABLE  => $error_count + $warning_count,
-			),
-			self::FILES => array(
-				"{$theme_root}/{$theme_slug}/style.css" => array(
-					self::ERRORS   => $error_count,
-					self::WARNINGS => $warning_count,
-					self::MESSAGES => $messages,
-				),
-			),
-		);
-
-		return $header_results;
 	}
 }
