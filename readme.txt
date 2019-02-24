@@ -1,5 +1,5 @@
 === Theme Sniffer ===
-Contributors: rabmalin, grapplerulrich, dingo_bastard
+Contributors: dingo_d, rabmalin, grapplerulrich
 Tags: check, checker, coding standards, theme, tool
 Requires at least: 4.7
 Tested up to: 5.1.0
@@ -32,6 +32,10 @@ Make sure that your server has php version greater or equal to 7.0, otherwise, t
 3. When the pop-up appears select the theme-sniffer.x.x.zip file from your desktop. (The ‘x.x’ will change depending on the current version number).
 4. Follow the on-screen instructions and wait as the upload completes.
 When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
+
+== Screenshots ==
+
+1. Theme Sniffer main screen
 
 == Frequently Asked Questions ==
 
