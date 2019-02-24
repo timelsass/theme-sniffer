@@ -613,7 +613,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$themeuri  = trim( $theme->get( 'ThemeURI' ), '/\\' );
 		$authoruri = trim( $theme->get( 'AuthorURI' ), '/\\' );
 
-		if ( $themeuri === $authoruri ) {
+		if ( ( $themeuri === $authoruri ) && ( ! empty( $themeuri ) || ! empty( $authoruri ) ) ) {
 			$notices[] = [
 				self::MESSAGE  => esc_html__( 'Duplicate theme and author URLs. A theme URL is a page/site that provides details about this specific theme. An author URL is a page/site that provides information about the author of the theme. The theme and author URL are optional.', 'theme-sniffer' ),
 				self::SEVERITY => self::ERROR,
