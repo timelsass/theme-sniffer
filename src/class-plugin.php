@@ -57,17 +57,10 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 			include_once ABSPATH . '/wp-admin/includes/plugin.php';
 		}
 
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 			\deactivate_plugins( PLUGIN_BASENAME );
 
-			$error_message = esc_html__( 'You do not have proper authorization to activate a plugin!', 'theme-sniffer' );
-			throw Exception\Plugin_Activation_Failure::activation_message( $error_message );
-		}
-
-		if ( version_compare( PHP_VERSION, '5.6', '<' ) ) {
-			\deactivate_plugins( PLUGIN_BASENAME );
-
-			$error_message = esc_html__( 'Theme Sniffer requires PHP 5.6 or greater to function.', 'theme-sniffer' );
+			$error_message = esc_html__( 'Theme Sniffer requires PHP 7.0 or greater to function.', 'theme-sniffer' );
 			throw Exception\Plugin_Activation_Failure::activation_message( $error_message );
 		}
 
