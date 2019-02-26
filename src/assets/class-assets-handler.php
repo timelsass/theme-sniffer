@@ -30,7 +30,7 @@ final class Assets_Handler implements Registerable {
 	 *
 	 * @param Asset $asset Asset to add.
 	 */
-	public function add( Asset $asset ) : void {
+	public function add( Asset $asset ) {
 		$this->assets[ $asset->get_handle() ] = $asset;
 	}
 
@@ -39,7 +39,7 @@ final class Assets_Handler implements Registerable {
 	 *
 	 * @return void
 	 */
-	public function register() : void {
+	public function register() {
 		foreach ( $this->assets as $asset ) {
 			$asset->register();
 		}
@@ -66,7 +66,7 @@ final class Assets_Handler implements Registerable {
 	 * @param Asset|null $asset Optional. Asset to enqueue.
 	 *                          If omitted, all known assets are enqueued.
 	 */
-	public function enqueue( Asset $asset = null ) : void {
+	public function enqueue( Asset $asset = null ) {
 		$assets = $asset ? [ $asset ] : $this->assets;
 
 		foreach ( $assets as $asset_object ) {

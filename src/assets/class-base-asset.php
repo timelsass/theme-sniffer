@@ -43,7 +43,7 @@ abstract class Base_Asset implements Asset {
 	 *
 	 * @return void
 	 */
-	public function register() : void {
+	public function register() {
 		$this->deferred_action(
 			$this->get_register_action(),
 			$this->get_register_closure(),
@@ -56,7 +56,7 @@ abstract class Base_Asset implements Asset {
 	 *
 	 * @return void
 	 */
-	public function enqueue() : void {
+	public function enqueue() {
 		$this->deferred_action(
 			$this->get_enqueue_action(),
 			$this->get_enqueue_closure(),
