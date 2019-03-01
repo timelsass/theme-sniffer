@@ -513,23 +513,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$runner->config = new Config( $config_args );
 
-		// Set default standard.
-		PHPCSHelper::set_config_data( self::DEFAULT_STANDARD, $this->get_default_standard(), true );
-
-		// Ignoring warnings when generating the exit code.
-		PHPCSHelper::set_config_data( self::IGNORE_WARNINGS_ON_EXIT, true, true );
-
-		// Set minimum supported PHP version.
-		PHPCSHelper::set_config_data( self::TEST_VERSION, $minimum_php_version . '-', true );
-
-		// Set text domains.
-		PHPCSHelper::set_config_data( self::TEXT_DOMAIN, implode( ',', $args[ self::TEXT_DOMAINS ] ), true );
-
-		if ( $theme_prefixes !== '' ) {
-			// Set prefix.
-			PHPCSHelper::set_config_data( self::PREFIXES, $theme_prefixes, true );
-		}
-
 		$all_files = array_values( $all_files );
 
 		$runner->config->standards   = $standards_array;
@@ -549,7 +532,25 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$runner->init();
 
+		// Set default standard.
+		PHPCSHelper::set_config_data( self::DEFAULT_STANDARD, $this->get_default_standard(), true );
+
+		// Ignoring warnings when generating the exit code.
+		PHPCSHelper::set_config_data( self::IGNORE_WARNINGS_ON_EXIT, true, true );
+
+		// Set minimum supported PHP version.
+		PHPCSHelper::set_config_data( self::TEST_VERSION, $minimum_php_version . '-', true );
+
+		// Set text domains.
+		PHPCSHelper::set_config_data( self::TEXT_DOMAIN, implode( ',', $args[ self::TEXT_DOMAINS ] ), true );
+
+		if ( $theme_prefixes !== '' ) {
+			// Set prefix.
+			PHPCSHelper::set_config_data( self::PREFIXES, $theme_prefixes, true );
+		}
+
 		$runner->reporter = new Reporter( $runner->config );
+
 		foreach ( $all_files as $file_path ) {
 			$file       = new DummyFile( file_get_contents( $file_path ), $runner->ruleset, $runner->config );
 			$file->path = $file_path;
