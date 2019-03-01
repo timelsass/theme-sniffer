@@ -354,7 +354,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$all_files = [ 'php' ];
 
-		if ( $check_php_only ) {
+		if ( ! $check_php_only ) {
 			$all_files = array_merge( $all_files, [ 'css', 'js' ] );
 		}
 
