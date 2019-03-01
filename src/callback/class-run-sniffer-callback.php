@@ -349,21 +349,8 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$selected_standards
 		);
 
-		$theme     = \wp_get_theme( $theme_slug );
-		$php_files = $theme->get_files( 'php', 4, false );
-
 		// Current theme text domain.
 		$args[ self::TEXT_DOMAINS ][] = $theme_slug;
-
-		// Frameworks.
-		foreach ( $php_files as $key => $file ) {
-			if ( strrpos( $key, 'hybrid.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'hybrid-core';
-			}
-			if ( strrpos( $key, 'kirki.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'kirki';
-			}
-		}
 
 		$all_files = [ 'php' ];
 
@@ -371,6 +358,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$all_files = array_merge( $all_files, [ 'css', 'js' ] );
 		}
 
+		$theme     = wp_get_theme( $theme_slug );
 		$all_files = $theme->get_files( $all_files, -1, false );
 
 		/**
@@ -379,34 +367,47 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		 * because it will break phpcs.
 		 */
 		foreach ( $all_files as $file_name => $file_path ) {
-			// Check if files have .min in the file name.
-			if ( false !== strpos( $file_name, '.min.' ) ) {
-				unset( $all_files[ $file_name ] );
-				break;
+
+			// Check for Frameworks.
+			if ( strrpos( $file_name, 'hybrid.php' ) ) {
+				$args[ self::TEXT_DOMAINS ][] = 'hybrid-core';
 			}
 
-			try {
-				$file_contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$file_lines    = explode( "\n", $file_contents );
+			if ( strrpos( $file_name, 'kirki.php' ) ) {
+				$args[ self::TEXT_DOMAINS ][] = 'kirki';
+			}
 
-				$row = 0;
-				foreach ( $file_lines as $line ) {
-					if ( $row <= 10 ) {
-						if ( strlen( $line ) > 1000 ) {
+			// Check CSS/JS.
+			if ( ! $check_php_only && ( false !== strpos( $file_name, '.js' ) || false !== strpos( $file_name, '.css' ) ) ) {
+
+				// Check if files have .min in the file name.
+				if ( false !== strpos( $file_name, '.min.' ) ) {
+					unset( $all_files[ $file_name ] );
+					break;
+				}
+
+				// Check for minified/css not follow standard naming conventions.
+				try {
+					$file_contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+					$file_lines    = explode( "\n", $file_contents );
+
+					$row = 0;
+					foreach ( $file_lines as $line ) {
+						if ( $row <= 10 && strlen( $line ) > 1000 ) {
 							unset( $all_files[ $file_name ] );
 							break;
 						}
 					}
+				} catch ( Exception $e ) {
+					new \WP_Error(
+						'error_reading_file',
+						sprintf(
+							/* translators: %s: Name of the file */
+							esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ),
+							$file_name
+						)
+					);
 				}
-			} catch ( Exception $e ) {
-				new \WP_Error(
-					'error_reading_file',
-					sprintf(
-						/* translators: %s: Name of the file */
-						esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ),
-						$file_name
-					)
-				);
 			}
 		}
 
