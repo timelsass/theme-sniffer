@@ -380,7 +380,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		 */
 		foreach ( $all_files as $file_name => $file_path ) {
 			// Check if files have .min in the file name.
-			if ( false !== strpos( $file_name, '.min.js' ) || false !== strpos( $file_name, '.min.css' ) ) {
+			if ( false !== strpos( $file_name, '.min.' ) ) {
 				unset( $all_files[ $file_name ] );
 				$removed_files[] = $file_name;
 				break;
