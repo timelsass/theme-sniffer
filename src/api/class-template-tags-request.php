@@ -56,25 +56,16 @@ class Template_Tags_Request implements Service {
 			throw Api_Response_Error::message( $tags_response->get_error_message() );
 		}
 
-		$template_tags_json = wp_remote_retrieve_body( $tags_response );
+		$tags_decoded = json_decode( wp_remote_retrieve_body( $tags_response ), true );
 
-		$template_tags = [];
-
-		foreach ( json_decode( $template_tags_json, true ) as $tag_category => $tags ) {
-			switch ( $tag_category ) {
-				case 'Subject':
-					$template_tags['subject_tags'] = $tags;
-					break;
-
-				case 'Layout':
-					$template_tags['allowed_tags'] = $tags;
-					break;
-
-				default:
-					$template_tags['allowed_tags'] = array_merge( $template_tags['allowed_tags'], $tags );
-					break;
-			}
-		}
+		$template_tags = [
+			'subject_tags' => $tags_decoded['Subject'],
+			'allowed_tags' => array_merge(
+				...array_values(
+					array_diff_key( $tags_decoded, array_flip( [ 'Subject' ] ) )
+				)
+			),
+		];
 
 		return $template_tags;
 	}
