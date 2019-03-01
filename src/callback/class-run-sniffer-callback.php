@@ -380,7 +380,14 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		 */
 		foreach ( $all_files as $file_name => $file_path ) {
 			// Check if files have .min in the file name.
-			if ( false !== strpos( $file_name, '.min.js' ) || false !== strpos( $file_name, '.min.css' ) ) {
+			if ( strpos( $file_name, '.min.js' ) !== false || strpos( $file_name, '.min.css' ) !== false ) {
+				unset( $all_files[ $file_name ] );
+				$removed_files[] = $file_name;
+				break;
+			}
+
+			// Check if node_modules and vendor folders are present and skip those.
+			if ( strpos( $file_path, 'node_modules' ) !== false || strpos( $file_path, 'vendor' ) !== false ) {
 				unset( $all_files[ $file_name ] );
 				$removed_files[] = $file_name;
 				break;
