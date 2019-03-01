@@ -365,11 +365,13 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			}
 		}
 
+		$all_files = [ 'php' ];
+
 		if ( $check_php_only ) {
-			$all_files = $theme->get_files( [ 'php' ], -1, false );
-		} else {
-			$all_files = $theme->get_files( [ 'php', 'css,', 'js' ], -1, false );
+			$all_files = array_merge( $all_files, [ 'css', 'js' ] );
 		}
+
+		$all_files = $theme->get_files( $all_files, -1, false );
 
 		/**
 		 * Check if a file is minified.
