@@ -382,6 +382,12 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 				}
 			}
 
+			// Check if node_modules and vendor folders are present and skip those.
+			if ( strpos( $file_path, 'node_modules' ) !== false || strpos( $file_path, 'vendor' ) !== false ) {
+				unset( $all_files[ $file_name ] );
+				break;
+			}
+
 			// Check CSS/JS.
 			if ( ! $check_php_only && ( false !== strpos( $file_name, '.js' ) || false !== strpos( $file_name, '.css' ) ) ) {
 
