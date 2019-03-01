@@ -349,8 +349,10 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$selected_standards
 		);
 
+		$args = [];
+
 		// Current theme text domain.
-		$args[ self::TEXT_DOMAINS ][] = $theme_slug;
+		$args[ self::TEXT_DOMAINS ] = [ $theme_slug ];
 
 		$all_files = [ 'php' ];
 
@@ -369,12 +371,15 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		foreach ( $all_files as $file_name => $file_path ) {
 
 			// Check for Frameworks.
-			if ( strrpos( $file_name, 'hybrid.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'hybrid-core';
-			}
+			$allowed_frameworks = [
+				'kirki'       => 'kirki.php',
+				'hybrid-core' => 'hybrid.php',
+			];
 
-			if ( strrpos( $file_name, 'kirki.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'kirki';
+			foreach ( $allowed_frameworks as $framework_textdomain => $identifier ) {
+				if ( false !== strrpos( $file_name, $identifier ) && ! in_array( $framework_textdomain, $args[ self::TEXT_DOMAINS ], true ) ) {
+					$args[ self::TEXT_DOMAINS ][] = $framework_textdomain;
+				}
 			}
 
 			// Check CSS/JS.
