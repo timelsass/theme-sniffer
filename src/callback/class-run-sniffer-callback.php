@@ -371,8 +371,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$all_files = $theme->get_files( [ 'php', 'css,', 'js' ], -1, false );
 		}
 
-		$removed_files = [];
-
 		/**
 		 * Check if a file is minified.
 		 * Loops through all the files and checks if it's minified. If it is, skip it
@@ -382,7 +380,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			// Check if files have .min in the file name.
 			if ( false !== strpos( $file_name, '.min.' ) ) {
 				unset( $all_files[ $file_name ] );
-				$removed_files[] = $file_name;
 				break;
 			}
 
@@ -395,7 +392,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 					if ( $row <= 10 ) {
 						if ( strlen( $line ) > 1000 ) {
 							unset( $all_files[ $file_name ] );
-							$removed_files[] = $file_name;
 							break;
 						}
 					}
