@@ -58,7 +58,7 @@ class Template_Tags_Request implements Service {
 
 		$tags_decoded = json_decode( wp_remote_retrieve_body( $tags_response ), true );
 
-		$template_tags = [
+		return [
 			'subject_tags' => $tags_decoded['Subject'],
 			'allowed_tags' => array_merge(
 				...array_values(
@@ -66,7 +66,5 @@ class Template_Tags_Request implements Service {
 				)
 			),
 		];
-
-		return $template_tags;
 	}
 }
