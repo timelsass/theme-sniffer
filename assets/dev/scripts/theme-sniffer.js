@@ -86,7 +86,7 @@ export default class ThemeSniffer {
 
 				$singleItem.find( this.reportItemLine ).text( line );
 				$singleItem.find( this.reportItemType ).text( type );
-				$singleItem.find( this.reportItemMessage ).text( message );
+				$singleItem.find( this.reportItemMessage ).html( message );
 				$singleItem.appendTo( $reportReportTable );
 			}
 		);
