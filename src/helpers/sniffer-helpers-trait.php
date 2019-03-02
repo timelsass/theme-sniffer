@@ -11,6 +11,7 @@ declare( strict_types=1 );
 namespace Theme_Sniffer\Helpers;
 
 use Theme_Sniffer\Api\Template_Tags_Request;
+use Theme_Sniffer\Exception\No_Themes_Present;
 
 /**
  * Sniffer helpers trait
@@ -69,16 +70,31 @@ trait Sniffer_Helpers {
 	 * Return all the active themes
 	 *
 	 * @since  1.0.0 Moved to a trait.
+	 *
+	 * @throws Api_Response_Error If API is down.
 	 * @return array Array of active themes.
 	 */
 	public function get_active_themes() : array {
-		$all_themes = wp_get_themes();
-		$themes     = [];
+		$all_themes   = wp_get_themes();
+		$active_theme = ( wp_get_theme() )->get( 'Name' );
 
-		if ( ! empty( $all_themes ) ) {
-			foreach ( $all_themes as $key => $theme ) {
-				$themes[ $key ] = $theme->get( 'Name' );
+		if ( empty( $all_themes ) ) {
+			throw No_Themes_Present::message(
+				esc_html__( 'No themes present in the themes directory.', 'theme-sniffer' )
+			);
+		}
+
+		$themes = [];
+		foreach ( $all_themes as $theme_slug => $theme ) {
+			$theme_name    = $theme->get( 'Name' );
+			$theme_version = $theme->get( 'Version' );
+
+			if ( $theme_name === $active_theme ) {
+				$theme_name = "(Active) $theme_name";
 			}
+
+			$themes[ $theme_slug ] = "$theme_name - v$theme_version";
+
 		}
 
 		return $themes;

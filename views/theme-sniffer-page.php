@@ -13,6 +13,16 @@ namespace Theme_Sniffer\Views;
 
 use Theme_Sniffer\Admin\Helpers;
 
+// Check for errors.
+if ( ! empty( $this->error ) ) {
+	?>
+	<div class="notice error">
+		<p><?php echo esc_html( $this->error ); ?></p>
+	</div>
+	<?php
+	return;
+}
+
 // Use attributes passed from the page creation class.
 $standards    = $this->standards;
 $themes       = $this->themes;
