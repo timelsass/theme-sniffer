@@ -377,7 +377,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			];
 
 			foreach ( $allowed_frameworks as $framework_textdomain => $identifier ) {
-				if ( false !== strrpos( $file_name, $identifier ) && ! in_array( $framework_textdomain, $args[ self::TEXT_DOMAINS ], true ) ) {
+				if ( strrpos( $file_name, $identifier ) !== false && ! in_array( $framework_textdomain, $args[ self::TEXT_DOMAINS ], true ) ) {
 					$args[ self::TEXT_DOMAINS ][] = $framework_textdomain;
 				}
 			}
@@ -389,10 +389,10 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			}
 
 			// Check CSS/JS.
-			if ( ! $check_php_only && ( false !== strpos( $file_name, '.js' ) || false !== strpos( $file_name, '.css' ) ) ) {
+			if ( ! $check_php_only && ( strpos( $file_name, '.js' ) !== false || strpos( $file_name, '.css' ) !== false ) ) {
 
 				// Check if files have .min in the file name.
-				if ( false !== strpos( $file_name, '.min.' ) ) {
+				if ( strpos( $file_name, '.min.' ) !== false ) {
 					unset( $all_files[ $file_name ] );
 					break;
 				}
