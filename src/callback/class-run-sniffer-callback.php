@@ -349,29 +349,19 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$selected_standards
 		);
 
-		$theme     = \wp_get_theme( $theme_slug );
-		$php_files = $theme->get_files( 'php', 4, false );
+		$args = [];
 
 		// Current theme text domain.
-		$args[ self::TEXT_DOMAINS ][] = $theme_slug;
+		$args[ self::TEXT_DOMAINS ] = [ $theme_slug ];
 
-		// Frameworks.
-		foreach ( $php_files as $key => $file ) {
-			if ( strrpos( $key, 'hybrid.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'hybrid-core';
-			}
-			if ( strrpos( $key, 'kirki.php' ) ) {
-				$args[ self::TEXT_DOMAINS ][] = 'kirki';
-			}
+		$all_files = [ 'php' ];
+
+		if ( ! $check_php_only ) {
+			$all_files = array_merge( $all_files, [ 'css', 'js' ] );
 		}
 
-		if ( $check_php_only ) {
-			$all_files = $theme->get_files( [ 'php' ], -1, false );
-		} else {
-			$all_files = $theme->get_files( [ 'php', 'css,', 'js' ], -1, false );
-		}
-
-		$removed_files = [];
+		$theme     = wp_get_theme( $theme_slug );
+		$all_files = $theme->get_files( $all_files, -1, false );
 
 		/**
 		 * Check if a file is minified.
@@ -379,43 +369,56 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		 * because it will break phpcs.
 		 */
 		foreach ( $all_files as $file_name => $file_path ) {
-			// Check if files have .min in the file name.
-			if ( strpos( $file_name, '.min.js' ) !== false || strpos( $file_name, '.min.css' ) !== false ) {
-				unset( $all_files[ $file_name ] );
-				$removed_files[] = $file_name;
-				break;
+
+			// Check for Frameworks.
+			$allowed_frameworks = [
+				'kirki'       => 'kirki.php',
+				'hybrid-core' => 'hybrid.php',
+			];
+
+			foreach ( $allowed_frameworks as $framework_textdomain => $identifier ) {
+				if ( strrpos( $file_name, $identifier ) !== false && ! in_array( $framework_textdomain, $args[ self::TEXT_DOMAINS ], true ) ) {
+					$args[ self::TEXT_DOMAINS ][] = $framework_textdomain;
+				}
 			}
 
 			// Check if node_modules and vendor folders are present and skip those.
 			if ( strpos( $file_path, 'node_modules' ) !== false || strpos( $file_path, 'vendor' ) !== false ) {
 				unset( $all_files[ $file_name ] );
-				$removed_files[] = $file_name;
 				break;
 			}
 
-			try {
-				$file_contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-				$file_lines    = explode( "\n", $file_contents );
+			// Check CSS/JS.
+			if ( ! $check_php_only && ( strpos( $file_name, '.js' ) !== false || strpos( $file_name, '.css' ) !== false ) ) {
 
-				$row = 0;
-				foreach ( $file_lines as $line ) {
-					if ( $row <= 10 ) {
-						if ( strlen( $line ) > 1000 ) {
+				// Check if files have .min in the file name.
+				if ( strpos( $file_name, '.min.' ) !== false ) {
+					unset( $all_files[ $file_name ] );
+					break;
+				}
+
+				// Check for minified/css not follow standard naming conventions.
+				try {
+					$file_contents = file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+					$file_lines    = explode( "\n", $file_contents );
+
+					$row = 0;
+					foreach ( $file_lines as $line ) {
+						if ( $row <= 10 && strlen( $line ) > 1000 ) {
 							unset( $all_files[ $file_name ] );
-							$removed_files[] = $file_name;
 							break;
 						}
 					}
+				} catch ( Exception $e ) {
+					new \WP_Error(
+						'error_reading_file',
+						sprintf(
+							/* translators: %s: Name of the file */
+							esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ),
+							$file_name
+						)
+					);
 				}
-			} catch ( Exception $e ) {
-				new \WP_Error(
-					'error_reading_file',
-					sprintf(
-						/* translators: %s: Name of the file */
-						esc_html__( 'There was an error reading the file %s', 'theme-sniffer' ),
-						$file_name
-					)
-				);
 			}
 		}
 
