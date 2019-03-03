@@ -755,7 +755,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$required_files = array_filter(
 				$required_files,
 				function( $file ) {
-					return false !== strpos( $file, '.php' );
+					return strpos( $file, '.php' ) !== false;
 				}
 			);
 		}
