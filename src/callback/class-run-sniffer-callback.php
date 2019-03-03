@@ -448,21 +448,25 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$sniffer_results = json_decode( $sniff_results, true );
 
-		if ( $check_php_only ) {
-			$total_errors  = $sniffer_results[ self::TOTALS ][ self::ERRORS ];
-			$total_warning = $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
-			$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   = $sniffer_results[ self::FILES ];
-		} else {
+		$total_errors  = $sniffer_results[ self::TOTALS ][ self::ERRORS ];
+		$total_warning = $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
+		$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
+		$total_files   = $sniffer_results[ self::FILES ];
+
+		$required_results = $this->required_files_check( $theme_slug, $check_php_only );
+
+		$total_errors += $required_results[ self::TOTALS ][ self::ERRORS ];
+		$total_files  += $required_results[ self::FILES ];
+
+		if ( ! $check_php_only ) {
+
 			// Check theme headers.
-			$theme_header_checks;
+			$theme_header_checks = $this->style_headers_check( $theme_slug, $theme, $show_warnings );
 
-			$theme_header_checks = $this->style_headers_check( $theme_slug, wp_get_theme( $theme_slug ), $show_warnings );
-
-			$total_errors  = $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $sniffer_results[ self::TOTALS ][ self::ERRORS ];
-			$total_warning = $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $sniffer_results[ self::TOTALS ][ self::WARNINGS ];
-			$total_fixable = $theme_header_checks[ self::TOTALS ][ self::FIXABLE ] + $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   = $theme_header_checks[ self::FILES ] + $sniffer_results[ self::FILES ];
+			$total_errors  += $theme_header_checks[ self::TOTALS ][ self::ERRORS ];
+			$total_warning += $theme_header_checks[ self::TOTALS ][ self::WARNINGS ];
+			$total_fixable += $theme_header_checks[ self::TOTALS ][ self::FIXABLE ];
+			$total_files   += $theme_header_checks[ self::FILES ];
 		}
 
 		// Filtering the files for easier JS handling.
@@ -741,6 +745,66 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		];
 
 		return $header_results;
+	}
+
+	/**
+	 * Required Files Check
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param  string $theme_slug          The theme's slug to check for required files.
+	 * @param  bool   $check_php_only      Is checking only PHP files.
+	 *
+	 * @return array  $required_file_check Array to send to reporter.
+	 */
+	protected function required_files_check( $theme_slug, $check_php_only ) {
+
+		$required_files = [ 'comments.php', 'functions.php', 'readme.txt', 'screenshot.png' ];
+
+		if ( $check_php_only ) {
+			$required_files = array_filter(
+				$required_files,
+				function( $file ) {
+					return strpos( $file, '.php' ) !== false;
+				}
+			);
+		}
+
+		$required_file_check = [
+			self::TOTALS => [
+				self::ERRORS   => 0,
+				self::WARNINGS => 0,
+				self::FIXABLE  => 0,
+			],
+			self::FILES  => [],
+		];
+
+		$theme_root = get_theme_root( $theme_slug );
+
+		foreach ( $required_files as $file ) {
+			$required = "{$theme_root}/{$theme_slug}/{$file}";
+			if ( ! file_exists( $required ) ) {
+				$required_file_check[ self::TOTALS ][ self::ERRORS ]++;
+				$required_file_check[ self::FILES ][ $required ] = [
+					self::ERRORS   => 1,
+					self::WARNINGS => 0,
+					self::MESSAGES => [
+						[
+							self::MESSAGE  => sprintf(
+								/* translators: The filename that is missing. */
+								esc_html__( 'Theme is missing %s! This file is required for all WordPress themes.', 'theme-sniffer' ),
+								$file
+							),
+							self::SEVERITY => self::ERROR,
+							self::FIXABLE  => false,
+							self::TYPE     => strtoupper( self::ERROR ),
+						],
+					],
+				];
+			}
+		}
+
+		return $required_file_check;
 	}
 
 	/**
