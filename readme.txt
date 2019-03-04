@@ -59,6 +59,10 @@ When it’s finished, activate the plugin via the prompt. A message will show co
 
 Go to the official repo on Github (https://github.com/WPTRT/theme-sniffer), fork the plugin, read the readme and go through the issues. Any kind of help is appreciated. Either manually testing or writing code is invaluable for the open source project such as this.
 
+= Contributors and testers thanks =
+
+Thanks to Danny Cooper, Liton Arefin and metallicarosetail (slack) for testing the plugin and finding bugs in the development stage. Thanks to the TRT for the support.
+
 == Upgrade Notice ==
 
 The latest upgrade mostly with development changes and some minor improvements in sniff handling.
