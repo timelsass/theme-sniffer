@@ -2,7 +2,7 @@
 /**
  * View class file
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\View
  */
 

@@ -2,7 +2,7 @@
 /**
  * Theme sniffer menu class file
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Admin_Menus
  */
 
@@ -13,6 +13,7 @@ namespace Theme_Sniffer\Admin_Menus;
 use Theme_Sniffer\Assets\Script_Asset;
 use Theme_Sniffer\Assets\Style_Asset;
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
+use Theme_Sniffer\Exception\No_Themes_Present;
 
 /**
 * Theme sniffer page menu class
@@ -54,13 +55,13 @@ final class Sniff_Page extends Base_Admin_Menu {
 
 		$sniffer_page_script->add_localization(
 			self::LOCALIZATION_HANDLE,
-			array(
+			[
 				'sniffError'      => esc_html__( 'The check has failed. This could happen due to running out of memory. Either reduce the file length or increase PHP memory.', 'theme-sniffer' ),
 				'checkCompleted'  => esc_html__( 'Check is completed. The results are below.', 'theme-sniffer' ),
 				'checkInProgress' => esc_html__( 'Check in progress', 'theme-sniffer' ),
 				'errorReport'     => esc_html__( 'Error', 'theme-sniffer' ),
 				'ajaxAborted'     => esc_html__( 'Checking stopped', 'theme-sniffer' ),
-			)
+			]
 		);
 
 		$sniffer_page_style = new Style_Asset(
@@ -139,8 +140,13 @@ final class Sniff_Page extends Base_Admin_Menu {
 	protected function process_attributes( $atts ) : array {
 		$atts = (array) $atts;
 
+		try {
+			$atts['themes'] = $this->get_active_themes();
+		} catch ( No_Themes_Present $e ) {
+			$atts['error'] = esc_html( $e->getMessage() );
+		}
+
 		$atts['standards']    = $this->get_wpcs_standards();
-		$atts['themes']       = $this->get_active_themes();
 		$atts['php_versions'] = $this->get_php_versions();
 
 		return $atts;

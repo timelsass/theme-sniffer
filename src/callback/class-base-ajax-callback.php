@@ -2,7 +2,7 @@
 /**
  * File that holds base abstract class for ajax callbacks
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Callback
  */
 
@@ -16,7 +16,7 @@ use Theme_Sniffer\Core\Service;
 /**
  * Abstract class Base_Ajax_Callback.
  *
- * @since 0.2.0
+ * @since 1.0.0
  */
 abstract class Base_Ajax_Callback implements Invokable, Service {
 

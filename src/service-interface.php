@@ -2,7 +2,7 @@
 /**
  * File that holds Has_Activation interface
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Core
  */
 
@@ -15,7 +15,7 @@ namespace Theme_Sniffer\Core;
  *
  * A generic service. Service is a part of the plugin functionality.
  *
- * @since 0.2.0
+ * @since 1.0.0
  */
 interface Service extends Registerable {
 

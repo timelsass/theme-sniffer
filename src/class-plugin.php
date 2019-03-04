@@ -10,6 +10,7 @@ namespace Theme_Sniffer\Core;
 use Theme_Sniffer\Assets\Assets_Aware;
 use Theme_Sniffer\Assets\Assets_Handler;
 
+use Theme_Sniffer\Api;
 use Theme_Sniffer\Admin_Menus;
 use Theme_Sniffer\i18n;
 use Theme_Sniffer\Callback;
@@ -56,17 +57,10 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 			include_once ABSPATH . '/wp-admin/includes/plugin.php';
 		}
 
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
 			\deactivate_plugins( PLUGIN_BASENAME );
 
-			$error_message = esc_html__( 'You do not have proper authorization to activate a plugin!', 'theme-sniffer' );
-			throw Exception\Plugin_Activation_Failure::activation_message( $error_message );
-		}
-
-		if ( version_compare( PHP_VERSION, '5.6', '<' ) ) {
-			\deactivate_plugins( PLUGIN_BASENAME );
-
-			$error_message = esc_html__( 'Theme Sniffer requires PHP 5.6 or greater to function.', 'theme-sniffer' );
+			$error_message = esc_html__( 'Theme Sniffer requires PHP 7.0 or greater to function.', 'theme-sniffer' );
 			throw Exception\Plugin_Activation_Failure::activation_message( $error_message );
 		}
 
@@ -150,19 +144,19 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return Assets_Handler
 	 */
-	public function get_assets_handler() : Assets_Handler {
+	public function get_assets_handler() {
 		return $this->assets_handler;
 	}
 	/**
 	 * Add go to theme check page link on plugin page.
 	 *
-	 * @since 0.2.0 Moved to main plugin class file.
+	 * @since 1.0.0 Moved to main plugin class file.
 	 * @since 0.1.3
 	 *
 	 * @param  array $links Array of plugin action links.
 	 * @return array Modified array of plugin action links.
 	 */
-	public function plugin_settings_link( $links ) {
+	public function plugin_settings_link( array $links ) : array {
 		$settings_page_link = '<a href="' . admin_url( 'admin.php?page=theme-sniffer' ) . '">' . esc_attr__( 'Theme Sniffer Page', 'theme-sniffer' ) . '</a>';
 		array_unshift( $links, $settings_page_link );
 
@@ -178,7 +172,7 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return array List of extra headers.
 	 */
-	public static function add_headers( $extra_headers ) {
+	public static function add_headers( array $extra_headers ) : array {
 		$extra_headers[] = 'License';
 		$extra_headers[] = 'License URI';
 		$extra_headers[] = 'Template Version';
@@ -240,8 +234,9 @@ final class Plugin implements Registerable, Has_Activation, Has_Deactivation {
 	 *
 	 * @return array<string> Array of fully qualified class names.
 	 */
-	private function get_service_classes() {
+	private function get_service_classes() : array {
 		return [
+			Api\Template_Tags_Request::class,
 			i18n\Internationalization::class,
 			Admin_Menus\Sniff_Page::class,
 			Callback\Run_Sniffer_Callback::class,

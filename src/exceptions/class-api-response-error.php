@@ -1,6 +1,6 @@
 <?php
 /**
- * File containing the failure exception class when assets aren't bundled
+ * File containing the failure exception class when API call fails
  *
  * @since 1.0.0
  * @package Theme_Sniffer\Exception
@@ -11,13 +11,13 @@ declare( strict_types=1 );
 namespace Theme_Sniffer\Exception;
 
 /**
- * Class Missing_Manifest.
+ * Class Api_Response_Error.
  */
-class Missing_Manifest extends \InvalidArgumentException implements General_Exception {
+class Api_Response_Error extends \ErrorException implements General_Exception {
 
 	/**
 	 * Create a new instance of the exception in case
-	 * a manifest file is missing.
+	 * an API call fails.
 	 *
 	 * @param string $message Error message to show on
 	 * thrown exception.

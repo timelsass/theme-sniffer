@@ -2,7 +2,7 @@
 /**
  * File containing the plugin activation failure exception class
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Exception
  */
 

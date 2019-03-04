@@ -1,10 +1,10 @@
 === Theme Sniffer ===
-Contributors: rabmalin, grapplerulrich, dingo_bastard
+Contributors: dingo_d, rabmalin, grapplerulrich, timph
 Tags: check, checker, coding standards, theme, tool
 Requires at least: 4.7
-Tested up to: 4.9.8
-Requires PHP: 5.6
-Stable tag: 0.2.0
+Tested up to: 5.1.0
+Requires PHP: 7.0
+Stable tag: 1.0.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -23,7 +23,7 @@ Theme Sniffer is a plugin utilizing custom sniffs for [PHP_CodeSniffer](https://
 3. Click Install Now
 4. When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 
-Make sure that your server has php version greater or equal to 5.6, otherwise, the plugin won't activate.
+Make sure that your server has php version greater or equal to 7.0, otherwise, the plugin won't activate.
 
 = Uploading the .zip file: =
 
@@ -33,26 +33,50 @@ Make sure that your server has php version greater or equal to 5.6, otherwise, t
 4. Follow the on-screen instructions and wait as the upload completes.
 When it’s finished, activate the plugin via the prompt. A message will show confirming activation was successful.
 
+== Screenshots ==
+
+1. Theme Sniffer main screen
+
 == Frequently Asked Questions ==
 
 = How to use the plugin? =
 
-* Go to `Appearance` -> `Theme Sniffer`
+* Go to `Theme Sniffer` menu
 * Select theme from the drop-down
-* Click `GO`
+* Select the desired options
+* Click `GO` to start the Theme Sniffer
 
 = What options are there? =
 
 * `Select Standard` - Select the standard with which you would like to sniff the theme
 * `Hide Warning` - Enable this to hide warnings
 * `Raw Output` - Enable this to display sniff report in plain text format. Suitable to copy/paste report to trac ticket
-* `PHP version` - Select the minimum PHP Version to check if your theme will work with that version
+* `Ignore annotations` - Ignores any comment annotation that might disable the sniff
+* `Check only PHP files` - Only checks PHP files, not CSS and JS - use this to prevent any possible memory leaks
+* `Minimum PHP version` - Select the minimum PHP Version to check if your theme will work with that version
+
+= How can I help with the development of the plugin? =
+
+Go to the official repo on Github (https://github.com/WPTRT/theme-sniffer), fork the plugin, read the readme and go through the issues. Any kind of help is appreciated. Either manually testing or writing code is invaluable for the open source project such as this.
+
+= Contributors and testers thanks =
+
+Thanks to Danny Cooper, Liton Arefin and metallicarosetail (slack) for testing the plugin and finding bugs in the development stage. Thanks to the TRT for the support.
 
 == Upgrade Notice ==
 
 The latest upgrade mostly with development changes and some minor improvements in sniff handling.
 
 == Changelog ==
+
+= 1.0.0 =
+* Refactored the code structure to more modern workflow
+* Updated the PHPCS version to the latest one, as well as WPCS version
+* Added the WPThemeReview standard
+* Added the theme prefix checks
+* Added `Check only PHP files`option
+* Theme tags are pulled from the API
+* Added additional functionality
 
 = 0.1.5 =
 * Change the development process

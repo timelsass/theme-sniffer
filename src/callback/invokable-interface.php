@@ -2,7 +2,7 @@
 /**
  * File that holds the invokable interface.
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Core
  */
 

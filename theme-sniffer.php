@@ -3,14 +3,14 @@
  * Plugin Name: Theme Sniffer
  * Plugin URI:  https://github.com/WPTRT/theme-sniffer
  * Description: Theme Sniffer plugin which uses PHP_CodeSniffer for automatic theme checking.
- * Version:     0.2.0
+ * Version:     1.0.0
  * Author:      WPTRT
  * Author URI:  https://make.wordpress.org/themes/
  * Text Domain: theme-sniffer
- * License:     GPL-2.0+
- * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
+ * License:     MIT
+ * License URI: https://opensource.org/licenses/MIT
  *
- * @since   0.2.0 Added plugin factory
+ * @since   1.0.0 Added plugin factory
  * @since   0.1.0
  * @package Theme_Sniffer
  */
@@ -45,7 +45,7 @@ register_activation_hook(
 /**
  * The code that runs during plugin deactivation.
  *
- * @since 0.2.0
+ * @since 1.0.0
 */
 register_deactivation_hook(
 	__FILE__,

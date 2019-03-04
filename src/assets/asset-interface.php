@@ -2,7 +2,7 @@
 /**
  * File containing the asset interface
  *
- * @since 0.2.0
+ * @since 1.0.0
  * @package Theme_Sniffer\Assets
  */
 
@@ -17,17 +17,17 @@ use Theme_Sniffer\Core\Registerable;
  */
 interface Asset extends Registerable {
 
-  /**
-   * Enqueue the asset.
-   *
-   * @return void
-   */
-  public function enqueue();
+	/**
+	 * Enqueue the asset.
+	 *
+	 * @return void
+	 */
+	public function enqueue();
 
-  /**
-   * Get the handle of the asset.
-   *
-   * @return string
-   */
-  public function get_handle();
+	/**
+	 * Get the handle of the asset.
+	 *
+	 * @return string
+	 */
+	public function get_handle();
 }

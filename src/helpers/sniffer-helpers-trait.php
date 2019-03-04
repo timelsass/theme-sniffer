@@ -2,13 +2,16 @@
 /**
  * The helpers trait file
  *
- * @since   2.0.0
+ * @since   1.0.0
  * @package Theme_Sniffer\Helpers
  */
 
 declare( strict_types=1 );
 
 namespace Theme_Sniffer\Helpers;
+
+use Theme_Sniffer\Api\Template_Tags_Request;
+use Theme_Sniffer\Exception\No_Themes_Present;
 
 /**
  * Sniffer helpers trait
@@ -22,7 +25,7 @@ trait Sniffer_Helpers {
 	 * Includes a 'theme_sniffer_add_standards' filter, so that user can add their own standard. The standard has to be added
 	 * in the composer before bundling the plugin.
 	 *
-	 * @since 0.2.0 Added filter so that user can add their own standards. Moved to a trait.
+	 * @since 1.0.0 Added filter so that user can add their own standards. Moved to a trait.
 	 * @since 0.1.3
 	 *
 	 * @return array Standards details.
@@ -66,17 +69,32 @@ trait Sniffer_Helpers {
 	/**
 	 * Return all the active themes
 	 *
-	 * @since  0.2.0 Moved to a trait.
+	 * @since  1.0.0 Moved to a trait.
+	 *
+	 * @throws Api_Response_Error If API is down.
 	 * @return array Array of active themes.
 	 */
 	public function get_active_themes() : array {
-		$all_themes = wp_get_themes();
-		$themes     = [];
+		$all_themes   = wp_get_themes();
+		$active_theme = ( wp_get_theme() )->get( 'Name' );
 
-		if ( ! empty( $all_themes ) ) {
-			foreach ( $all_themes as $key => $theme ) {
-				$themes[ $key ] = $theme->get( 'Name' );
+		if ( empty( $all_themes ) ) {
+			throw No_Themes_Present::message(
+				esc_html__( 'No themes present in the themes directory.', 'theme-sniffer' )
+			);
+		}
+
+		$themes = [];
+		foreach ( $all_themes as $theme_slug => $theme ) {
+			$theme_name    = $theme->get( 'Name' );
+			$theme_version = $theme->get( 'Version' );
+
+			if ( $theme_name === $active_theme ) {
+				$theme_name = "(Active) $theme_name";
 			}
+
+			$themes[ $theme_slug ] = "$theme_name - v$theme_version";
+
 		}
 
 		return $themes;
@@ -85,7 +103,7 @@ trait Sniffer_Helpers {
 	/**
 	 * Returns PHP versions.
 	 *
-	 * @since 0.2.0 Added PHP 7.x versions. Moved to a trait.
+	 * @since 1.0.0 Added PHP 7.x versions. Moved to a trait.
 	 * @since 0.1.3
 	 *
 	 * @return array PHP versions.
@@ -107,65 +125,41 @@ trait Sniffer_Helpers {
 	/**
 	 * Returns theme tags.
 	 *
-	 * @since 0.2.0 Moved to a trait.
+	 * @since 1.0.0 Moved to a trait and refactored to use tags from API.
 	 * @since 0.1.3
 	 *
 	 * @return array Theme tags array.
 	 */
 	public function get_theme_tags() : array {
 
-		$tags['allowed_tags'] = [
-			'two-columns',
-			'three-columns',
-			'four-columns',
-			'left-sidebar',
-			'right-sidebar',
-			'grid-layout',
-			'flexible-header',
-			'accessibility-ready',
-			'buddypress',
-			'custom-background',
-			'custom-colors',
-			'custom-header',
-			'custom-menu',
-			'custom-logo',
-			'editor-style',
-			'featured-image-header',
-			'featured-images',
-			'footer-widgets',
-			'front-page-post-form',
-			'full-width-template',
-			'microformats',
-			'post-formats',
-			'rtl-language-support',
-			'sticky-post',
-			'theme-options',
-			'threaded-comments',
-			'translation-ready',
-		];
-
-		$tags['subject_tags'] = [
-			'blog',
-			'e-commerce',
-			'education',
-			'entertainment',
-			'food-and-drink',
-			'holiday',
-			'news',
-			'photography',
-			'portfolio',
-		];
-
-		return $tags;
+		return get_transient( Template_Tags_Request::TEMPLATE_TRANSIENT );
 	}
 
 	/**
 	 * Helper method that returns the default stnadard
 	 *
-	 * @since 0.2.0
-	 * @return string Name of the default standard
+	 * @since 1.0.0
+	 * @return string Name of the default standard.
 	 */
 	public function get_default_standard() : string {
 		return 'WPThemeReview';
+	}
+
+	/**
+	 * Helper method to get a list of required headers
+	 *
+	 * @since 1.0.0
+	 * @return array List of required headers.
+	 */
+	public function get_required_headers() {
+		return [
+			'Name',
+			'Description',
+			'Author',
+			'Version',
+			'License',
+			'License URI',
+			'TextDomain',
+		];
 	}
 }
