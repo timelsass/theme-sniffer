@@ -1,5 +1,5 @@
 === Theme Sniffer ===
-Contributors: dingo_d, rabmalin, grapplerulrich
+Contributors: dingo_d, rabmalin, grapplerulrich, timph
 Tags: check, checker, coding standards, theme, tool
 Requires at least: 4.7
 Tested up to: 5.1.0
@@ -71,6 +71,8 @@ The latest upgrade mostly with development changes and some minor improvements i
 * Added the WPThemeReview standard
 * Added the theme prefix checks
 * Added `Check only PHP files`option
+* Theme tags are pulled from the API
+* Added additional functionality
 
 = 0.1.5 =
 * Change the development process
