@@ -13,6 +13,7 @@ namespace Theme_Sniffer\Admin_Menus;
 use Theme_Sniffer\Assets\Script_Asset;
 use Theme_Sniffer\Assets\Style_Asset;
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
+use Theme_Sniffer\Exception\No_Themes_Present;
 
 /**
 * Theme sniffer page menu class
@@ -139,8 +140,13 @@ final class Sniff_Page extends Base_Admin_Menu {
 	protected function process_attributes( $atts ) : array {
 		$atts = (array) $atts;
 
+		try {
+			$atts['themes'] = $this->get_active_themes();
+		} catch ( No_Themes_Present $e ) {
+			$atts['error'] = esc_html( $e->getMessage() );
+		}
+
 		$atts['standards']    = $this->get_wpcs_standards();
-		$atts['themes']       = $this->get_active_themes();
 		$atts['php_versions'] = $this->get_php_versions();
 
 		return $atts;
