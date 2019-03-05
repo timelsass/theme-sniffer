@@ -2,8 +2,11 @@ const path = require( 'path' );
 
 const webpack = require( 'webpack' );
 const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
-const UglifyJSPlugin = require( 'uglifyjs-webpack-plugin' );
-const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
+const ManifestPlugin = require( 'webpack-manifest-plugin' );
+const FileManagerPlugin = require( 'filemanager-webpack-plugin' );
+
 const DEV = process.env.NODE_ENV !== 'production';
 
 const appPath = __dirname;
@@ -15,69 +18,158 @@ const pluginEntry = `${pluginFullPath}/dev/application.js`;
 const pluginPublicPath = `${pluginFullPath}/build`;
 
 // Outputs
-const outputJs = 'scripts/[name].js';
-const outputCss = 'styles/[name].css';
+const outputJs = 'scripts/[name]-[hash].js';
+const outputCss = 'styles/[name]-[hash].css';
 
 const allModules = {
 	rules: [
 		{
 			test: /\.(js|jsx)$/,
-			use: 'babel-loader',
-			exclude: /node_modules/
+			exclude: /node_modules/,
+			use: 'babel-loader'
 		},
 		{
 			test: /\.json$/,
 			use: 'json-loader'
 		},
 		{
-			test: /\.css$/,
-			use: ExtractTextPlugin.extract({
-				fallback: 'style-loader',
-				use: [ 'css-loader' ]
-			})
+			test: /\.scss$/,
+			exclude: /node_modules/,
+			use: [
+				MiniCssExtractPlugin.loader,
+				'css-loader', 'sass-loader'
+			]
 		}
 	]
 };
 
 const allPlugins = [
-	new CleanWebpackPlugin( [ pluginPublicPath ] ),
-	new ExtractTextPlugin( outputCss ),
-	new webpack.optimize.ModuleConcatenationPlugin(),
-	new webpack.DefinePlugin({
-		'process.env': {
-			NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'development' )
+	new CleanWebpackPlugin([ pluginPublicPath ]),
+	new MiniCssExtractPlugin(
+		{
+			filename: outputCss
 		}
-	})
+	),
+	new webpack.ProvidePlugin(
+		{
+			$: 'jquery',
+			jQuery: 'jquery'
+		}
+	),
+	new webpack.DefinePlugin(
+		{
+			'process.env': {
+				NODE_ENV: JSON.stringify( process.env.NODE_ENV || 'development' )
+			}
+		}
+	),
+	new ManifestPlugin()
 ];
 
-if ( ! DEV ) {
-	allPlugins.push(
-		new UglifyJSPlugin({
-			uglifyOptions: {
-				output: {
-					comments: false,
-					beautify: false
-				},
-				sourceMap: true
+const allOptimizations = {
+	runtimeChunk: false,
+	splitChunks: {
+		cacheGroups: {
+			commons: {
+				test: /[\\/]node_modules[\\/]/,
+				name: 'vendors',
+				chunks: 'all'
 			}
+		}
+	}
+};
+
+// Use only for production build
+if ( ! DEV ) {
+	allOptimizations.minimizer = [
+		new UglifyJsPlugin(
+			{
+				cache: true,
+				parallel: true,
+				sourceMap: true,
+				uglifyOptions: {
+					output: {
+						comments: false
+					},
+					compress: {
+						warnings: false,
+						drop_console: true // eslint-disable-line camelcase
+					}
+				}
+			}
+		)
+	];
+
+	allPlugins.push(
+		new FileManagerPlugin({
+			onEnd: [
+				{
+					copy: [
+						{
+							source: './',
+							destination: './theme-sniffer'
+						}
+					]
+				},
+				{
+					delete: [
+						'./theme-sniffer/assets/dev',
+						'./theme-sniffer/node_modules',
+						'./theme-sniffer/composer.json',
+						'./theme-sniffer/composer.lock',
+						'./theme-sniffer/package.json',
+						'./theme-sniffer/package-lock.json',
+						'./theme-sniffer/phpcs.xml.dist',
+						'./theme-sniffer/webpack.config.js'
+					]
+				},
+				{
+					archive: [
+						{
+							source: './theme-sniffer',
+							destination: './theme-sniffer.zip',
+							options: {
+								gzip: true,
+								gzipOptions: { level: 1 },
+								globOptions: { nomount: true }
+							}
+						}
+					]
+				},
+				{
+					delete: [
+						'./theme-sniffer'
+					]
+				}
+
+			]
 		})
 	);
+
 }
 
-module.exports = [ {
-	devServer: {
-		outputPath: path.join( __dirname, 'build' )
-	},
-	entry: {
-		application: [ pluginEntry ]
-	},
-	output: {
-		path: pluginPublicPath,
-		publicPath: '',
-		filename: outputJs
-	},
+module.exports = [
+	{
+		context: path.join( appPath ),
 
-	module: allModules,
+		entry: {
+			themeSniffer: [ pluginEntry ]
+		},
 
-	plugins: allPlugins
-} ];
+		output: {
+			path: pluginPublicPath,
+			publicPath: '',
+			filename: outputJs
+		},
+
+		externals: {
+			jquery: 'jQuery'
+		},
+
+		optimization: allOptimizations,
+
+		module: allModules,
+
+		plugins: allPlugins
+	}
+];

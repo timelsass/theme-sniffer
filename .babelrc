@@ -1,9 +1,17 @@
 {
   "presets": [
-    ["env", {
-      "targets": {
-        "browsers": ["last 2 versions", "not ie < 11", "android >= 4.2"]
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "not ie < 11",
+            "android >= 4.2"
+          ],
+          "node": "current"
+        }
       }
-    }]
+    ]
   ]
 }

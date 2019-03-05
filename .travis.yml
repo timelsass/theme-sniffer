@@ -1,10 +1,26 @@
-sudo: false
 dist: trusty
+
+cache:
+  apt: true
+  directories:
+    # Cache directory for older Composer versions.
+    - $HOME/.composer/cache/files
+    # Cache directory for more recent Composer versions.
+    - $HOME/.cache/composer/files
 
 language: php
 
-before_install:
-  - phpenv config-rm xdebug.ini
+php:
+  - 7.0
+  - 7.1
+  - 7.3
+  - nightly
+
+env:
+  # Highest supported PHPCS version.
+  - PHPCS_BRANCH="dev-master" LINT=1
+  # Lowest supported PHPCS version.
+  - PHPCS_BRANCH="3.3.0"
 
 notifications:
   email:
@@ -14,33 +30,32 @@ notifications:
 branches:
   only:
     - master
-
-cache:
-  apt: true
-  directories:
-    - node_modules
-    - vendor
-    - composer
-    - $HOME/.composer/cache
+    - development
 
 matrix:
   fast_finish: true
   include:
-    - php: 5.3
-      dist: precise
-      env: WP_VERSION=3.7.22 WP_MULTISITE=0
-    - php: 5.6
-      env: WP_VERSION=latest WP_MULTISITE=1
-    - php: 7.1
-      env: WP_VERSION=latest WP_MULTISITE=0 SNIFF=1
+    # Seperate builds for PHP 7.2 with additional checks.
+    - php: 7.2
+      env: PHPCS_BRANCH="dev-master"
+      addons:
+        apt:
+          packages:
+            - libxml2-utils
+    - php: 7.2
+      env: PHPCS_BRANCH="3.3.0"
 
-before_script:
-  - if [[ "$SNIFF" == "1" ]]; then export PATH="$HOME/.composer/vendor/bin:$PATH"; fi
-  - if [[ "$SNIFF" == "1" ]]; then composer global require wp-coding-standards/wpcs; fi
-  - if [[ "$SNIFF" == "1" ]]; then phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs; fi
+  allow_failures:
+    # Allow failures for unstable builds.
+    - php: nightly
+    - php: "7.4snapshot"
+
+before_install:
+  - phpenv config-rm xdebug.ini
+  - composer install
 
 script:
-  # Search theme for PHP syntax errors.
-  - find . \( -name '*.php' \) -exec php -lf {} \;
-  - if [[ "$SNIFF" == "1" ]]; then phpcs --standard=phpcs.ruleset.xml $(find . -name '*.php'); fi
-  - if [[ "$SNIFF" == "1" ]]; then phpcs --standard=phpcs.ruleset.xml $(find . -name '*.php'); fi
+  # Lint the PHP files against parse errors.
+  - if find . -path ./vendor -prune -o -name "*.php" -exec php -l {} \; | grep "^[Parse error|Fatal error]"; then exit 1; fi;
+  # Check the codestyle of the WPThemeReview codebase.
+  - composer check-cs .

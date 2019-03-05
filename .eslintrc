@@ -4,20 +4,18 @@
     "__VERSION__": true
   },
   "env": {
-
-    # You can change environment depending on the project you are working on
     "browser": true,
     "node": true,
     "commonjs": true,
     "es6": true,
     "jquery": true
   },
-  extends: ["eslint:recommended", "wordpress"],
-  rules: {
-    indent: ["error", "tab"],
+  "extends": ["eslint:recommended", "wordpress"],
+  "rules": {
+    "indent": ["error", "tab"],
     "linebreak-style": ["error", "unix"],
-    quotes: ["error", "single"],
-    semi: ["error", "always"],
-    yoda: ["error", "never"]
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "yoda": ["error", "never"]
   }
 }
