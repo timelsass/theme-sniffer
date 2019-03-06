@@ -841,23 +841,41 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 */
 	protected function screenshot_check() {
 		$screenshot = 'screenshot.png';
-		if ( isset( self::$missing_files[ $screenshot ] ) ) {
-			return;
-		}
-
-		$file  = implode( '/', [ self::$theme_root, self::$theme_slug, $screenshot ] );
-		$check = [
+		$check      = [
 			self::TOTALS => [
 				self::ERRORS   => 0,
 				self::WARNINGS => 0,
 				self::FIXABLE  => 0,
 			],
-			self::FILES => [
-				$file => [
+		];
+
+		if ( isset( self::$missing_files[ $screenshot ] ) ) {
+
+			$check[ self::FILES ] = [
+				$screenshot => [
 					self::ERRORS   => 0,
 					self::WARNINGS => 0,
 					self::MESSAGES => [],
 				],
+			];
+			$check[ self::TOTALS ][ self::ERRORS ]++;
+			$check[ self::FILES ][ $screenshot ][ self::ERRORS ]++;
+			$check[ self::FILES ][ $screenshot ][ self::MESSAGES ][] = [
+				self::MESSAGE  => esc_html__( 'Screenshot missing.', 'theme-sniffer' ),
+				self::SEVERITY => self::ERROR,
+				self::FIXABLE  => false,
+				self::TYPE     => strtoupper( self::ERROR ),
+			];
+			return $check;
+		}
+
+		$file = implode( '/', [ self::$theme_root, self::$theme_slug, $screenshot ] );
+
+		$check[ self::FILES ] = [
+			$file => [
+				self::ERRORS   => 0,
+				self::WARNINGS => 0,
+				self::MESSAGES => [],
 			],
 		];
 
