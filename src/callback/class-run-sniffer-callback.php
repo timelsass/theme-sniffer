@@ -851,15 +851,39 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 */
 	protected function required_files_check( $theme_slug, $check_php_only ) {
 
-		$required_files = [ self::README, 'screenshot.png' ];
+		// NOTE: the self::README constant now exists.
+		$required_files = [
+			'comments' => [
+				'php',
+			],
+			'functions' => [
+				'php',
+			],
+			'readme' => [
+				'txt',
+				'md',
+			],
+			'screenshot' => [
+				'png',
+				'jpg',
+			],
+		];
 
 		if ( $check_php_only ) {
-			$required_files = array_filter(
-				$required_files,
-				function( $file ) {
-					return strpos( $file, '.php' ) !== false;
+
+			foreach ( $required_files as $filename => $extensions ) {
+				$i = 0;
+				foreach ( $extensions as $extension ) {
+					if ( 'php' !== $extension ) {
+						unset( $required_files[ $filename ][ $i ] );
+					}
+					if ( empty( $required_files[ $filename ] ) ) {
+						unset( $required_files[ $filename ] );
+					}
+					$i++;
 				}
-			);
+			}
+			$updated_array = $required_files;
 		}
 
 		$required_file_check = [
@@ -873,12 +897,28 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 
 		$theme_root = get_theme_root( $theme_slug );
 
-		foreach ( $required_files as $file ) {
-			$required = self::$theme_root . "/{$theme_slug}/{$file}";
-			if ( ! file_exists( $required ) ) {
-				self::$missing_files[ $file ] = $required;
+		foreach ( $required_files as $filename => $extensions ) {
+			$found = false;
+			foreach ( $extensions as $extension ) {
+				$required = self::$theme_root . "/{$theme_slug}/{$filename}.{$extension}";
+				if ( file_exists( $required ) ) {
+					$found = true;
+					break;
+				} else {
+					// NOTE: \file_exists() case sensitivity is unpredictable
+					// because it mimics the behavior of the filesystem it is
+					// looking at. Try with all uppercase chars in file name.
+					$required = self::$theme_root . "/{$theme_slug}/" . strtoupper( $filename ) . ".{$extension}";
+					if ( file_exists( $required ) ) {
+						$found = true;
+						break;
+					}
+				}
+			}
+			if ( ! $found ) {
+				self::$missing_files[] = [ $filename => $required ];
 				$required_file_check[ self::TOTALS ][ self::ERRORS ]++;
-				$required_file_check[ self::FILES ][ $required ] = [
+				$required_file_check[ self::FILES ][ $filename ] = [
 					self::ERRORS   => 1,
 					self::WARNINGS => 0,
 					self::MESSAGES => [
@@ -886,7 +926,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 							self::MESSAGE  => sprintf(
 								/* translators: The filename that is missing. */
 								esc_html__( 'Theme is missing %s! This file is required for all WordPress themes.', 'theme-sniffer' ),
-								$file
+								"{$filename}.{$extensions[0]}"
 							),
 							self::SEVERITY => self::ERROR,
 							self::FIXABLE  => false,
