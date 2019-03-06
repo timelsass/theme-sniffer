@@ -86,11 +86,8 @@ export default class ThemeSniffer {
 
 				$singleItem.find( this.reportItemLine ).text( line );
 				$singleItem.find( this.reportItemType ).text( type );
-				if ( message.includes( 'iframe' ) ) {
-					$singleItem.find( this.reportItemMessage ).text( message );
-				} else {
-					$singleItem.find( this.reportItemMessage ).html( message );
-				}
+				$singleItem.find( this.reportItemMessage ).text( message );
+				
 				$singleItem.appendTo( $reportReportTable );
 			}
 		);
