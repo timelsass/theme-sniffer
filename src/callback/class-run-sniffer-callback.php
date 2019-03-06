@@ -805,7 +805,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		foreach ( $required_files as $file ) {
 			$required = self::$theme_root . "/{$theme_slug}/{$file}";
 			if ( ! file_exists( $required ) ) {
-				self::$missing_files[] = [ $file => $required ];
+				self::$missing_files[ $file ] = $required;
 				$required_file_check[ self::TOTALS ][ self::ERRORS ]++;
 				$required_file_check[ self::FILES ][ $required ] = [
 					self::ERRORS   => 1,
