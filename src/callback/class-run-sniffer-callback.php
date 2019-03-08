@@ -780,7 +780,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 */
 	protected function required_files_check( $theme_slug, $check_php_only ) {
 
-		$required_files = [ 'comments.php', 'functions.php', 'readme.txt', 'screenshot.png' ];
+		$required_files = [ 'readme.txt', 'screenshot.png' ];
 
 		if ( $check_php_only ) {
 			$required_files = array_filter(
