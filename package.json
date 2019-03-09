@@ -36,8 +36,9 @@
   },
   "scripts": {
     "start": "NODE_ENV=development webpack --progress --watch --display-error-details --display-modules --display-reasons --mode development",
-    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production",
-    "precommit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* ."
+    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production && npm run script:licenses",
+    "precommit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* .",
+    "script:licenses": "node bin/build.js"
   },
   "repository": {
     "type": "git",
