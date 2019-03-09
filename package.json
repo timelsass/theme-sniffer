@@ -36,7 +36,8 @@
   },
   "scripts": {
     "start": "NODE_ENV=development webpack --progress --watch --display-error-details --display-modules --display-reasons --mode development",
-    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production"
+    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production",
+    "precommit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* ."
   },
   "repository": {
     "type": "git",
