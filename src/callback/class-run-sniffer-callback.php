@@ -547,7 +547,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$config_args = [ '-s', '-p' ];
 
 		if ( $show_warnings === '0' ) {
-			$config_args[] = [ '-n' ];
+			$config_args[] = '-n';
 		}
 
 		$runner->config = new Config( $config_args );

@@ -164,7 +164,7 @@ module.exports = [
 
 		externals: {
 			jquery: 'jQuery',
-			espirma: 'esprima'
+			esprima: 'esprima'
 		},
 
 		optimization: allOptimizations,
