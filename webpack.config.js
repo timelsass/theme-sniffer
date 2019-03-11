@@ -163,7 +163,8 @@ module.exports = [
 		},
 
 		externals: {
-			jquery: 'jQuery'
+			jquery: 'jQuery',
+			espirma: 'esprima'
 		},
 
 		optimization: allOptimizations,
