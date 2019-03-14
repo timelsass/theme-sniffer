@@ -64,7 +64,7 @@ $standard_status     = wp_list_pluck( $standards, 'default' );
 				<h2><?php esc_html_e( 'Theme prefixes', 'theme-sniffer' ); ?></h2>
 			</label>
 			<input id="theme_prefixes" class="theme-sniffer__form-input" type="text" name="theme_prefixes" value="" tabindex="2" />
-			<div class="theme-sniffer__form-description"><?php esc_html_e( 'Add the theme prefixes to check if all the globals are properly prefixed. Can be just one, or multiple prefix, separated by comma - e.g. twentyseventeen,twentysixteen,myprefix', 'theme-sniffer' ); ?></div>
+			<div class="theme-sniffer__form-description"><?php esc_html_e( 'Add the theme prefixes to check if all the globals are properly prefixed. Can be just one, or multiple prefixes, separated by comma - e.g. twentyseventeen,twentysixteen,myprefix', 'theme-sniffer' ); ?></div>
 		</div>
 		<div class="theme-sniffer__form-standards">
 			<h2><?php esc_html_e( 'Select Standard', 'theme-sniffer' ); ?></h2>
