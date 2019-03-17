@@ -4,14 +4,14 @@
  *
  * @since   1.1.0
  *
- * @package Theme_Sniffer\Helpers
+ * @package Theme_Sniffer\Sniffs\Readme
  */
 
 declare( strict_types=1 );
 
-namespace Theme_Sniffer\Sniffs\Readme\Validate;
+namespace Theme_Sniffer\Sniffs\Readme;
 
-use \Theme_Sniffer\Sniffs\Readme;
+use Theme_Sniffer\Sniffs\Has_Results;
 
 /**
  * Responsible for initiating validators.
@@ -20,7 +20,7 @@ use \Theme_Sniffer\Sniffs\Readme;
  *
  * @since   1.1.0
  */
-class Validator {
+class Validator implements Has_Results {
 
 	/**
 	 * Sniff results for the readme.txt.
@@ -38,7 +38,7 @@ class Validator {
 	 *
 	 * @param \Theme_Sniffer\Sniffs\Readme\Parser $parser Parser object.
 	 */
-	public function __construct( Readme\Parser $parser ) {
+	public function __construct( Parser $parser ) {
 		$this->parser = $this->set_defaults( $parser );
 		$this->validate( $parser );
 	}

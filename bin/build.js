@@ -1,19 +1,21 @@
-const fs = require( 'fs' ),
-	path = require( 'path' );
+const fs = require( 'fs' );
+const path = require( 'path' );
 
 ( async () => {
-	var rd = fs.createReadStream( path.resolve( path.join( __dirname, '..', 'assets', 'dev', 'licenses.json' ) ) );
-	var wr = fs.createWriteStream( path.resolve( path.join( __dirname, '..', 'assets', 'build', 'licenses.json' ) ) );
+	const read = fs.createReadStream( path.resolve( path.join( __dirname, '..', 'assets', 'dev', 'licenses.json' ) ) );
+	const write = fs.createWriteStream( path.resolve( path.join( __dirname, '..', 'assets', 'build', 'licenses.json' ) ) );
+
 	try {
 		return await new Promise( ( resolve, reject ) => {
-			rd.on( 'error', reject );
-			wr.on( 'error', reject );
-			wr.on( 'finish', resolve );
-			rd.pipe( wr );
+			read.on( 'error', reject );
+			write.on( 'error', reject );
+			write.on( 'finish', resolve );
+			read.pipe( write );
 		} );
-	} catch ( e ) {
-		rd.destroy();
-		wr.end();
-		throw e;
+	} catch ( error ) {
+		read.destroy();
+		write.end();
+		throw error;
 	}
+
 } )().catch( console.error );

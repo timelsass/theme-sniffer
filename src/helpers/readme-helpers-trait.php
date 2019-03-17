@@ -46,9 +46,9 @@ trait Readme_Helpers {
 	 * @return array License validation data.
 	 */
 	public function set_license_data() : array {
-		$file = WP_PLUGIN_DIR . plugin_dir_path( '/theme-sniffer/assets/build/licenses.json' );
-		$file = file_get_contents( $file . 'licenses.json' );
-		return json_decode( $file, true );
+		$licenses_path = WP_PLUGIN_DIR . plugin_dir_path( '/theme-sniffer/assets/build/licenses.json' );
+		$licenses_file = file_get_contents( $licenses_path . 'licenses.json' );
+		return json_decode( $licenses_file, true );
 	}
 
 	/**
@@ -77,9 +77,7 @@ trait Readme_Helpers {
 			} else {
 				$response->live[ $response->provided ] = $found;
 			}
-		}
-
-		if ( ! $found ) {
+		} else {
 			foreach ( $this->license_data as $license => $details ) {
 				if ( in_array( $response->provided, $details['names'], true ) || in_array( $response->provided, $details['ids'], true ) ) {
 					if ( $this->license_data[ $license ]['isDeprecatedLicenseId'] ) {
@@ -118,29 +116,30 @@ trait Readme_Helpers {
 				// Provided a SPDX name that matched.
 				if ( $response->provided === $details['name'] ) {
 					$response->status = 'warning';
-					/* translators 1: a SPDX license name. 2: the recommended SPDX ID to use instead. */
-					$response->message = sprintf( 'Found a valid SPDX name, %1$s, but it is better to use the SPDX ID: %2$s', $response->provided, $details['licenseId'] );
+					/* translators: 1: a SPDX license name. 2: the recommended SPDX ID to use instead. */
+					$response->message = sprintf( esc_html__( 'Found a valid SPDX name, %1$s, but it is better to use the SPDX ID: %2$s', 'theme-sniffer' ), $response->provided, $details['licenseId'] );
 				} elseif ( $response->provided === $details['licenseId'] ) { // A Valid SPDX ID was found, no message required.
 					$response->status  = 'success';
 					$response->message = null;
 				} else { // A single match was found for FSF critera.
 					$response->status = 'warning';
-					/* translators 1: a SPDX license name. 2: the recommended SPDX ID to use instead. */
-					$response->message = sprintf( 'Found valid license information based on FSF naming: %1$s, but it is better to use the SPDX ID: %2$s', $response->provided, $details['licenseId'] );
+					/* translators: 1: a SPDX license name. 2: the recommended SPDX ID to use instead. */
+					$response->message = sprintf( esc_html__( 'Found valid license information based on FSF naming: %1$s, but it is better to use the SPDX ID: %2$s', 'theme-sniffer' ), $response->provided, $details['licenseId'] );
 				}
 			} else { // Multiple matches returned, so it's FSF provided critera.
 				$matches          = array_keys( $response->live );
 				$response->status = 'error';
-				/* translators %s: listing of license IDs matched. */
-				$response->message = sprintf( 'Found multiple records matching these licenses: %s, it\'s required to use a single SPDX Idenitfier!', implode( ', ', $matches ) );
+				/* translators: %s: listing of license IDs matched. */
+				$response->message = sprintf( esc_html__( 'Found multiple records matching these licenses: %s, it\'s required to use a single SPDX Idenitfier!', 'theme-sniffer' ), implode( ', ', $matches ) );
 			}
 		} elseif ( ! empty( $response->deprecated ) ) { // Deprecated match found.
-			$response->status  = 'error';
-			$response->message = sprintf( __( 'The license identification provided, $s, indicates a deprecated license!  Please use a valid SPDX Identifier!', 'theme-sniffer' ), $response->provided );
+			$response->status = 'error';
+			/* translators: %s: User provided license identifier. */
+			$response->message = sprintf( esc_html__( 'The license identification provided, $s, indicates a deprecated license!  Please use a valid SPDX Identifier!', 'theme-sniffer' ), $response->provided );
 		} else { // No matches found.
 			$response->status = 'error';
 			/* translators: %s: unrecognized user provided license identifier */
-			$response->message = sprintf( __( 'No matching license critera could be determined from: %s!', 'theme-sniffer' ), $response->provided );
+			$response->message = sprintf( esc_html__( 'No matching license critera could be determined from: %s!', 'theme-sniffer' ), $response->provided );
 		}
 
 		return $response;
@@ -155,13 +154,13 @@ trait Readme_Helpers {
 	 *
 	 * @return bool License critera is GPLv2 compatible.
 	 */
-	public function is_gpl2_compatible( $license ) {
+	public function is_gpl2_or_later_compatible( $license ) {
 		$gpl = false;
 
 		if ( ! empty( $license->id ) ) {
 
 			// Check if license is flagged as GPLv2.0 Compatible.
-			$gpl = $this->license_data[ $license->id ]['isGpl2Compatible'] ?? false;
+			$gpl = $this->license_data[ $license->id ]['isGpl2Compatible'] || $this->license_data[ $license->id ]['isGpl3Compatible'];
 		}
 
 		return $gpl;
