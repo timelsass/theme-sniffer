@@ -456,6 +456,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$ignored = '.*/node_modules/.*,.*/vendor/.*,.*/assets/build/.*,.*/build/.*,.*/bin/.*';
 
 		$results_arguments = [
+			'extensions'          => $check_php_only,
 			'show_warnings'       => $show_warnings,
 			'minimum_php_version' => $minimum_php_version,
 			'args'                => $args,
@@ -543,6 +544,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$minimum_php_version = $arguments[0]['minimum_php_version'];
 		$args                = $arguments[0]['args'];
 		$theme_prefixes      = $arguments[0]['theme_prefixes'];
+		$extensions          = $arguments[0]['extensions'];
 		$all_files           = $arguments[0]['all_files'];
 		$standards_array     = $arguments[0]['standards_array'];
 		$ignore_annotations  = $arguments[0]['ignore_annotations'];
@@ -561,6 +563,13 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$runner->config = new Config( $config_args );
 
 		$all_files = array_values( $all_files );
+
+		if ( $extensions ) {
+			$runner->config->extensions = [
+				'php' => 'PHP',
+				'inc' => 'PHP',
+			];
+		}
 
 		$runner->config->standards   = $standards_array;
 		$runner->config->files       = $all_files;
