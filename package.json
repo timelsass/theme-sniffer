@@ -7,7 +7,8 @@
     "@babel/polyfill": "^7.0.0",
     "autoprefixer": "^9.4.8",
     "cssnano": "^4.1.10",
-    "jquery": "^3.3.1"
+    "jquery": "^3.3.1",
+    "wp-license-compatibility": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
