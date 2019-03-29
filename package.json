@@ -73,7 +73,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* ."
+      "pre-commit": "npm run precommit"
     }
   }
 }
