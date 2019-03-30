@@ -146,8 +146,9 @@ final class Sniff_Page extends Base_Admin_Menu {
 			$atts['error'] = esc_html( $e->getMessage() );
 		}
 
-		$atts['standards']    = $this->get_wpcs_standards();
-		$atts['php_versions'] = $this->get_php_versions();
+		$atts['standards']           = $this->get_wpcs_standards();
+		$atts['php_versions']        = $this->get_php_versions();
+		$atts['minimum_php_version'] = $this->get_minimum_php_version();
 
 		return $atts;
 	}
