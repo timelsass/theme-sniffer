@@ -130,7 +130,7 @@
 			background-color: $dirtywhite-color;
 			position: relative;
 
-			&:nth-child(even) {
+			&.js-report-notice-source {
 				display: grid;
 				grid-template-columns: 125px auto; // result of calc(55px + 75px + 2px - 7px) table-line + table-type + 2px table border - 7px button padding.
 				padding-top: 4px;
@@ -157,6 +157,7 @@
 			&:last-of-type {
 				border-bottom-left-radius: 5px;
 				border-bottom-right-radius: 5px;
+				padding-bottom: 11px;
 
 				&::after {
 					display: none;
