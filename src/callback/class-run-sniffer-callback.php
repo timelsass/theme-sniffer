@@ -20,6 +20,8 @@ use \PHP_CodeSniffer\Reporter;
 use \PHP_CodeSniffer\Files\DummyFile;
 use \WordPress\PHPCSHelper;
 
+use Theme_Sniffer\Sniffs\Readme\Parser;
+use Theme_Sniffer\Sniffs\Readme\Validator;
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
 
 /**
@@ -256,11 +258,18 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	const TYPE = 'type';
 
 	/**
-	* Callback privacy
-	*
-	* @var bool
-	*/
+	 * Callback privacy
+	 *
+	 * @var bool
+	 */
 	const CB_PUBLIC = false;
+
+	/**
+	 * Readme file name
+	 *
+	 * @var string
+	 */
+	const README = 'readme.txt';
 
 	/**
 	 * Missing Required Files
@@ -486,11 +495,12 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			// Check theme headers.
 			$theme_header_checks = $this->style_headers_check( self::$theme_slug, $theme, $show_warnings );
 			$screenshot_checks   = $this->screenshot_check();
+			$readme_checks       = $this->readme_check();
 
-			$total_errors  += $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $screenshot_checks[ self::TOTALS ][ self::ERRORS ];
-			$total_warning += $theme_header_checks[ self::TOTALS ][ self::WARNINGS ];
+			$total_errors  += $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $screenshot_checks[ self::TOTALS ][ self::ERRORS ] + $readme_checks[ self::TOTALS ][ self::ERRORS ];
+			$total_warning += $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $readme_checks[ self::TOTALS ][ self::WARNINGS ];
 			$total_fixable += $theme_header_checks[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   += $theme_header_checks[ self::FILES ] + $screenshot_checks[ self::FILES ];
+			$total_files   += $theme_header_checks[ self::FILES ] + $screenshot_checks[ self::FILES ] + $readme_checks[ self::FILES ];
 		}
 
 		// Filtering the files for easier JS handling.
@@ -778,6 +788,58 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	}
 
 	/**
+	 * Performs readme.txt sniffs.
+	 *
+	 * @since 1.1.0
+	 *
+	 * @return array $check Sniffer file report.
+	 */
+	protected function readme_check() {
+		$file  = implode( '/', [ self::$theme_root, self::$theme_slug, self::README ] );
+		$check = [
+			self::TOTALS => [
+				self::ERRORS   => 0,
+				self::WARNINGS => 0,
+				self::FIXABLE  => 0,
+			],
+			self::FILES  => [
+				$file => [
+					self::ERRORS   => 0,
+					self::WARNINGS => 0,
+					self::MESSAGES => [],
+				],
+			],
+		];
+
+		if ( ! isset( self::$missing_files[ self::README ] ) ) {
+			$parser   = new Parser( $file );
+			$validate = new Validator( $parser );
+			$results  = $validate->get_results();
+
+			foreach ( $results as $result ) {
+				if ( $result['severity'] === self::ERROR ) {
+					$check[ self::TOTALS ][ self::ERRORS ]++;
+					$check[ self::FILES ][ $file ][ self::ERRORS ]++;
+				}
+
+				if ( $result['severity'] === self::WARNINGS ) {
+					$check[ self::TOTALS ][ self::WARNINGS ]++;
+					$check[ self::FILES ][ $file ][ self::WARNINGS ]++;
+				}
+
+				$check[ self::FILES ][ $file ][ self::MESSAGES ][] = [
+					self::MESSAGE  => esc_html( $result['message'] ),
+					self::SEVERITY => $result['severity'],
+					self::FIXABLE  => false,
+					self::TYPE     => strtoupper( $result['severity'] ),
+				];
+			}
+
+			return $check;
+		}
+	}
+
+	/**
 	 * Required Files Check
 	 *
 	 * @since 1.0.0
@@ -789,7 +851,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 */
 	protected function required_files_check( $theme_slug, $check_php_only ) {
 
-		$required_files = [ 'readme.txt', 'screenshot.png' ];
+		$required_files = [ self::README, 'screenshot.png' ];
 
 		if ( $check_php_only ) {
 			$required_files = array_filter(

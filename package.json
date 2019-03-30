@@ -7,7 +7,8 @@
     "@babel/polyfill": "^7.0.0",
     "autoprefixer": "^9.4.8",
     "cssnano": "^4.1.10",
-    "jquery": "^3.3.1"
+    "jquery": "^3.3.1",
+    "wp-license-compatibility": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.3.3",
@@ -36,7 +37,9 @@
   },
   "scripts": {
     "start": "NODE_ENV=development webpack --progress --watch --display-error-details --display-modules --display-reasons --mode development",
-    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production"
+    "build": "composer dump-autoload && NODE_ENV=production webpack -p --progress --mode production && npm run script:licenses",
+    "precommit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* .",
+    "script:licenses": "node bin/build.js"
   },
   "repository": {
     "type": "git",
@@ -70,7 +73,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "eslint assets/dev/scripts/*.js && stylelint \"assets/dev/styles/**/*.scss\" --syntax scss && ./vendor/bin/phpcs --ignore=*/vendor/*,*/node_modules/* ."
+      "pre-commit": "npm run precommit"
     }
   }
 }
