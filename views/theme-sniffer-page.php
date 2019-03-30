@@ -11,8 +11,6 @@
 
 namespace Theme_Sniffer\Views;
 
-use Theme_Sniffer\Admin\Helpers;
-
 // Check for errors.
 if ( ! empty( $this->error ) ) {
 	?>
@@ -35,7 +33,7 @@ if ( empty( $themes ) ) {
 
 // Predefined values.
 $current_theme       = get_stylesheet();
-$minimum_php_version = '5.2';
+$minimum_php_version = $this->minimum_php_version;
 $hide_warning        = 0;
 $raw_output          = 0;
 $ignore_annotations  = 0;
