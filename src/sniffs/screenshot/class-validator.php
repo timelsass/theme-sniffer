@@ -52,6 +52,11 @@ class Validator extends Validate_File {
 		// Validate file.
 		parent::validate( $file );
 
+		// No need to continue if file validation contains error for file not existing.
+		if ( ! empty( $this->results ) && in_array( 'error', array_column( $this->results, 'severity' ), true ) ) {
+			return;
+		}
+
 		// Image mime.
 		$mime_type = wp_get_image_mime( $file );
 

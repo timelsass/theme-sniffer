@@ -107,14 +107,14 @@ abstract class Validate_File implements Has_Results {
 		if ( $file === false ) {
 
 			// Set file class property for result output.
-			$this->file = implode( '/', [ $this->theme_root, $this->theme_slug, $this->filename . $this->extensions[0] ] );
+			$this->file = implode( '/', [ $this->theme_root, $this->theme_slug, $this->filename . '.' . $this->extensions[0] ] );
 
 			$this->results[] = [
 				'severity' => 'error',
 				'message'  => sprintf(
 					/* translators: 1: the file required including name and extension. */
 					esc_html__( 'Themes are required to provide %1$s', 'theme-sniffer' ),
-					$this->filename . $this->extension[0]
+					$this->filename . '.' . $this->extensions[0]
 				),
 			];
 
