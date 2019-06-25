@@ -20,8 +20,9 @@ use \PHP_CodeSniffer\Reporter;
 use \PHP_CodeSniffer\Files\DummyFile;
 use \WordPress\PHPCSHelper;
 
-use Theme_Sniffer\Sniffs\Readme\Parser;
-use Theme_Sniffer\Sniffs\Readme\Validator;
+use Theme_Sniffer\Sniffs\Readme\Validator as Readme;
+use Theme_Sniffer\Sniffs\Screenshot\Validator as Screenshot;
+
 use Theme_Sniffer\Helpers\Sniffer_Helpers;
 
 /**
@@ -272,13 +273,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	const README = 'readme.txt';
 
 	/**
-	 * Missing Required Files
-	 *
-	 * @var array
-	 */
-	protected static $missing_files = [];
-
-	/**
 	 * Theme's slug
 	 *
 	 * @var string
@@ -485,11 +479,6 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$total_fixable = $sniffer_results[ self::TOTALS ][ self::FIXABLE ];
 		$total_files   = $sniffer_results[ self::FILES ];
 
-		$required_results = $this->required_files_check( self::$theme_slug, $check_php_only );
-
-		$total_errors += $required_results[ self::TOTALS ][ self::ERRORS ];
-		$total_files  += $required_results[ self::FILES ];
-
 		if ( ! $check_php_only ) {
 
 			// Check theme headers.
@@ -497,10 +486,24 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 			$screenshot_checks   = $this->screenshot_check();
 			$readme_checks       = $this->readme_check();
 
-			$total_errors  += $theme_header_checks[ self::TOTALS ][ self::ERRORS ] + $screenshot_checks[ self::TOTALS ][ self::ERRORS ] + $readme_checks[ self::TOTALS ][ self::ERRORS ];
-			$total_warning += $theme_header_checks[ self::TOTALS ][ self::WARNINGS ] + $readme_checks[ self::TOTALS ][ self::WARNINGS ];
+			foreach ( $screenshot_checks as $file ) {
+				$total_errors  += $file[ self::ERRORS ];
+				$total_warning += $file[ self::WARNINGS ];
+			}
+
+			$total_files += $screenshot_checks;
+
+			foreach ( $readme_checks as $file ) {
+				$total_errors  += $file[ self::ERRORS ];
+				$total_warning += $file[ self::WARNINGS ];
+			}
+
+			$total_files += $readme_checks;
+
+			$total_errors  += $theme_header_checks[ self::TOTALS ][ self::ERRORS ];
+			$total_warning += $theme_header_checks[ self::TOTALS ][ self::WARNINGS ];
 			$total_fixable += $theme_header_checks[ self::TOTALS ][ self::FIXABLE ];
-			$total_files   += $theme_header_checks[ self::FILES ] + $screenshot_checks[ self::FILES ] + $readme_checks[ self::FILES ];
+			$total_files   += $theme_header_checks[ self::FILES ];
 		}
 
 		// Filtering the files for easier JS handling.
@@ -795,218 +798,18 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 	 * @return array $check Sniffer file report.
 	 */
 	protected function readme_check() {
-		$file  = implode( '/', [ self::$theme_root, self::$theme_slug, self::README ] );
-		$check = [
-			self::TOTALS => [
-				self::ERRORS   => 0,
-				self::WARNINGS => 0,
-				self::FIXABLE  => 0,
-			],
-			self::FILES  => [
-				$file => [
-					self::ERRORS   => 0,
-					self::WARNINGS => 0,
-					self::MESSAGES => [],
-				],
-			],
-		];
-
-		if ( ! isset( self::$missing_files[ self::README ] ) ) {
-			$parser   = new Parser( $file );
-			$validate = new Validator( $parser );
-			$results  = $validate->get_results();
-
-			foreach ( $results as $result ) {
-				if ( $result['severity'] === self::ERROR ) {
-					$check[ self::TOTALS ][ self::ERRORS ]++;
-					$check[ self::FILES ][ $file ][ self::ERRORS ]++;
-				}
-
-				if ( $result['severity'] === self::WARNINGS ) {
-					$check[ self::TOTALS ][ self::WARNINGS ]++;
-					$check[ self::FILES ][ $file ][ self::WARNINGS ]++;
-				}
-
-				$check[ self::FILES ][ $file ][ self::MESSAGES ][] = [
-					self::MESSAGE  => esc_html( $result['message'] ),
-					self::SEVERITY => $result['severity'],
-					self::FIXABLE  => false,
-					self::TYPE     => strtoupper( $result['severity'] ),
-				];
-			}
-
-			return $check;
-		}
+		$validator = new Readme( self::$theme_slug );
+		return $validator->get_results();
 	}
 
 	/**
-	 * Required Files Check
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  string $theme_slug          The theme's slug to check for required files.
-	 * @param  bool   $check_php_only      Is checking only PHP files.
-	 *
-	 * @return array  $required_file_check Array to send to reporter.
-	 */
-	protected function required_files_check( $theme_slug, $check_php_only ) {
-
-		$required_files = [ self::README, 'screenshot.png' ];
-
-		if ( $check_php_only ) {
-			$required_files = array_filter(
-				$required_files,
-				function( $file ) {
-					return strpos( $file, '.php' ) !== false;
-				}
-			);
-		}
-
-		$required_file_check = [
-			self::TOTALS => [
-				self::ERRORS   => 0,
-				self::WARNINGS => 0,
-				self::FIXABLE  => 0,
-			],
-			self::FILES  => [],
-		];
-
-		$theme_root = get_theme_root( $theme_slug );
-
-		foreach ( $required_files as $file ) {
-			$required = self::$theme_root . "/{$theme_slug}/{$file}";
-			if ( ! file_exists( $required ) ) {
-				self::$missing_files[ $file ] = $required;
-				$required_file_check[ self::TOTALS ][ self::ERRORS ]++;
-				$required_file_check[ self::FILES ][ $required ] = [
-					self::ERRORS   => 1,
-					self::WARNINGS => 0,
-					self::MESSAGES => [
-						[
-							self::MESSAGE  => sprintf(
-								/* translators: The filename that is missing. */
-								esc_html__( 'Theme is missing %s! This file is required for all WordPress themes.', 'theme-sniffer' ),
-								$file
-							),
-							self::SEVERITY => self::ERROR,
-							self::FIXABLE  => false,
-							self::TYPE     => strtoupper( self::ERROR ),
-						],
-					],
-				];
-			}
-		}
-
-		return $required_file_check;
-	}
-
-	/**
-	 * Perform screenshot.png checks.
-	 *
-	 * This will check for:
-	 * - Invalid png image.
-	 * - Valid mime type.
-	 * - Dimensions not exceeeding 1200x900.
+	 * Perform screenshot sniffs.
 	 *
 	 * @since 1.0.0
 	 */
 	protected function screenshot_check() {
-		$screenshot = 'screenshot.png';
-		$check      = [
-			self::TOTALS => [
-				self::ERRORS   => 0,
-				self::WARNINGS => 0,
-				self::FIXABLE  => 0,
-			],
-		];
-
-		if ( isset( self::$missing_files[ $screenshot ] ) ) {
-
-			$check[ self::FILES ] = [
-				$screenshot => [
-					self::ERRORS   => 0,
-					self::WARNINGS => 0,
-					self::MESSAGES => [],
-				],
-			];
-			$check[ self::TOTALS ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $screenshot ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $screenshot ][ self::MESSAGES ][] = [
-				self::MESSAGE  => esc_html__( 'Screenshot missing.', 'theme-sniffer' ),
-				self::SEVERITY => self::ERROR,
-				self::FIXABLE  => false,
-				self::TYPE     => strtoupper( self::ERROR ),
-			];
-			return $check;
-		}
-
-		$file = implode( '/', [ self::$theme_root, self::$theme_slug, $screenshot ] );
-
-		$check[ self::FILES ] = [
-			$file => [
-				self::ERRORS   => 0,
-				self::WARNINGS => 0,
-				self::MESSAGES => [],
-			],
-		];
-
-		$mime_type = wp_get_image_mime( $file );
-
-		// Missing mime type.
-		if ( ! $mime_type ) {
-			$check[ self::TOTALS ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::MESSAGES ][] = [
-				self::MESSAGE  => sprintf(
-					esc_html__( 'Screenshot mime type could not be determined, screenshots must have a mime type of "img/png".', 'theme-sniffer' ),
-					$mime_type
-				),
-				self::SEVERITY => self::ERROR,
-				self::FIXABLE  => false,
-				self::TYPE     => strtoupper( self::ERROR ),
-			];
-
-			return $check;
-		}
-
-		// Valid mime type returned, but not a png.
-		if ( $mime_type !== 'image/png' ) {
-			$check[ self::TOTALS ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::MESSAGES ][] = [
-				self::MESSAGE  => sprintf(
-					/* translators: The screenshot.png's mime type. */
-					esc_html__( 'Screenshot has mime type of "%s", but requires a mimetype of "img/png".', 'theme-sniffer' ),
-					$mime_type
-				),
-				self::SEVERITY => self::ERROR,
-				self::FIXABLE  => false,
-				self::TYPE     => strtoupper( self::ERROR ),
-			];
-
-			return $check;
-		}
-
-		// Screenshot mime validated at this point, so check dimensions - no need for fileinfo.
-		list( $width, $height ) = getimagesize( $file );
-
-		if ( $width > 1200 || $height > 900 ) {
-			$check[ self::TOTALS ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::ERRORS ]++;
-			$check[ self::FILES ][ $file ][ self::MESSAGES ][] = [
-				self::MESSAGE  => sprintf(
-					/* translators: 1: screenshot width 2: screenshot height */
-					esc_html__( 'The size of your screenshot should not exceed 1200x900, but screenshot.png is currently %1$dx%2$d.', 'theme-sniffer' ),
-					$width,
-					$height
-				),
-				self::SEVERITY => self::ERROR,
-				self::FIXABLE  => false,
-				self::TYPE     => strtoupper( self::ERROR ),
-			];
-		}
-
-		return $check;
+		$validator = new Screenshot( self::$theme_slug );
+		return $validator->get_results();
 	}
 
 	/**
