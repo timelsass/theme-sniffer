@@ -511,7 +511,9 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$files  = [];
 
 		foreach ( $total_files as $file_path => $file_sniff_results ) {
-			if ( $file_sniff_results[ self::ERRORS ] === 0 && $file_sniff_results[ self::WARNINGS ] === 0 ) {
+
+			// Allow the file list to pass any .js through for further handling, and remove all others with no errors or warnings.
+			if ( substr( $file_path, -3 ) !== '.js' && ( $file_sniff_results[ self::ERRORS ] === 0 && $file_sniff_results[ self::WARNINGS ] === 0 ) ) {
 				continue;
 			}
 
@@ -560,7 +562,7 @@ final class Run_Sniffer_Callback extends Base_Ajax_Callback {
 		$config_args = [ '-s', '-p' ];
 
 		if ( $show_warnings === '0' ) {
-			$config_args = [ '-s', '-p', '-n' ];
+			$config_args[] = '-n';
 		}
 
 		$runner->config = new Config( $config_args );
