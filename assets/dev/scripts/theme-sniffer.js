@@ -2,7 +2,9 @@
 
 import $ from 'jquery';
 import {ajax} from './utils/ajax';
+
 import Clipboard from 'clipboard';
+import SniffJs from './utils/sniff-js';
 
 export default class ThemeSniffer {
 	constructor( options ) {
@@ -39,10 +41,6 @@ export default class ThemeSniffer {
 
 		this.ajaxRequest = [];
 		this.ajaxAllow = true;
-
-		this.renderJSON = this.renderJSON.bind( this );
-		this.showNotices = this.showNotices.bind( this );
-		this.hideNotices = this.hideNotices.bind( this );
 	}
 
 	enableAjax() {
@@ -83,7 +81,6 @@ export default class ThemeSniffer {
 		const $reportReportTable  = report.find( this.reportReportTable );
 		const $reportNoticeType   = report.find( this.reportNoticeType );
 		const $reportNoticeSource = report.find( this.reportNoticeSource );
-
 		$reportItemHeading.text( json.filePath.split( '/themes/' )[1]);
 
 		$.each(
@@ -218,11 +215,15 @@ export default class ThemeSniffer {
 					return;
 				}
 
-				$.each(
-					response.files, ( ind, val ) => {
-						this.$sniffReport.append( this.renderJSON( val ) );
-					}
-				);
+				for ( let file of response.files ) {
+					( async() => {
+						if ( file.filePath.substr( file.filePath.length - 3 ) === '.js' ) {
+							let sniffer = new SniffJs( file );
+							file = await sniffer.process();
+						}
+						this.$sniffReport.append( this.renderJSON( file ) );
+					})( file );
+				}
 
 				this.hideNotices( themeSnifferLocalization.checkCompleted, true );
 			} else {

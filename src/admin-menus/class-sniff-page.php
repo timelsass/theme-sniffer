@@ -48,7 +48,7 @@ final class Sniff_Page extends Base_Admin_Menu {
 		$sniffer_page_script = new Script_Asset(
 			self::JS_HANDLE,
 			self::JS_URI,
-			[ 'jquery' ],
+			[ 'jquery', 'esprima' ],
 			false,
 			Script_Asset::ENQUEUE_FOOTER
 		);

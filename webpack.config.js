@@ -1,9 +1,9 @@
 const path = require( 'path' );
 
 const webpack = require( 'webpack' );
-const CleanWebpackPlugin = require( 'clean-webpack-plugin' );
+const { CleanWebpackPlugin } = require( 'clean-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-const UglifyJsPlugin = require( 'uglifyjs-webpack-plugin' );
+const TerserPlugin = require( 'terser-webpack-plugin' );
 const ManifestPlugin = require( 'webpack-manifest-plugin' );
 const FileManagerPlugin = require( 'filemanager-webpack-plugin' );
 
@@ -43,7 +43,7 @@ const allModules = {
 };
 
 const allPlugins = [
-	new CleanWebpackPlugin([ pluginPublicPath ]),
+	new CleanWebpackPlugin(),
 	new MiniCssExtractPlugin(
 		{
 			filename: outputCss
@@ -81,22 +81,11 @@ const allOptimizations = {
 // Use only for production build
 if ( ! DEV ) {
 	allOptimizations.minimizer = [
-		new UglifyJsPlugin(
-			{
-				cache: true,
-				parallel: true,
-				sourceMap: true,
-				uglifyOptions: {
-					output: {
-						comments: false
-					},
-					compress: {
-						warnings: false,
-						drop_console: true // eslint-disable-line camelcase
-					}
-				}
-			}
-		)
+		new TerserPlugin({
+			cache: true,
+			parallel: true,
+			sourceMap: true,
+		})
 	];
 
 	allPlugins.push(
@@ -162,7 +151,8 @@ module.exports = [
 		},
 
 		externals: {
-			jquery: 'jQuery'
+			jquery: 'jQuery',
+			esprima: 'esprima'
 		},
 
 		optimization: allOptimizations,

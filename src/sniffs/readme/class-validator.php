@@ -11,7 +11,7 @@ declare( strict_types=1 );
 
 namespace Theme_Sniffer\Sniffs\Readme;
 
-use Theme_Sniffer\Sniffs\Has_Results;
+use Theme_Sniffer\Sniffs\Validate_File;
 
 /**
  * Responsible for initiating validators.
@@ -20,7 +20,25 @@ use Theme_Sniffer\Sniffs\Has_Results;
  *
  * @since   1.1.0
  */
-class Validator implements Has_Results {
+class Validator extends Validate_File {
+
+	/**
+	 * Filename allowed.
+	 *
+	 * @var string $filename
+	 *
+	 * @since 1.1.0
+	 */
+	public $filename = 'readme';
+
+	/**
+	 * Extensions allowed.
+	 *
+	 * @var array $extensions
+	 *
+	 * @since 1.1.0
+	 */
+	public $extensions = [ 'txt', 'md' ];
 
 	/**
 	 * Sniff results for the readme.txt.
@@ -30,18 +48,6 @@ class Validator implements Has_Results {
 	 * @since 1.1.0
 	 */
 	public $results = [];
-
-	/**
-	 * Instantiate class and set class properties.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @param \Theme_Sniffer\Sniffs\Readme\Parser $parser Parser object.
-	 */
-	public function __construct( Parser $parser ) {
-		$this->parser = $this->set_defaults( $parser );
-		$this->validate( $parser );
-	}
 
 	/**
 	 * Set defaults that are necessary for any validators if needed.
@@ -66,10 +72,22 @@ class Validator implements Has_Results {
 	 *
 	 * @since 1.1.0
 	 *
-	 * @param Object $parser Populated parser object.
+	 * @param string $file file to validate.
 	 */
-	public function validate( $parser ) {
-		foreach ( $parser as $name => $args ) {
+	public function validate( $file ) {
+
+		// Validate file.
+		parent::validate( $file );
+
+		// No need to continue if file validation contains error for file not existing.
+		if ( ! empty( $this->results ) && in_array( 'error', array_column( $this->results, 'severity' ), true ) ) {
+			return;
+		}
+
+		$parser       = new Parser( $this->file );
+		$this->parser = $this->set_defaults( $parser );
+
+		foreach ( $this->parser as $name => $args ) {
 			$class = __NAMESPACE__ . '\\' . ucwords( $name, '_' );
 
 			if ( class_exists( $class ) ) {
@@ -81,16 +99,5 @@ class Validator implements Has_Results {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Return results from all validator parts ran.
-	 *
-	 * @since 1.1.0
-	 *
-	 * @return array $results Validator warnings/messages.
-	 */
-	public function get_results() {
-		return $this->results;
 	}
 }
